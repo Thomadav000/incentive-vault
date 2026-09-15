@@ -1,31 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import './HorseProfile.css';
 
 function HorseProfile() {
   const { id } = useParams();
   const [horse, setHorse] = useState(null);
+  const [programs, setPrograms] = useState({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const programLinks = {
+    'Future Fortunes': 'https://www.futurefortunesinc.com/foals/',
+    'Pink Buckle': 'https://pinkbuckle.com/nomination/2/2026-nomination-form',
+    'Ruby Buckle': 'https://therubybuckle.com/nomination/100/2026-nomination-form',
+    'Breeders Challenge': 'https://breederschallenge.com/search-nominations/',
+    'Select Stallion Stakes': 'https://www.selectstallionstakes.com/sssfoal'
+  };
+
   useEffect(() => {
-    const fetchHorse = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch horse
         const docRef = doc(db, 'horses', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setHorse({ id: docSnap.id, ...docSnap.data() });
         }
+
+        // Fetch all programs
+        const programsSnapshot = await getDocs(collection(db, 'programs'));
+        const programsMap = {};
+        programsSnapshot.forEach(doc => {
+          programsMap[doc.data().name] = doc.data();
+        });
+        setPrograms(programsMap);
       } catch (error) {
-        console.error('Error fetching horse:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchHorse();
+    fetchData();
   }, [id]);
+
+  const handleVisitWebsite = (programName) => {
+    const link = programLinks[programName];
+    if (link) {
+      window.open(link, '_blank');
+    }
+  };
+
+  const handleMarkAsPaid = (programName) => {
+    alert(`Marked ${programName} as paid!`);
+    // TODO: Save to database
+  };
 
   if (loading) return <div className="horse-profile">Loading...</div>;
   if (!horse) return <div className="horse-profile">Horse not found</div>;
@@ -54,8 +84,8 @@ function HorseProfile() {
                 <div key={program} className="program-item">
                   <h3>{program}</h3>
                   <div className="program-actions">
-                    <button className="btn-secondary">Visit Website</button>
-                    <button className="btn-status">Mark as Paid</button>
+                    <button onClick={() => handleVisitWebsite(program)} className="btn-secondary">Visit Website</button>
+                    <button onClick={() => handleMarkAsPaid(program)} className="btn-status">Mark as Paid</button>
                   </div>
                 </div>
               ))}
