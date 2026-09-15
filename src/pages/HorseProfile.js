@@ -57,7 +57,7 @@ function HorseProfile() {
                 <div key={program} className="program-item">
                   <h3>{program}</h3>
                   <div className="program-actions">
-                    <a href="javascript:void(0)"
+                    <a href="javascript:void(0)">
                     <button className="btn-status">Mark as Paid</button>
                   </div>
                 </div>
