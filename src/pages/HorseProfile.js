@@ -24,7 +24,6 @@ function HorseProfile() {
         setLoading(false);
       }
     };
-
     fetchHorse();
   }, [id]);
 
@@ -35,7 +34,6 @@ function HorseProfile() {
     <div className="horse-profile">
       <div className="horse-profile-container">
         <button onClick={() => navigate('/dashboard')} className="btn-back">← Back to Barn</button>
-
         <div className="horse-header">
           {horse.photo && <img src={horse.photo} alt={horse.name} />}
           <div className="horse-header-info">
@@ -48,7 +46,6 @@ function HorseProfile() {
             </div>
           </div>
         </div>
-
         {horse.programs && horse.programs.length > 0 && (
           <section className="programs-section">
             <h2>Enrolled Programs</h2>
@@ -57,7 +54,7 @@ function HorseProfile() {
                 <div key={program} className="program-item">
                   <h3>{program}</h3>
                   <div className="program-actions">
-                    <a href="javascript:void(0)" className="btn-secondary">Visit Website →</a>
+                    <button className="btn-secondary">Visit Website</button>
                     <button className="btn-status">Mark as Paid</button>
                   </div>
                 </div>
@@ -65,7 +62,6 @@ function HorseProfile() {
             </div>
           </section>
         )}
-
         {horse.notes && (
           <section className="notes-section">
             <h2>Notes</h2>
