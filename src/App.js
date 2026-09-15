@@ -1,0 +1,65 @@
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
+// Pages
+import HomePage from './pages/HomePage';
+import Dashboard from './pages/Dashboard';
+import HorseProfile from './pages/HorseProfile';
+import CalendarView from './pages/CalendarView';
+import AdminPanel from './pages/AdminPanel';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import AddHorse from './pages/AddHorse';
+
+// Navigation
+import Navigation from './components/Navigation';
+
+function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      {currentUser && <Navigation />}
+      <Routes>
+        <Route path="/" element={currentUser ? <Dashboard /> : <HomePage />} />
+        <Route path="/login" element={currentUser ? <Navigate to="/dashboard" /> : <Login />} />
+        <Route path="/signup" element={currentUser ? <Navigate to="/dashboard" /> : <SignUp />} />
+        
+        {/* Protected Routes */}
+        {currentUser ? (
+          <>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/horse/:id" element={<HorseProfile />} />
+            <Route path="/add-horse" element={<AddHorse />} />
+            <Route path="/calendar" element={<CalendarView />} />
+            <Route path="/admin" element={<AdminPanel />} />
+          </>
+        ) : (
+          <Route path="*" element={<Navigate to="/" />} />
+        )}
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
