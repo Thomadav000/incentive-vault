@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import './HorseProfile.css';
 
 function HorseProfile() {
   const { id } = useParams();
   const [horse, setHorse] = useState(null);
-  const [programs, setPrograms] = useState({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -20,29 +19,20 @@ function HorseProfile() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchHorse = async () => {
       try {
-        // Fetch horse
         const docRef = doc(db, 'horses', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setHorse({ id: docSnap.id, ...docSnap.data() });
         }
-
-        // Fetch all programs
-        const programsSnapshot = await getDocs(collection(db, 'programs'));
-        const programsMap = {};
-        programsSnapshot.forEach(doc => {
-          programsMap[doc.data().name] = doc.data();
-        });
-        setPrograms(programsMap);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching horse:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+    fetchHorse();
   }, [id]);
 
   const handleVisitWebsite = (programName) => {
@@ -54,7 +44,6 @@ function HorseProfile() {
 
   const handleMarkAsPaid = (programName) => {
     alert(`Marked ${programName} as paid!`);
-    // TODO: Save to database
   };
 
   if (loading) return <div className="horse-profile">Loading...</div>;
@@ -64,6 +53,7 @@ function HorseProfile() {
     <div className="horse-profile">
       <div className="horse-profile-container">
         <button onClick={() => navigate('/dashboard')} className="btn-back">← Back to Barn</button>
+
         <div className="horse-header">
           {horse.photo && <img src={horse.photo} alt={horse.name} />}
           <div className="horse-header-info">
@@ -76,6 +66,7 @@ function HorseProfile() {
             </div>
           </div>
         </div>
+
         {horse.programs && horse.programs.length > 0 && (
           <section className="programs-section">
             <h2>Enrolled Programs</h2>
@@ -92,6 +83,7 @@ function HorseProfile() {
             </div>
           </section>
         )}
+
         {horse.notes && (
           <section className="notes-section">
             <h2>Notes</h2>
