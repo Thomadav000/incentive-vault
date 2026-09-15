@@ -4,12 +4,12 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC5iGbi8e9EgMIXv9vzAgTnyzuiQvarkkw",
-  authDomain: "incentive-vault.firebaseapp.com",
-  projectId: "incentive-vault",
-  storageBucket: "incentive-vault.firebasestorage.app",
-  messagingSenderId: "186640064022",
-  appId: "1:186640064022:web:338b48890c93747d049f37",
+  apiKey: "AIzaSyBPCvv4m-ZNLEz0Y_s0u9QleQimUCS_CUY",
+  authDomain: "incentive-vault-2.firebaseapp.com",
+  projectId: "incentive-vault-2",
+  storageBucket: "incentive-vault-2.firebasestorage.app",
+  messagingSenderId: "462037126432",
+  appId: "1:462037126432:web:dc4f244a246986e499b45",
 };
 
 // Initialize Firebase
