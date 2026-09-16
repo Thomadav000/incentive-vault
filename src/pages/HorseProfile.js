@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
 import './HorseProfile.css';
 
 function HorseProfile() {
   const { id } = useParams();
   const [horse, setHorse] = useState(null);
+  const [programs, setPrograms] = useState({});
+  const [programPaidStatus, setProgramPaidStatus] = useState({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -19,20 +21,35 @@ function HorseProfile() {
   };
 
   useEffect(() => {
-    const fetchHorse = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch horse data
         const docRef = doc(db, 'horses', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setHorse({ id: docSnap.id, ...docSnap.data() });
+          const horseData = { id: docSnap.id, ...docSnap.data() };
+          setHorse(horseData);
+          
+          // Load paid status from horse data
+          if (horseData.programsPaid) {
+            setProgramPaidStatus(horseData.programsPaid);
+          }
         }
+
+        // Fetch all programs for deadlines
+        const programsSnapshot = await getDocs(collection(db, 'programs'));
+        const programsMap = {};
+        programsSnapshot.forEach(doc => {
+          programsMap[doc.data().name] = doc.data();
+        });
+        setPrograms(programsMap);
       } catch (error) {
-        console.error('Error fetching horse:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchHorse();
+    fetchData();
   }, [id]);
 
   const handleVisitWebsite = (programName) => {
@@ -42,8 +59,34 @@ function HorseProfile() {
     }
   };
 
-  const handleMarkAsPaid = (programName) => {
-    alert(`Marked ${programName} as paid!`);
+  const handleMarkAsPaid = async (programName) => {
+    try {
+      const newPaidStatus = !programPaidStatus[programName];
+      const updatedStatus = {
+        ...programPaidStatus,
+        [programName]: newPaidStatus
+      };
+
+      // Update in Firestore
+      const horseRef = doc(db, 'horses', id);
+      await updateDoc(horseRef, {
+        programsPaid: updatedStatus
+      });
+
+      // Update local state
+      setProgramPaidStatus(updatedStatus);
+    } catch (error) {
+      console.error('Error updating paid status:', error);
+    }
+  };
+
+  const getDeadline = (programName) => {
+    const program = programs[programName];
+    return program ? program.deadline : 'TBD';
+  };
+
+  const isPaid = (programName) => {
+    return programPaidStatus[programName] || false;
   };
 
   if (loading) return <div className="horse-profile">Loading...</div>;
@@ -72,11 +115,22 @@ function HorseProfile() {
             <h2>Enrolled Programs</h2>
             <div className="programs-list">
               {horse.programs.map(program => (
-                <div key={program} className="program-item">
-                  <h3>{program}</h3>
+                <div key={program} className={`program-item ${isPaid(program) ? 'paid' : 'unpaid'}`}>
+                  <div className="program-header">
+                    <h3>{program}</h3>
+                    <span className={`status-badge ${isPaid(program) ? 'paid-badge' : 'unpaid-badge'}`}>
+                      {isPaid(program) ? '✓ Paid' : 'Action Needed'}
+                    </span>
+                  </div>
+                  <p className="program-deadline">Next Payment Due: {getDeadline(program)}</p>
                   <div className="program-actions">
                     <button onClick={() => handleVisitWebsite(program)} className="btn-secondary">Visit Website</button>
-                    <button onClick={() => handleMarkAsPaid(program)} className="btn-status">Mark as Paid</button>
+                    <button 
+                      onClick={() => handleMarkAsPaid(program)} 
+                      className={`btn-status ${isPaid(program) ? 'btn-paid' : 'btn-unpaid'}`}
+                    >
+                      {isPaid(program) ? '✓ Mark as Unpaid' : 'Mark as Paid'}
+                    </button>
                   </div>
                 </div>
               ))}
