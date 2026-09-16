@@ -1,8 +1,84 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import './HomePage.css';
 
 function HomePage() {
+  const [user, setUser] = useState(null);
+  const [userName, setUserName] = useState('');
+  const [horseCount, setHorseCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        
+        try {
+          // Fetch user's name from Firestore
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            setUserName(userDocSnap.data().name);
+          }
+
+          // Fetch user's horses
+          const horsesRef = collection(db, 'horses');
+          const q = query(horsesRef, where('userId', '==', currentUser.uid));
+          const querySnapshot = await getDocs(q);
+          setHorseCount(querySnapshot.size);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      } else {
+        setUser(null);
+        setUserName('');
+        setHorseCount(0);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div className="home-page">Loading...</div>;
+  }
+
+  // LOGGED IN VIEW
+  if (user) {
+    return (
+      <div className="home-page">
+        <header className="home-header">
+          <div className="header-content">
+            <div className="header-logo">
+              <span className="logo-icon">🏇</span>
+              <h1>Incentive Vault</h1>
+            </div>
+          </div>
+        </header>
+
+        <section className="hero">
+          <div className="container">
+            <h2>Welcome back, {userName}!</h2>
+            <p>You have {horseCount} horse{horseCount !== 1 ? 's' : ''} in your barn</p>
+            <button onClick={() => navigate('/dashboard')} className="btn-cta">Go to Your Barn</button>
+          </div>
+        </section>
+
+        <footer className="footer">
+          <div className="container">
+            <p>&copy; 2026 Incentive Vault. All rights reserved.</p>
+            <button onClick={() => auth.signOut()} className="btn-link">Sign Out</button>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // NOT LOGGED IN VIEW (original homepage)
   return (
     <div className="home-page">
       {/* Header */}
