@@ -37,7 +37,7 @@ function SignUp() {
         subscription: 'free',
       });
 
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message || 'Failed to create account');
     } finally {
