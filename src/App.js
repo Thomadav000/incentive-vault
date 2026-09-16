@@ -41,9 +41,9 @@ function App() {
     <Router>
       {currentUser && <Navigation />}
       <Routes>
-        <Route path="/" element={currentUser ? <Dashboard /> : <HomePage />} />
-        <Route path="/login" element={currentUser ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/signup" element={currentUser ? <Navigate to="/dashboard" /> : <SignUp />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={currentUser ? <Navigate to="/" /> : <Login />} />
+        <Route path="/signup" element={currentUser ? <Navigate to="/" /> : <SignUp />} />
         
         {/* Protected Routes */}
         {currentUser ? (
