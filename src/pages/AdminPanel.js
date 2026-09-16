@@ -5,7 +5,6 @@ import { doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc } from '
 import './AdminPanel.css';
 
 function AdminPanel() {
-  const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +32,6 @@ function AdminPanel() {
           navigate('/admin-login');
           return;
         }
-
-        setUser(currentUser);
 
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
@@ -362,142 +359,4 @@ function AdminPanel() {
                       >
                         Edit
                       </button>
-                      <button 
-                        onClick={() => handleDeleteProgram(program.id)} 
-                        className="btn-delete"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Edit Form Modal */}
-        {editingId && (
-          <div className="edit-modal">
-            <div className="edit-form-box">
-              <h2>Edit Program</h2>
-              <form onSubmit={(e) => { e.preventDefault(); handleEditProgram(editingId); }} className="program-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Program Name *</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Website *</label>
-                    <input
-                      type="text"
-                      value={formData.website}
-                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Deadline *</label>
-                    <input
-                      type="text"
-                      value={formData.deadline}
-                      onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Program Type *</label>
-                    <select
-                      value={formData.type}
-                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                      required
-                    >
-                      <option value="Annual">Annual (Renewable)</option>
-                      <option value="One-Time">One-Time (Paid for Life)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-section-header">
-                  <h3>Enrollment Fees by Age</h3>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Weanling Fee</label>
-                    <input
-                      type="text"
-                      value={formData.feeWeanling}
-                      onChange={(e) => setFormData({ ...formData, feeWeanling: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Yearling Fee</label>
-                    <input
-                      type="text"
-                      value={formData.feeYearling}
-                      onChange={(e) => setFormData({ ...formData, feeYearling: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>2-Year-Old Fee</label>
-                    <input
-                      type="text"
-                      value={formData.fee2yo}
-                      onChange={(e) => setFormData({ ...formData, fee2yo: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>3-Year-Old Fee</label>
-                    <input
-                      type="text"
-                      value={formData.fee3yo}
-                      onChange={(e) => setFormData({ ...formData, fee3yo: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>4+ Years Old Fee</label>
-                    <input
-                      type="text"
-                      value={formData.fee4plus}
-                      onChange={(e) => setFormData({ ...formData, fee4plus: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Notes</label>
-                    <input
-                      type="text"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button type="submit" className="btn-submit">Save Changes</button>
-                  <button type="button" onClick={cancelEdit} className="btn-cancel">Cancel</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default AdminPanel;
+                      <button
