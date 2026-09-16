@@ -58,7 +58,7 @@ function HomePage() {
             }
           });
 
-          // Sort by deadline (simple sort - you may want to improve this)
+          // Sort by deadline
           deadlines.sort((a, b) => {
             const monthOrder = {
               'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5,
@@ -93,10 +93,14 @@ function HomePage() {
   // LOGGED IN VIEW - DASHBOARD
   if (user) {
     return (
-      <div className="home-page">
+      <div className="home-page dashboard-page">
         <header className="home-header">
           <div className="header-content">
-            <div className="header-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <div 
+              className="header-logo" 
+              onClick={() => navigate('/')} 
+              style={{ cursor: 'pointer' }}
+            >
               <span className="logo-icon">🏇</span>
               <h1>Incentive Vault</h1>
             </div>
@@ -106,62 +110,100 @@ function HomePage() {
         <section className="dashboard-hero">
           <div className="container">
             <h2>Welcome back, {userName}!</h2>
-            <p>You have {horses.length} horse{horses.length !== 1 ? 's' : ''} tracked across {upcomingDeadlines.length} programs</p>
+            <p>{horses.length} horse{horses.length !== 1 ? 's' : ''} • {upcomingDeadlines.length} upcoming deadlines</p>
           </div>
         </section>
 
-        <section className="dashboard-content">
+        <section className="dashboard-container">
           <div className="container">
-            {/* Upcoming Deadlines */}
-            <div className="dashboard-section">
-              <h3>📅 Next Upcoming Deadlines</h3>
-              {upcomingDeadlines.length > 0 ? (
-                <div className="deadlines-list">
-                  {upcomingDeadlines.map((deadline, index) => (
-                    <div key={index} className="deadline-item">
-                      <div className="deadline-info">
-                        <p className="deadline-horse">{deadline.horseName}</p>
-                        <p className="deadline-program">{deadline.programName}</p>
+            <div className="dashboard-grid">
+              {/* Upcoming Deadlines Column */}
+              <div className="dashboard-column deadlines-column">
+                <h3>📅 Next Deadlines</h3>
+                {upcomingDeadlines.length > 0 ? (
+                  <div className="cards-stack">
+                    {upcomingDeadlines.map((deadline, index) => (
+                      <div key={index} className="compact-card deadline-card">
+                        <div className="card-header">{deadline.programName}</div>
+                        <div className="card-body">
+                          <p className="card-horse">{deadline.horseName}</p>
+                          <p className="card-date">{deadline.deadline}</p>
+                        </div>
                       </div>
-                      <div className="deadline-date">{deadline.deadline}</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="no-data">No upcoming deadlines</p>
-              )}
-            </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-state">No upcoming deadlines</p>
+                )}
+              </div>
 
-            {/* Your Horses */}
-            <div className="dashboard-section">
-              <h3>🐴 Your Horses</h3>
-              {horses.length > 0 ? (
-                <div className="horses-list">
-                  {horses.map(horse => (
-                    <div 
-                      key={horse.id} 
-                      className="horse-card"
-                      onClick={() => navigate(`/horse/${horse.id}`)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <h4>{horse.name}</h4>
-                      <p>{horse.color} • {horse.age} years old</p>
-                      <p className="horse-programs">{horse.programs ? horse.programs.length : 0} programs</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="no-data">No horses yet. <Link to="/add-horse">Add one now!</Link></p>
-              )}
-            </div>
+              {/* Horses Column */}
+              <div className="dashboard-column horses-column">
+                <h3>🐴 Your Horses</h3>
+                {horses.length > 0 ? (
+                  <div className="cards-stack">
+                    {horses.map(horse => (
+                      <div 
+                        key={horse.id} 
+                        className="compact-card horse-card"
+                        onClick={() => navigate(`/horse/${horse.id}`)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="card-header">{horse.name}</div>
+                        <div className="card-body">
+                          <p className="card-detail">{horse.color}</p>
+                          <p className="card-detail">{horse.age} years old</p>
+                          <p className="card-programs">{horse.programs ? horse.programs.length : 0} programs</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <p>No horses yet</p>
+                    <Link to="/add-horse" className="link-action">Add one →</Link>
+                  </div>
+                )}
+              </div>
 
-            {/* Quick Actions */}
-            <div className="dashboard-section">
-              <h3>⚡ Quick Actions</h3>
-              <div className="quick-actions">
-                <button onClick={() => navigate('/add-horse')} className="btn-action">+ Add Horse</button>
-                <button onClick={() => navigate('/dashboard')} className="btn-action">View Full Barn</button>
-                <button onClick={() => navigate('/calendar')} className="btn-action">📅 Calendar</button>
+              {/* Actions Column */}
+              <div className="dashboard-column actions-column">
+                <h3>⚡ Quick Actions</h3>
+                <div className="action-buttons">
+                  <button 
+                    onClick={() => navigate('/add-horse')} 
+                    className="action-btn"
+                  >
+                    <span className="action-icon">➕</span>
+                    <span>Add Horse</span>
+                  </button>
+                  <button 
+                    onClick={() => navigate('/dashboard')} 
+                    className="action-btn"
+                  >
+                    <span className="action-icon">🏚️</span>
+                    <span>Full Barn</span>
+                  </button>
+                  <button 
+                    onClick={() => navigate('/calendar')} 
+                    className="action-btn"
+                  >
+                    <span className="action-icon">📅</span>
+                    <span>Calendar</span>
+                  </button>
+                </div>
+
+                <div className="stats-section">
+                  <h4>Stats</h4>
+                  <div className="stat-item">
+                    <span className="stat-label">Total Horses</span>
+                    <span className="stat-value">{horses.length}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Programs Tracked</span>
+                    <span className="stat-value">{upcomingDeadlines.length}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -180,7 +222,6 @@ function HomePage() {
   // NOT LOGGED IN VIEW (original homepage)
   return (
     <div className="home-page">
-      {/* Header */}
       <header className="home-header">
         <div className="header-content">
           <div className="header-logo">
@@ -194,7 +235,6 @@ function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="hero">
         <div className="container">
           <h2>Never Miss an Incentive Deadline Again</h2>
@@ -203,7 +243,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="features">
         <div className="container">
           <h3>Why Incentive Vault?</h3>
@@ -239,10 +278,8 @@ function HomePage() {
               <p>Upload and store registration papers, pedigrees, and payment proofs</p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Pricing Section */}
       <section className="pricing">
         <div className="container">
           <h3>Simple, Transparent Pricing</h3>
@@ -291,7 +328,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="cta-section">
         <div className="container">
           <h3>Ready to take control of your barrel racing incentives?</h3>
@@ -299,7 +335,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="footer">
         <div className="container">
           <p>&copy; 2026 Incentive Vault. All rights reserved.</p>
