@@ -20,12 +20,15 @@ function Navigation() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/dashboard" className="navbar-logo">
+        <Link to="/" className="navbar-logo">
           <span className="logo-icon">🏇</span>
           Incentive Vault
         </Link>
 
         <div className={`nav-menu ${showMenu ? 'active' : ''}`}>
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
           <Link to="/dashboard" className="nav-link">
             Your Barn
           </Link>
