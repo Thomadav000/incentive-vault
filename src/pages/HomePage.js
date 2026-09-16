@@ -278,7 +278,8 @@ function HomePage() {
               <p>Upload and store registration papers, pedigrees, and payment proofs</p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
       <section className="pricing">
         <div className="container">
