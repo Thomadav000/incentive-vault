@@ -1,9 +1,11 @@
+
+Adminpanel complete · JS
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import './AdminPanel.css';
-
+ 
 function AdminPanel() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [programs, setPrograms] = useState([]);
@@ -23,7 +25,7 @@ function AdminPanel() {
     notes: ''
   });
   const navigate = useNavigate();
-
+ 
   useEffect(() => {
     const checkAdminAccess = async () => {
       try {
@@ -32,7 +34,7 @@ function AdminPanel() {
           navigate('/admin-login');
           return;
         }
-
+ 
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         
@@ -40,10 +42,9 @@ function AdminPanel() {
           navigate('/');
           return;
         }
-
+ 
         setIsAdmin(true);
-
-        // Fetch programs
+ 
         const programsSnapshot = await getDocs(collection(db, 'programs'));
         const programsList = programsSnapshot.docs.map(doc => ({
           id: doc.id,
@@ -57,10 +58,10 @@ function AdminPanel() {
         setLoading(false);
       }
     };
-
+ 
     checkAdminAccess();
   }, [navigate]);
-
+ 
   const resetForm = () => {
     setFormData({
       name: '',
@@ -75,14 +76,14 @@ function AdminPanel() {
       notes: ''
     });
   };
-
+ 
   const handleAddProgram = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.website || !formData.deadline) {
       alert('Please fill in name, website, and deadline');
       return;
     }
-
+ 
     try {
       const newProgram = await addDoc(collection(db, 'programs'), {
         name: formData.name,
@@ -96,7 +97,7 @@ function AdminPanel() {
         fee4plus: formData.fee4plus || 'N/A',
         notes: formData.notes || ''
       });
-
+ 
       setPrograms([...programs, { id: newProgram.id, ...formData }]);
       resetForm();
       setShowAddForm(false);
@@ -105,13 +106,13 @@ function AdminPanel() {
       alert('Failed to add program');
     }
   };
-
+ 
   const handleEditProgram = async (id) => {
     if (!formData.name || !formData.website || !formData.deadline) {
       alert('Please fill in name, website, and deadline');
       return;
     }
-
+ 
     try {
       const programRef = doc(db, 'programs', id);
       await updateDoc(programRef, {
@@ -126,7 +127,7 @@ function AdminPanel() {
         fee4plus: formData.fee4plus || 'N/A',
         notes: formData.notes || ''
       });
-
+ 
       setPrograms(programs.map(p => 
         p.id === id ? { id, ...formData } : p
       ));
@@ -137,12 +138,12 @@ function AdminPanel() {
       alert('Failed to update program');
     }
   };
-
+ 
   const handleDeleteProgram = async (id) => {
     if (!window.confirm('Are you sure you want to delete this program?')) {
       return;
     }
-
+ 
     try {
       await deleteDoc(doc(db, 'programs', id));
       setPrograms(programs.filter(p => p.id !== id));
@@ -151,7 +152,7 @@ function AdminPanel() {
       alert('Failed to delete program');
     }
   };
-
+ 
   const startEdit = (program) => {
     setEditingId(program.id);
     setFormData({
@@ -167,26 +168,25 @@ function AdminPanel() {
       notes: program.notes || ''
     });
   };
-
+ 
   const cancelEdit = () => {
     setEditingId(null);
     resetForm();
   };
-
+ 
   if (loading) {
     return <div className="admin-panel">Loading...</div>;
   }
-
+ 
   if (!isAdmin) {
     return <div className="admin-panel">Access denied. Redirecting...</div>;
   }
-
+ 
   return (
     <div className="admin-panel">
       <div className="admin-container">
         <h1>Admin Panel - Manage Programs</h1>
-
-        {/* Add Program Form */}
+ 
         <section className="add-program-section">
           <button 
             onClick={() => setShowAddForm(!showAddForm)} 
@@ -194,7 +194,7 @@ function AdminPanel() {
           >
             {showAddForm ? '− Hide Form' : '+ Add New Program'}
           </button>
-
+ 
           {showAddForm && (
             <form onSubmit={handleAddProgram} className="program-form">
               <div className="form-row">
@@ -219,7 +219,7 @@ function AdminPanel() {
                   />
                 </div>
               </div>
-
+ 
               <div className="form-row">
                 <div className="form-group">
                   <label>Deadline *</label>
@@ -243,11 +243,11 @@ function AdminPanel() {
                   </select>
                 </div>
               </div>
-
+ 
               <div className="form-section-header">
                 <h3>Enrollment Fees by Age</h3>
               </div>
-
+ 
               <div className="form-row">
                 <div className="form-group">
                   <label>Weanling Fee</label>
@@ -268,7 +268,7 @@ function AdminPanel() {
                   />
                 </div>
               </div>
-
+ 
               <div className="form-row">
                 <div className="form-group">
                   <label>2-Year-Old Fee</label>
@@ -289,7 +289,7 @@ function AdminPanel() {
                   />
                 </div>
               </div>
-
+ 
               <div className="form-row">
                 <div className="form-group">
                   <label>4+ Years Old Fee</label>
@@ -310,7 +310,7 @@ function AdminPanel() {
                   />
                 </div>
               </div>
-
+ 
               <div className="form-actions">
                 <button type="submit" className="btn-submit">Add Program</button>
                 <button type="button" onClick={() => { setShowAddForm(false); resetForm(); }} className="btn-cancel">Cancel</button>
@@ -318,8 +318,7 @@ function AdminPanel() {
             </form>
           )}
         </section>
-
-        {/* Programs Table */}
+ 
         <section className="programs-section">
           <h2>All Programs</h2>
           <div className="table-wrapper">
@@ -359,4 +358,162 @@ function AdminPanel() {
                       >
                         Edit
                       </button>
-                      <button
+                      <button 
+                        onClick={() => handleDeleteProgram(program.id)} 
+                        className="btn-delete"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+ 
+        {editingId && (
+          <div className="edit-modal">
+            <div className="edit-form-box">
+              <h2>Edit Program</h2>
+              <form onSubmit={(e) => { e.preventDefault(); handleEditProgram(editingId); }} className="program-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Program Name *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Website *</label>
+                    <input
+                      type="text"
+                      value={formData.website}
+                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+ 
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Deadline *</label>
+                    <input
+                      type="text"
+                      value={formData.deadline}
+                      onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Program Type *</label>
+                    <select
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      required
+                    >
+                      <option value="Annual">Annual (Renewable)</option>
+                      <option value="One-Time">One-Time (Paid for Life)</option>
+                    </select>
+                  </div>
+                </div>
+ 
+                <div className="form-section-header">
+                  <h3>Enrollment Fees by Age</h3>
+                </div>
+ 
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Weanling Fee</label>
+                    <input
+                      type="text"
+                      value={formData.feeWeanling}
+                      onChange={(e) => setFormData({ ...formData, feeWeanling: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Yearling Fee</label>
+                    <input
+                      type="text"
+                      value={formData.feeYearling}
+                      onChange={(e) => setFormData({ ...formData, feeYearling: e.target.value })}
+                    />
+                  </div>
+                </div>
+ 
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>2-Year-Old Fee</label>
+                    <input
+                      type="text"
+                      value={formData.fee2yo}
+                      onChange={(e) => setFormData({ ...formData, fee2yo: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>3-Year-Old Fee</label>
+                    <input
+                      type="text"
+                      value={formData.fee3yo}
+                      onChange={(e) => setFormData({ ...formData, fee3yo: e.target.value })}
+                    />
+                  </div>
+                </div>
+ 
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>4+ Years Old Fee</label>
+                    <input
+                      type="text"
+                      value={formData.fee4plus}
+                      onChange={(e) => setFormData({ ...formData, fee4plus: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Notes</label>
+                    <input
+                      type="text"
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    />
+                  </div>
+                </div>
+ 
+                <div className="form-actions">
+                  <button type="submit" className="btn-submit">Save Changes</button>
+                  <button type="button" onClick={cancelEdit} className="btn-cancel">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+ 
+export default AdminPanel;
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
