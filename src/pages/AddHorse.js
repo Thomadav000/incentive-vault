@@ -1,247 +1,217 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db, auth, storage } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './AddHorse.css';
 
 function AddHorse() {
-  const [formData, setFormData] = useState({
-    name: '',
-    sire: '',
-    registrationNumber: '',
-    age: '',
-    sex: '',
-    color: '',
-    foalingYear: '',
-    notes: '',
-    programs: [],
-  });
-  const [photo, setPhoto] = useState(null);
-  const [verified, setVerified] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
+  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [sire, setSire] = useState('');
+  const [color, setColor] = useState('');
+  const [foalingYear, setFoalingYear] = useState('');
+  const [calculatedAge, setCalculatedAge] = useState(null);
+  const [programs, setPrograms] = useState({});
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const programs = ['Future Fortunes', 'Pink Buckle', 'Ruby Buckle', 'Breeders Challenge', 'Select Stallion Stakes'];
+  const currentYear = 2026;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handlePhotoChange = (e) => {
-    if (e.target.files[0]) {
-      setPhoto(e.target.files[0]);
+  const handleFoalingYearChange = (e) => {
+    const year = parseInt(e.target.value);
+    setFoalingYear(e.target.value);
+    
+    if (year && year > 0 && year <= currentYear) {
+      const age = currentYear - year;
+      setCalculatedAge(age);
+    } else {
+      setCalculatedAge(null);
     }
   };
 
-  const handleProgramToggle = (program) => {
-    setFormData(prev => ({
+  const handleProgramChange = (programName) => {
+    setPrograms(prev => ({
       ...prev,
-      programs: prev.programs.includes(program)
-        ? prev.programs.filter(p => p !== program)
-        : [...prev.programs, program]
+      [programName]: !prev[programName]
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleAddHorse = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!name || !sire || !color || !foalingYear || calculatedAge === null) {
+      setError('Please fill in all fields');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      let photoURL = null;
-      if (photo) {
-        const photoRef = ref(storage, `horses/${auth.currentUser.uid}/${photo.name}`);
-        await uploadBytes(photoRef, photo);
-        photoURL = await getDownloadURL(photoRef);
-      }
+      const selectedPrograms = Object.keys(programs).filter(program => programs[program]);
 
-      await addDoc(collection(db, 'horses'), {
-        ...formData,
-        photo: photoURL,
+      const horseData = {
+        name,
+        registrationNumber,
+        sire,
+        color,
+        foalingYear: parseInt(foalingYear),
+        age: calculatedAge,
+        programs: selectedPrograms,
         userId: auth.currentUser.uid,
-        createdAt: new Date(),
-      });
+        createdAt: serverTimestamp()
+      };
 
+      await addDoc(collection(db, 'horses'), horseData);
       navigate('/dashboard');
     } catch (err) {
-      setError('Error adding horse: ' + err.message);
+      setError(err.message || 'Failed to add horse');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="add-horse-page">
-      <div className="add-horse-container">
-        <h1>Add a New Horse</h1>
-        
+    <div className="add-horse-container">
+      <div className="add-horse-box">
+        <h1>Add a Horse</h1>
+
         {error && <div className="error-message">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="add-horse-form">
-          {/* Step 1: Search & Verify */}
+        <form onSubmit={handleAddHorse}>
+          {/* Step 1: Basic Info */}
           <div className="form-section">
-            <h2>1. Search & Verify Horse</h2>
+            <h2>1. Basic Information</h2>
             
             <div className="form-group">
               <label>Horse Name *</label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="e.g., Aint Bubblin Yet"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Aint Bubbon Yet"
                 required
               />
             </div>
 
-            <div className="verification-box">
-              <h3>Verify on AQHA</h3>
-              <p>Visit AQHA's official pedigree database to verify registration details, sire, and full bloodline.</p>
-              <a href="https://www.aqha.com/" target="_blank" rel="noopener noreferrer" className="btn-verify">
-                🔗 Open AQHA Pedigree Search
-              </a>
-              <label className="checkbox-group">
-                <input
-                  type="checkbox"
-                  checked={verified}
-                  onChange={(e) => setVerified(e.target.checked)}
-                />
-                I've verified this horse on AQHA
-              </label>
-            </div>
-
-            {verified && <div className="verified-badge">✓ Verified</div>}
-          </div>
-
-          {/* Step 2: Horse Info */}
-          <div className="form-section">
-            <h2>2. Horse Information</h2>
-            
-            <div className="form-group">
-              <label>Registration Number</label>
-              <input
-                type="text"
-                name="registrationNumber"
-                value={formData.registrationNumber}
-                onChange={handleChange}
-                placeholder="AQHA #"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Sire (Stallion)</label>
-              <input
-                type="text"
-                name="sire"
-                value={formData.sire}
-                onChange={handleChange}
-                placeholder="e.g., Slick By Design"
-              />
-            </div>
-
             <div className="form-row">
               <div className="form-group">
-                <label>Age</label>
-                <input
-                  type="number"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleChange}
-                  placeholder="3"
-                />
-              </div>
-              <div className="form-group">
-                <label>Sex</label>
-                <select name="sex" value={formData.sex} onChange={handleChange}>
-                  <option value="">Select...</option>
-                  <option value="Mare">Mare</option>
-                  <option value="Gelding">Gelding</option>
-                  <option value="Stallion">Stallion</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Color</label>
+                <label>Registration Number</label>
                 <input
                   type="text"
-                  name="color"
-                  value={formData.color}
-                  onChange={handleChange}
-                  placeholder="e.g., Bay"
+                  value={registrationNumber}
+                  onChange={(e) => setRegistrationNumber(e.target.value)}
+                  placeholder="e.g., 6350381"
                 />
               </div>
               <div className="form-group">
-                <label>Foaling Year</label>
+                <label>Sire (Father) *</label>
                 <input
-                  type="number"
-                  name="foalingYear"
-                  value={formData.foalingYear}
-                  onChange={handleChange}
-                  placeholder="2021"
+                  type="text"
+                  value={sire}
+                  onChange={(e) => setSire(e.target.value)}
+                  placeholder="e.g., Aint Seen Nothin Yet"
+                  required
                 />
               </div>
             </div>
           </div>
 
-          {/* Step 3: Programs */}
+          {/* Step 2: Appearance */}
+          <div className="form-section">
+            <h2>2. Appearance & Age</h2>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Color *</label>
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  placeholder="e.g., Palomino"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Foaling Year *</label>
+                <input
+                  type="number"
+                  value={foalingYear}
+                  onChange={handleFoalingYearChange}
+                  placeholder="e.g., 2022"
+                  min="1900"
+                  max={currentYear}
+                  required
+                />
+              </div>
+            </div>
+
+            {calculatedAge !== null && (
+              <div className="calculated-age">
+                <p><strong>Age: {calculatedAge} years old</strong></p>
+              </div>
+            )}
+          </div>
+
+          {/* Step 3: Incentive Programs */}
           <div className="form-section">
             <h2>3. Incentive Programs</h2>
             <p>Select which programs you're enrolling in:</p>
+
             <div className="programs-grid">
-              {programs.map(program => (
-                <label key={program} className="program-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={formData.programs.includes(program)}
-                    onChange={() => handleProgramToggle(program)}
-                  />
-                  {program}
-                </label>
-              ))}
+              <label className="program-checkbox">
+                <input
+                  type="checkbox"
+                  checked={programs['Future Fortunes'] || false}
+                  onChange={() => handleProgramChange('Future Fortunes')}
+                />
+                <span>Future Fortunes</span>
+              </label>
+              <label className="program-checkbox">
+                <input
+                  type="checkbox"
+                  checked={programs['Pink Buckle'] || false}
+                  onChange={() => handleProgramChange('Pink Buckle')}
+                />
+                <span>Pink Buckle</span>
+              </label>
+              <label className="program-checkbox">
+                <input
+                  type="checkbox"
+                  checked={programs['Ruby Buckle'] || false}
+                  onChange={() => handleProgramChange('Ruby Buckle')}
+                />
+                <span>Ruby Buckle</span>
+              </label>
+              <label className="program-checkbox">
+                <input
+                  type="checkbox"
+                  checked={programs['Breeders Challenge'] || false}
+                  onChange={() => handleProgramChange('Breeders Challenge')}
+                />
+                <span>Breeders Challenge</span>
+              </label>
+              <label className="program-checkbox">
+                <input
+                  type="checkbox"
+                  checked={programs['Select Stallion Stakes'] || false}
+                  onChange={() => handleProgramChange('Select Stallion Stakes')}
+                />
+                <span>Select Stallion Stakes</span>
+              </label>
             </div>
           </div>
 
-          {/* Step 4: Photo & Notes */}
+          {/* Step 4: Photo & Details */}
           <div className="form-section">
             <h2>4. Photo & Details (Optional)</h2>
-            
-            <div className="form-group">
-              <label>Horse Photo</label>
-              <div className="photo-upload">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                />
-                <p>📸 Click to upload or drag and drop</p>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Notes</label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                placeholder="Any additional info about this horse..."
-                rows="4"
-              />
-            </div>
+            <p>You can add photos and notes after creating the horse</p>
           </div>
 
-          <div className="form-actions">
-            <button type="button" onClick={() => navigate('/dashboard')} className="btn-cancel">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className="btn-submit">
-              {loading ? 'Adding Horse...' : 'Add Horse to Barn'}
-            </button>
-          </div>
+          <button type="submit" className="btn-submit" disabled={loading}>
+            {loading ? 'Adding horse...' : 'Add Horse'}
+          </button>
         </form>
       </div>
     </div>
