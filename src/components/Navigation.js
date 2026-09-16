@@ -38,9 +38,6 @@ function Navigation() {
           <Link to="/add-horse" className="nav-link">
             Add Horse
           </Link>
-          <Link to="/admin" className="nav-link admin-link">
-            Admin
-          </Link>
           <button onClick={handleLogout} className="nav-link logout-btn">
             Logout
           </button>

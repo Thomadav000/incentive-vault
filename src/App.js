@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import HorseProfile from './pages/HorseProfile';
 import CalendarView from './pages/CalendarView';
 import AdminPanel from './pages/AdminPanel';
+import AdminLogin from './pages/AdminLogin';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import AddHorse from './pages/AddHorse';
@@ -44,6 +45,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={currentUser ? <Navigate to="/" /> : <Login />} />
         <Route path="/signup" element={currentUser ? <Navigate to="/" /> : <SignUp />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
         
         {/* Protected Routes */}
         {currentUser ? (
