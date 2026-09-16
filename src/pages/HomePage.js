@@ -7,7 +7,8 @@ import './HomePage.css';
 function HomePage() {
   const [user, setUser] = useState(null);
   const [userName, setUserName] = useState('');
-  const [horseCount, setHorseCount] = useState(0);
+  const [horses, setHorses] = useState([]);
+  const [upcomingDeadlines, setUpcomingDeadlines] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -17,7 +18,7 @@ function HomePage() {
         setUser(currentUser);
         
         try {
-          // Fetch user's name from Firestore
+          // Fetch user's name
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
@@ -26,16 +27,58 @@ function HomePage() {
 
           // Fetch user's horses
           const horsesRef = collection(db, 'horses');
-          const q = query(horsesRef, where('userId', '==', currentUser.uid));
-          const querySnapshot = await getDocs(q);
-          setHorseCount(querySnapshot.size);
+          const horsesQuery = query(horsesRef, where('userId', '==', currentUser.uid));
+          const horsesSnapshot = await getDocs(horsesQuery);
+          const horsesList = horsesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setHorses(horsesList);
+
+          // Fetch all programs
+          const programsRef = collection(db, 'programs');
+          const programsSnapshot = await getDocs(programsRef);
+          const programsList = programsSnapshot.docs.map(doc => doc.data());
+
+          // Calculate upcoming deadlines
+          const deadlines = [];
+          horsesList.forEach(horse => {
+            if (horse.programs && Array.isArray(horse.programs)) {
+              horse.programs.forEach(programName => {
+                const program = programsList.find(p => p.name === programName);
+                if (program) {
+                  deadlines.push({
+                    horseName: horse.name,
+                    programName: program.name,
+                    deadline: program.deadline,
+                    horseId: horse.id
+                  });
+                }
+              });
+            }
+          });
+
+          // Sort by deadline (simple sort - you may want to improve this)
+          deadlines.sort((a, b) => {
+            const monthOrder = {
+              'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5,
+              'June': 6, 'July': 7, 'August': 8, 'September': 9, 'October': 10,
+              'November': 11, 'December': 12
+            };
+            const monthA = a.deadline.split(' ')[0];
+            const monthB = b.deadline.split(' ')[0];
+            return monthOrder[monthA] - monthOrder[monthB];
+          });
+
+          setUpcomingDeadlines(deadlines.slice(0, 5));
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
       } else {
         setUser(null);
         setUserName('');
-        setHorseCount(0);
+        setHorses([]);
+        setUpcomingDeadlines([]);
       }
       setLoading(false);
     });
@@ -47,24 +90,80 @@ function HomePage() {
     return <div className="home-page">Loading...</div>;
   }
 
-  // LOGGED IN VIEW
+  // LOGGED IN VIEW - DASHBOARD
   if (user) {
     return (
       <div className="home-page">
         <header className="home-header">
           <div className="header-content">
-            <div className="header-logo">
+            <div className="header-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
               <span className="logo-icon">🏇</span>
               <h1>Incentive Vault</h1>
             </div>
           </div>
         </header>
 
-        <section className="hero">
+        <section className="dashboard-hero">
           <div className="container">
             <h2>Welcome back, {userName}!</h2>
-            <p>You have {horseCount} horse{horseCount !== 1 ? 's' : ''} in your barn</p>
-            <button onClick={() => navigate('/dashboard')} className="btn-cta">Go to Your Barn</button>
+            <p>You have {horses.length} horse{horses.length !== 1 ? 's' : ''} tracked across {upcomingDeadlines.length} programs</p>
+          </div>
+        </section>
+
+        <section className="dashboard-content">
+          <div className="container">
+            {/* Upcoming Deadlines */}
+            <div className="dashboard-section">
+              <h3>📅 Next Upcoming Deadlines</h3>
+              {upcomingDeadlines.length > 0 ? (
+                <div className="deadlines-list">
+                  {upcomingDeadlines.map((deadline, index) => (
+                    <div key={index} className="deadline-item">
+                      <div className="deadline-info">
+                        <p className="deadline-horse">{deadline.horseName}</p>
+                        <p className="deadline-program">{deadline.programName}</p>
+                      </div>
+                      <div className="deadline-date">{deadline.deadline}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="no-data">No upcoming deadlines</p>
+              )}
+            </div>
+
+            {/* Your Horses */}
+            <div className="dashboard-section">
+              <h3>🐴 Your Horses</h3>
+              {horses.length > 0 ? (
+                <div className="horses-list">
+                  {horses.map(horse => (
+                    <div 
+                      key={horse.id} 
+                      className="horse-card"
+                      onClick={() => navigate(`/horse/${horse.id}`)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <h4>{horse.name}</h4>
+                      <p>{horse.color} • {horse.age} years old</p>
+                      <p className="horse-programs">{horse.programs ? horse.programs.length : 0} programs</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="no-data">No horses yet. <Link to="/add-horse">Add one now!</Link></p>
+              )}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="dashboard-section">
+              <h3>⚡ Quick Actions</h3>
+              <div className="quick-actions">
+                <button onClick={() => navigate('/add-horse')} className="btn-action">+ Add Horse</button>
+                <button onClick={() => navigate('/dashboard')} className="btn-action">View Full Barn</button>
+                <button onClick={() => navigate('/calendar')} className="btn-action">📅 Calendar</button>
+              </div>
+            </div>
           </div>
         </section>
 
