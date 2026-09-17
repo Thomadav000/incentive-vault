@@ -5,213 +5,196 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './AddHorse.css';
 
 function AddHorse() {
-  const [name, setName] = useState('');
-  const [registrationNumber, setRegistrationNumber] = useState('');
-  const [sire, setSire] = useState('');
-  const [color, setColor] = useState('');
-  const [foalingYear, setFoalingYear] = useState('');
-  const [calculatedAge, setCalculatedAge] = useState(null);
-  const [programs, setPrograms] = useState({});
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    barnName: '',
+    registeredName: '',
+    color: '',
+    foalingYear: new Date().getFullYear(),
+    sire: '',
+    programs: []
+  });
+  const [calculatedAge, setCalculatedAge] = useState(0);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const currentYear = 2026;
+  const allPrograms = [
+    'Future Fortunes',
+    'Pink Buckle',
+    'Ruby Buckle',
+    'Breeders Challenge',
+    'Select Stallion Stakes'
+  ];
 
-  const handleFoalingYearChange = (e) => {
-    const year = parseInt(e.target.value);
-    setFoalingYear(e.target.value);
-    
-    if (year && year > 0 && year <= currentYear) {
-      const age = currentYear - year;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    if (name === 'foalingYear') {
+      const year = parseInt(value);
+      const age = 2026 - year;
       setCalculatedAge(age);
-    } else {
-      setCalculatedAge(null);
     }
   };
 
-  const handleProgramChange = (programName) => {
-    setPrograms(prev => ({
+  const handleProgramToggle = (program) => {
+    setFormData(prev => ({
       ...prev,
-      [programName]: !prev[programName]
+      programs: prev.programs.includes(program)
+        ? prev.programs.filter(p => p !== program)
+        : [...prev.programs, program]
     }));
   };
 
-  const handleAddHorse = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
-    if (!name || !sire || !color || !foalingYear || calculatedAge === null) {
-      setError('Please fill in all fields');
+    if (!formData.barnName || !formData.registeredName || !formData.color || !formData.foalingYear) {
+      alert('Please fill in all required fields');
       return;
     }
 
     setLoading(true);
 
     try {
-      const selectedPrograms = Object.keys(programs).filter(program => programs[program]);
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        alert('You must be logged in');
+        return;
+      }
 
-      const horseData = {
-        name,
-        registrationNumber,
-        sire,
-        color,
-        foalingYear: parseInt(foalingYear),
+      await addDoc(collection(db, 'horses'), {
+        userId: currentUser.uid,
+        barnName: formData.barnName,
+        registeredName: formData.registeredName,
+        color: formData.color,
+        foalingYear: parseInt(formData.foalingYear),
         age: calculatedAge,
-        programs: selectedPrograms,
-        userId: auth.currentUser.uid,
+        sire: formData.sire,
+        programs: formData.programs,
+        programsPaid: {},
         createdAt: serverTimestamp()
-      };
+      });
 
-      await addDoc(collection(db, 'horses'), horseData);
+      alert('Horse added successfully!');
       navigate('/dashboard');
-    } catch (err) {
-      setError(err.message || 'Failed to add horse');
+    } catch (error) {
+      console.error('Error adding horse:', error);
+      alert('Failed to add horse');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="add-horse-container">
-      <div className="add-horse-box">
+    <div className="add-horse-page">
+      <div className="add-horse-container">
         <h1>Add a Horse</h1>
 
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleAddHorse}>
-          {/* Step 1: Basic Info */}
+        <form onSubmit={handleSubmit} className="add-horse-form">
           <div className="form-section">
-            <h2>1. Basic Information</h2>
-            
-            <div className="form-group">
-              <label>Horse Name *</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Aint Bubbon Yet"
-                required
-              />
-            </div>
+            <h2>Horse Information</h2>
 
             <div className="form-row">
               <div className="form-group">
-                <label>Registration Number</label>
+                <label htmlFor="barnName">Barn Name *</label>
                 <input
                   type="text"
-                  value={registrationNumber}
-                  onChange={(e) => setRegistrationNumber(e.target.value)}
-                  placeholder="e.g., 6350381"
-                />
-              </div>
-              <div className="form-group">
-                <label>Sire (Father) *</label>
-                <input
-                  type="text"
-                  value={sire}
-                  onChange={(e) => setSire(e.target.value)}
-                  placeholder="e.g., Aint Seen Nothin Yet"
+                  id="barnName"
+                  name="barnName"
+                  value={formData.barnName}
+                  onChange={handleChange}
+                  placeholder="What you call them"
                   required
                 />
               </div>
             </div>
-          </div>
-
-          {/* Step 2: Appearance */}
-          <div className="form-section">
-            <h2>2. Appearance & Age</h2>
 
             <div className="form-row">
               <div className="form-group">
-                <label>Color *</label>
+                <label htmlFor="registeredName">Registered Name *</label>
                 <input
                   type="text"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                  placeholder="e.g., Palomino"
+                  id="registeredName"
+                  name="registeredName"
+                  value={formData.registeredName}
+                  onChange={handleChange}
+                  placeholder="Official AQHA registered name"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="color">Color *</label>
+                <input
+                  type="text"
+                  id="color"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
+                  placeholder="e.g., Palomino, Bay, Sorrel"
                   required
                 />
               </div>
               <div className="form-group">
-                <label>Foaling Year *</label>
+                <label htmlFor="foalingYear">Foaling Year *</label>
                 <input
                   type="number"
-                  value={foalingYear}
-                  onChange={handleFoalingYearChange}
-                  placeholder="e.g., 2022"
-                  min="1900"
-                  max={currentYear}
+                  id="foalingYear"
+                  name="foalingYear"
+                  value={formData.foalingYear}
+                  onChange={handleChange}
+                  min="1990"
+                  max="2026"
                   required
                 />
+                <p className="calculated-age">Age: {calculatedAge} years old</p>
               </div>
             </div>
 
-            {calculatedAge !== null && (
-              <div className="calculated-age">
-                <p><strong>Age: {calculatedAge} years old</strong></p>
-              </div>
-            )}
+            <div className="form-group">
+              <label htmlFor="sire">Sire</label>
+              <input
+                type="text"
+                id="sire"
+                name="sire"
+                value={formData.sire}
+                onChange={handleChange}
+                placeholder="Sire name (optional)"
+              />
+            </div>
           </div>
 
-          {/* Step 3: Incentive Programs */}
           <div className="form-section">
-            <h2>3. Incentive Programs</h2>
-            <p>Select which programs you're enrolling in:</p>
-
+            <h2>Program Enrollment</h2>
+            <p className="form-description">Select which programs this horse is enrolled in:</p>
             <div className="programs-grid">
-              <label className="program-checkbox">
-                <input
-                  type="checkbox"
-                  checked={programs['Future Fortunes'] || false}
-                  onChange={() => handleProgramChange('Future Fortunes')}
-                />
-                <span>Future Fortunes</span>
-              </label>
-              <label className="program-checkbox">
-                <input
-                  type="checkbox"
-                  checked={programs['Pink Buckle'] || false}
-                  onChange={() => handleProgramChange('Pink Buckle')}
-                />
-                <span>Pink Buckle</span>
-              </label>
-              <label className="program-checkbox">
-                <input
-                  type="checkbox"
-                  checked={programs['Ruby Buckle'] || false}
-                  onChange={() => handleProgramChange('Ruby Buckle')}
-                />
-                <span>Ruby Buckle</span>
-              </label>
-              <label className="program-checkbox">
-                <input
-                  type="checkbox"
-                  checked={programs['Breeders Challenge'] || false}
-                  onChange={() => handleProgramChange('Breeders Challenge')}
-                />
-                <span>Breeders Challenge</span>
-              </label>
-              <label className="program-checkbox">
-                <input
-                  type="checkbox"
-                  checked={programs['Select Stallion Stakes'] || false}
-                  onChange={() => handleProgramChange('Select Stallion Stakes')}
-                />
-                <span>Select Stallion Stakes</span>
-              </label>
+              {allPrograms.map(program => (
+                <div key={program} className="program-checkbox">
+                  <input
+                    type="checkbox"
+                    id={program}
+                    checked={formData.programs.includes(program)}
+                    onChange={() => handleProgramToggle(program)}
+                  />
+                  <label htmlFor={program}>{program}</label>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Step 4: Photo & Details */}
-          <div className="form-section">
-            <h2>4. Photo & Details (Optional)</h2>
-            <p>You can add photos and notes after creating the horse</p>
+          <div className="form-actions">
+            <button type="submit" disabled={loading} className="btn-submit">
+              {loading ? 'Adding Horse...' : 'Add Horse'}
+            </button>
+            <button type="button" onClick={() => navigate('/dashboard')} className="btn-cancel">
+              Cancel
+            </button>
           </div>
-
-          <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? 'Adding horse...' : 'Add Horse'}
-          </button>
         </form>
       </div>
     </div>
