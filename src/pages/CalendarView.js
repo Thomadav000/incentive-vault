@@ -162,6 +162,59 @@ END:VCALENDAR`;
     window.URL.revokeObjectURL(url);
   };
 
+  const downloadMonthCalendar = () => {
+    const currentMonthNum = currentMonth.getMonth() + 1;
+    const monthDeadlines = events.allDeadlines.filter(d => monthOrder[d.month] === currentMonthNum);
+
+    if (monthDeadlines.length === 0) {
+      alert('No deadlines this month');
+      return;
+    }
+
+    let icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Incentive Vault//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:${monthName} - Incentive Vault
+X-WR-TIMEZONE:UTC
+`;
+
+    monthDeadlines.forEach(deadline => {
+      const eventDate = new Date(currentMonth.getFullYear(), monthOrder[deadline.month] - 1, deadline.day);
+      const year = eventDate.getFullYear();
+      const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+      const day = String(eventDate.getDate()).padStart(2, '0');
+      const dtstart = `${year}${month}${day}`;
+
+      const eventTitle = `${deadline.program} - Payment Due`;
+      const eventDescription = getDeadlineText(deadline);
+      const enrollmentUrl = programs[deadline.program]?.website || 'https://theincentivevault.com';
+
+      icsContent += `BEGIN:VEVENT
+UID:${deadline.program}-${dtstart}@theincentivevault.com
+DTSTAMP:${new Date().toISOString().replace(/[-:.]/g, '')}
+DTSTART:${dtstart}
+SUMMARY:${eventTitle}
+DESCRIPTION:${eventDescription}\\nEnroll: ${enrollmentUrl}
+STATUS:CONFIRMED
+END:VEVENT
+`;
+    });
+
+    icsContent += `END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Incentive_Vault_${monthName.replace(/\s+/g, '_')}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return <div className="calendar-page">Loading calendar...</div>;
   }
@@ -179,7 +232,7 @@ END:VCALENDAR`;
           <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}>
             Next →
           </button>
-          <button className="btn-add-month-calendar">📱 Add Month to Calendar</button>
+          <button className="btn-add-month-calendar" onClick={downloadMonthCalendar}>📱 Add Month to Calendar</button>
         </div>
 
         <div className="calendar-legend">
