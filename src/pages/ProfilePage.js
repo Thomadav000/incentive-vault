@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { sendPasswordResetEmail, deleteUser } from 'firebase/auth';
+import { sendPasswordResetEmail, deleteUser, updateProfile } from 'firebase/auth';
 import { UserContext } from '../context/UserContext';
 import './ProfilePage.css';
 
@@ -53,7 +53,7 @@ function ProfilePage() {
 
     try {
       // Update Firebase Auth display name
-      await user.updateProfile({
+      await updateProfile(user, {
         displayName: displayName
       });
 
