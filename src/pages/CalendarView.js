@@ -114,6 +114,15 @@ function CalendarView() {
     return <div className="calendar-page">Loading calendar...</div>;
   }
 
+  const getDeadlineText = (deadline) => {
+    if (deadline.unpaidCount === 0) {
+      return 'All horses paid';
+    }
+    const horseNames = deadline.unpaidHorseNames.join(', ');
+    const verb = deadline.unpaidCount === 1 ? 'needs' : 'need';
+    return `${horseNames} ${verb} payment`;
+  };
+
   return (
     <div className="calendar-page">
       <div className="calendar-container">
@@ -174,10 +183,7 @@ function CalendarView() {
                   <div className="event-details">
                     <div className="event-title">{deadline.program}</div>
                     <div className="event-status-text">
-                      {deadline.unpaidCount > 0 
-                        ? `${deadline.unpaidHorseNames.join(', ')} need${deadline.unpaidCount === 1 ? 's' : ''} payment`
-                        : 'All horses paid'
-                      }
+                      {getDeadlineText(deadline)}
                     </div>
                   </div>
                 </div>
