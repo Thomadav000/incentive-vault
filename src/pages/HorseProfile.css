@@ -117,6 +117,8 @@
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .btn-secondary:hover {
@@ -150,6 +152,218 @@
   margin-top: 0;
 }
 
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-edit-horse {
+  background-color: #F5F3F1;
+  border: 2px solid #D4A574;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-edit-horse:hover {
+  background-color: #D4A574;
+  transform: scale(1.1);
+}
+
+.horse-registered {
+  color: #546E7A;
+  font-size: 1rem;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Edit Modal */
+.edit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.edit-modal {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #E8E6E3;
+  position: sticky;
+  top: 0;
+  background-color: #FFFFFF;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2C3E50;
+  font-size: 1.5rem;
+}
+
+.modal-close {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #546E7A;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #2C3E50;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  background-color: #F9F8F6;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #2C3E50;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #E8E6E3;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #D4A574;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.programs-checkbox-list {
+  display: grid;
+  gap: 0.75rem;
+  background-color: #FFFFFF;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 2px solid #E8E6E3;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #D4A574;
+}
+
+.checkbox-item label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 400;
+  color: #2C3E50;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #c62828;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #E8E6E3;
+  background-color: #F9F8F6;
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+}
+
+.btn-cancel {
+  background-color: #546E7A;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #3d5563;
+}
+
+.btn-save {
+  background-color: #D4A574;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #C49860;
+}
+
+.btn-save:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .horse-header {
     flex-direction: column;
@@ -174,6 +388,22 @@
   }
 
   .btn-secondary, .btn-status {
+    width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-modal {
+    width: 95%;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .btn-cancel, .btn-save {
     width: 100%;
   }
 }
