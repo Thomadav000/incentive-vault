@@ -10,6 +10,27 @@
   padding: 0 1.5rem;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-generate-report {
+  background-color: #D4A574;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-generate-report:hover {
+  background-color: #C7967A;
+}
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -37,7 +58,6 @@
   background-color: #C49860;
 }
 
-/* Stats */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -78,7 +98,6 @@
   margin: 0;
 }
 
-/* Horses Section */
 .horses-section {
   margin-top: 3rem;
 }
@@ -187,7 +206,6 @@
   background-color: #C49860;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
