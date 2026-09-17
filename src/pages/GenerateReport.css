@@ -1,0 +1,182 @@
+.generate-report {
+  background-color: #F9F8F6;
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.report-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.report-container h1 {
+  color: #2C3E50;
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #546E7A;
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.horses-selection,
+.format-selection {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #E0DDD8;
+}
+
+.horses-selection h2,
+.format-selection h2 {
+  color: #2C3E50;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.no-horses {
+  color: #546E7A;
+  font-size: 14px;
+}
+
+.no-horses a {
+  color: #C7967A;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.no-horses a:hover {
+  text-decoration: underline;
+}
+
+.horses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.horse-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: #F5F3F1;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.horse-checkbox:hover {
+  background-color: #FFFBF7;
+}
+
+.horse-checkbox input[type="checkbox"] {
+  margin-right: 12px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #C7967A;
+}
+
+.horse-checkbox span {
+  color: #2C3E50;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.format-options {
+  display: flex;
+  gap: 20px;
+}
+
+.format-options label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.format-options input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #C7967A;
+}
+
+.format-options span {
+  color: #2C3E50;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.report-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.btn-generate {
+  background-color: #D4A574;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-generate:hover:not(:disabled) {
+  background-color: #C7967A;
+}
+
+.btn-generate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background-color: #546E7A;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #3D4D57;
+}
+
+@media (max-width: 600px) {
+  .report-container {
+    padding: 20px;
+  }
+
+  .report-container h1 {
+    font-size: 24px;
+  }
+
+  .report-actions {
+    flex-direction: column;
+  }
+
+  .btn-generate,
+  .btn-cancel {
+    width: 100%;
+  }
+
+  .format-options {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

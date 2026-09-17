@@ -4,14 +4,16 @@
   "description": "Web app for barrel horse owners to track incentive program deadlines, payments, and eligibility",
   "private": true,
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0",
-    "firebase": "^10.7.0",
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.1.0",
     "axios": "^1.6.0",
-    "date-fns": "^2.30.0"
+    "date-fns": "^2.30.0",
+    "firebase": "^10.7.0",
+    "jspdf": "^4.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "react-scripts": "5.0.1",
