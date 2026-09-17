@@ -175,7 +175,7 @@ function CalendarView() {
                     <div className="event-title">{deadline.program}</div>
                     <div className="event-status-text">
                       {deadline.unpaidCount > 0 
-                        ? `${deadline.unpaidHorseNames.join(', ')} need${deadline.unpaidCount !== 1 ? '' : 's'} payment`
+                        ? `${deadline.unpaidHorseNames.join(', ')} need${deadline.unpaidCount === 1 ? 's' : ''} payment`
                         : 'All horses paid'
                       }
                     </div>
