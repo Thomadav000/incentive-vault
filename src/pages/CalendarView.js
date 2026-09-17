@@ -2,6 +2,12 @@ import React, { useContext, useState, useMemo } from 'react';
 import { UserContext } from '../context/UserContext';
 import './CalendarView.css';
 
+const monthOrder = {
+  'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5,
+  'June': 6, 'July': 7, 'August': 8, 'September': 9, 'October': 10,
+  'November': 11, 'December': 12
+};
+
 function CalendarView() {
   const { horses, programs, loading } = useContext(UserContext);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -25,12 +31,6 @@ function CalendarView() {
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(i);
   }
-
-  const monthOrder = {
-    'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5,
-    'June': 6, 'July': 7, 'August': 8, 'September': 9, 'October': 10,
-    'November': 11, 'December': 12
-  };
 
   const events = useMemo(() => {
     const eventMap = {};
@@ -79,7 +79,7 @@ function CalendarView() {
     });
 
     return { eventMap, allDeadlines };
-  }, [programs, horses, currentMonth, monthOrder]);
+  }, [programs, horses, currentMonth]);
 
   const upcomingDeadlines = useMemo(() => {
     return events.allDeadlines
@@ -96,7 +96,7 @@ function CalendarView() {
         return monthDiff !== 0 ? monthDiff : a.day - b.day;
       })
       .slice(0, 5);
-  }, [events.allDeadlines, currentMonth, monthOrder]);
+  }, [events.allDeadlines, currentMonth]);
 
   if (loading) {
     return <div className="calendar-page">Loading calendar...</div>;
