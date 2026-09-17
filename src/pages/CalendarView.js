@@ -50,7 +50,7 @@ function CalendarView() {
         const horsesInProgram = horses.filter(h => h.programs && h.programs.includes(program.name));
         const horsePaidStatus = horsesInProgram.map(h => ({
           name: h.name,
-          isPaid: h.programsPaid && h.programsPaid[program.name]
+          isPaid: h.programsPaid && h.programsPaid[program.name] === true
         }));
 
         const totalHorses = horsesInProgram.length;
@@ -68,13 +68,18 @@ function CalendarView() {
         });
       }
 
+      const horsesInProgram = horses.filter(h => h.programs && h.programs.includes(program.name));
+      const paidCount = horsesInProgram.filter(h => h.programsPaid && h.programsPaid[program.name] === true).length;
+      const unpaidCount = horsesInProgram.length - paidCount;
+
       allDeadlines.push({
         program: program.name,
         deadline: program.deadline,
         month: deadlineMonth,
         day: deadlineDay,
-        totalHorses: horses.filter(h => h.programs && h.programs.includes(program.name)).length,
-        paidCount: horses.filter(h => h.programs && h.programs.includes(program.name) && h.programsPaid && h.programsPaid[program.name]).length
+        totalHorses: horsesInProgram.length,
+        paidCount,
+        unpaidCount
       });
     });
 
