@@ -21,7 +21,7 @@ function HomePage() {
             const program = programs[programName];
             if (program) {
               deadlines.push({
-                horseName: horse.name,
+                horseName: horse.barnName,
                 programName: program.name,
                 deadline: program.deadline,
                 horseId: horse.id
@@ -107,7 +107,7 @@ function HomePage() {
                         onClick={() => navigate(`/horse/${horse.id}`)}
                         style={{ cursor: 'pointer' }}
                       >
-                        <div className="card-header">{horse.name}</div>
+                        <div className="card-header">{horse.barnName}</div>
                         <div className="card-body">
                           <p className="card-detail">{horse.color}</p>
                           <p className="card-detail">{horse.age} years old</p>
