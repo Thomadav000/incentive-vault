@@ -38,6 +38,9 @@ function Navigation() {
           <Link to="/add-horse" className="nav-link">
             Add Horse
           </Link>
+          <Link to="/profile" className="nav-link">
+            Profile
+          </Link>
           <button onClick={handleLogout} className="nav-link logout-btn">
             Logout
           </button>
