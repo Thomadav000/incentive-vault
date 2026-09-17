@@ -1,96 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { auth } from '../firebase';
+import { UserContext } from '../context/UserContext';
 import './HomePage.css';
 
 function HomePage() {
-  const [user, setUser] = useState(null);
+  const { horses, programs, user, loading } = useContext(UserContext);
   const [userName, setUserName] = useState('');
-  const [horses, setHorses] = useState([]);
   const [upcomingDeadlines, setUpcomingDeadlines] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        
-        try {
-          // Fetch user's name
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            setUserName(userDocSnap.data().name);
-          }
-
-          // Fetch user's horses
-          const horsesRef = collection(db, 'horses');
-          const horsesQuery = query(horsesRef, where('userId', '==', currentUser.uid));
-          const horsesSnapshot = await getDocs(horsesQuery);
-          const horsesList = horsesSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setHorses(horsesList);
-
-          // Fetch all programs
-          const programsRef = collection(db, 'programs');
-          const programsSnapshot = await getDocs(programsRef);
-          const programsList = programsSnapshot.docs.map(doc => doc.data());
-
-          // Calculate upcoming deadlines
-          const deadlines = [];
-          horsesList.forEach(horse => {
-            if (horse.programs && Array.isArray(horse.programs)) {
-              horse.programs.forEach(programName => {
-                const program = programsList.find(p => p.name === programName);
-                if (program) {
-                  deadlines.push({
-                    horseName: horse.name,
-                    programName: program.name,
-                    deadline: program.deadline,
-                    horseId: horse.id
-                  });
-                }
+    if (user) {
+      setUserName(user.displayName || 'there');
+      
+      const deadlines = [];
+      horses.forEach(horse => {
+        if (horse.programs && Array.isArray(horse.programs)) {
+          horse.programs.forEach(programName => {
+            const program = programs[programName];
+            if (program) {
+              deadlines.push({
+                horseName: horse.name,
+                programName: program.name,
+                deadline: program.deadline,
+                horseId: horse.id
               });
             }
           });
-
-          // Sort by deadline
-          deadlines.sort((a, b) => {
-            const monthOrder = {
-              'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5,
-              'June': 6, 'July': 7, 'August': 8, 'September': 9, 'October': 10,
-              'November': 11, 'December': 12
-            };
-            const monthA = a.deadline.split(' ')[0];
-            const monthB = b.deadline.split(' ')[0];
-            return monthOrder[monthA] - monthOrder[monthB];
-          });
-
-          setUpcomingDeadlines(deadlines.slice(0, 5));
-        } catch (error) {
-          console.error('Error fetching user data:', error);
         }
-      } else {
-        setUser(null);
-        setUserName('');
-        setHorses([]);
-        setUpcomingDeadlines([]);
-      }
-      setLoading(false);
-    });
+      });
 
-    return () => unsubscribe();
-  }, []);
+      const monthOrder = {
+        'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5,
+        'June': 6, 'July': 7, 'August': 8, 'September': 9, 'October': 10,
+        'November': 11, 'December': 12
+      };
+
+      deadlines.sort((a, b) => {
+        const monthA = a.deadline.split(' ')[0];
+        const monthB = b.deadline.split(' ')[0];
+        return monthOrder[monthA] - monthOrder[monthB];
+      });
+
+      setUpcomingDeadlines(deadlines.slice(0, 5));
+    }
+  }, [user, horses, programs]);
 
   if (loading) {
     return <div className="home-page">Loading...</div>;
   }
 
-  // LOGGED IN VIEW - DASHBOARD
   if (user) {
     return (
       <div className="home-page dashboard-page">
@@ -117,7 +77,6 @@ function HomePage() {
         <section className="dashboard-container">
           <div className="container">
             <div className="dashboard-grid">
-              {/* Upcoming Deadlines Column */}
               <div className="dashboard-column deadlines-column">
                 <h3>📅 Next Deadlines</h3>
                 {upcomingDeadlines.length > 0 ? (
@@ -137,7 +96,6 @@ function HomePage() {
                 )}
               </div>
 
-              {/* Horses Column */}
               <div className="dashboard-column horses-column">
                 <h3>🐴 Your Horses</h3>
                 {horses.length > 0 ? (
@@ -166,7 +124,6 @@ function HomePage() {
                 )}
               </div>
 
-              {/* Actions Column */}
               <div className="dashboard-column actions-column">
                 <h3>⚡ Quick Actions</h3>
                 <div className="action-buttons">
@@ -219,7 +176,6 @@ function HomePage() {
     );
   }
 
-  // NOT LOGGED IN VIEW (original homepage)
   return (
     <div className="home-page">
       <header className="home-header">
