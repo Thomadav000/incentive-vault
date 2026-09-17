@@ -24,23 +24,23 @@ function ProfilePage() {
     }
 
     if (user) {
+      const fetchProfileData = async () => {
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            setProfileData(userSnap.data());
+          }
+        } catch (err) {
+          console.error('Error fetching profile:', err);
+          setError('Failed to load profile');
+        }
+      };
+
       fetchProfileData();
       setDisplayName(user.displayName || '');
     }
   }, [user, loading, navigate]);
-
-  const fetchProfileData = async () => {
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        setProfileData(userSnap.data());
-      }
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-      setError('Failed to load profile');
-    }
-  };
 
   const handleSaveName = async () => {
     if (!displayName.trim()) {
@@ -62,7 +62,13 @@ function ProfilePage() {
       await updateDoc(userRef, { name: displayName });
 
       setEditing(false);
-      fetchProfileData();
+
+      // Fetch updated profile data
+      const updatedUserRef = doc(db, 'users', user.uid);
+      const updatedUserSnap = await getDoc(updatedUserRef);
+      if (updatedUserSnap.exists()) {
+        setProfileData(updatedUserSnap.data());
+      }
     } catch (err) {
       console.error('Error saving name:', err);
       setError('Failed to save name');
