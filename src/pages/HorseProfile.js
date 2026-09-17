@@ -1,398 +1,259 @@
-.horse-profile {
-  background-color: #F9F8F6;
-  min-height: 100vh;
-  padding: 2rem 0;
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { UserContext } from '../context/UserContext';
+import './HorseProfile.css';
+
+function HorseProfile() {
+  const { id } = useParams();
+  const [horse, setHorse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [editData, setEditData] = useState({});
+  const navigate = useNavigate();
+  const { programs } = useContext(UserContext);
+  const programList = Object.keys(programs || {});
+
+  useEffect(() => {
+    const fetchHorse = async () => {
+      try {
+        const docRef = doc(db, 'horses', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = { id: docSnap.id, ...docSnap.data() };
+          setHorse(data);
+          setEditData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching horse:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHorse();
+  }, [id]);
+
+  const handleEditChange = (field, value) => {
+    setEditData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleProgramToggle = (programName) => {
+    setEditData(prev => {
+      const currentPrograms = prev.programs || [];
+      if (currentPrograms.includes(programName)) {
+        return {
+          ...prev,
+          programs: currentPrograms.filter(p => p !== programName)
+        };
+      } else {
+        return {
+          ...prev,
+          programs: [...currentPrograms, programName]
+        };
+      }
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editData.barnName?.trim()) {
+      setError('Barn name is required');
+      return;
+    }
+    if (!editData.registeredName?.trim()) {
+      setError('Registered name is required');
+      return;
+    }
+
+    setSaving(true);
+    setError('');
+
+    try {
+      const horseRef = doc(db, 'horses', id);
+      await updateDoc(horseRef, {
+        barnName: editData.barnName,
+        registeredName: editData.registeredName,
+        color: editData.color,
+        foalingYear: editData.foalingYear,
+        age: editData.age,
+        sire: editData.sire,
+        programs: editData.programs || []
+      });
+
+      setHorse(editData);
+      setEditing(false);
+    } catch (err) {
+      console.error('Error updating horse:', err);
+      setError('Failed to save changes');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditData(horse);
+    setEditing(false);
+    setError('');
+  };
+
+  if (loading) return <div className="horse-profile">Loading...</div>;
+  if (!horse) return <div className="horse-profile">Horse not found</div>;
+
+  return (
+    <div className="horse-profile">
+      <div className="horse-profile-container">
+        <button onClick={() => navigate('/dashboard')} className="btn-back">← Back to Barn</button>
+
+        <div className="horse-header">
+          {horse.photo && <img src={horse.photo} alt={horse.barnName} />}
+          <div className="horse-header-info">
+            <div className="header-title-row">
+              <h1>{horse.barnName}</h1>
+              <button onClick={() => setEditing(true)} className="btn-edit-horse" title="Edit horse">⚙️</button>
+            </div>
+            <p className="horse-registered">Registered: {horse.registeredName}</p>
+            {horse.sire && <p className="horse-sire">By {horse.sire}</p>}
+            <div className="horse-details">
+              {horse.registrationNumber && <span>Reg# {horse.registrationNumber}</span>}
+              {horse.age && <span>{horse.age} years old</span>}
+              {horse.color && <span>{horse.color}</span>}
+            </div>
+          </div>
+        </div>
+
+        {horse.programs && horse.programs.length > 0 && (
+          <section className="programs-section">
+            <h2>Enrolled Programs</h2>
+            <div className="programs-list">
+              {horse.programs.map(program => (
+                <div key={program} className="program-item">
+                  <h3>{program}</h3>
+                  <div className="program-actions">
+                    <a href="#" className="btn-secondary">Visit Website →</a>
+                    <button className="btn-status">Mark as Paid</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {horse.notes && (
+          <section className="notes-section">
+            <h2>Notes</h2>
+            <p>{horse.notes}</p>
+          </section>
+        )}
+      </div>
+
+      {editing && (
+        <div className="edit-modal-overlay" onClick={handleCancelEdit}>
+          <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Edit Horse</h2>
+              <button className="modal-close" onClick={handleCancelEdit}>✕</button>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Barn Name *</label>
+                <input
+                  type="text"
+                  value={editData.barnName || ''}
+                  onChange={(e) => handleEditChange('barnName', e.target.value)}
+                  placeholder="Barn name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Registered Name *</label>
+                <input
+                  type="text"
+                  value={editData.registeredName || ''}
+                  onChange={(e) => handleEditChange('registeredName', e.target.value)}
+                  placeholder="AQHA registered name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Color</label>
+                <input
+                  type="text"
+                  value={editData.color || ''}
+                  onChange={(e) => handleEditChange('color', e.target.value)}
+                  placeholder="e.g., Bay, Sorrel, Palomino"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Foaling Year</label>
+                  <input
+                    type="number"
+                    value={editData.foalingYear || ''}
+                    onChange={(e) => handleEditChange('foalingYear', e.target.value)}
+                    placeholder="2020"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Age</label>
+                  <input
+                    type="number"
+                    value={editData.age || ''}
+                    onChange={(e) => handleEditChange('age', e.target.value)}
+                    placeholder="Age in years"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Sire</label>
+                <input
+                  type="text"
+                  value={editData.sire || ''}
+                  onChange={(e) => handleEditChange('sire', e.target.value)}
+                  placeholder="Sire name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Programs</label>
+                <div className="programs-checkbox-list">
+                  {programList.map(programName => (
+                    <div key={programName} className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id={`program-${programName}`}
+                        checked={(editData.programs || []).includes(programName)}
+                        onChange={() => handleProgramToggle(programName)}
+                      />
+                      <label htmlFor={`program-${programName}`}>{programName}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button onClick={handleCancelEdit} className="btn-cancel">Cancel</button>
+              <button onClick={handleSaveEdit} disabled={saving} className="btn-save">
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-.horse-profile-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-.btn-back {
-  background-color: transparent;
-  border: none;
-  color: #C7967A;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-bottom: 2rem;
-  transition: color 0.3s;
-}
-
-.btn-back:hover {
-  color: #D4A574;
-}
-
-.horse-header {
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  display: flex;
-  gap: 2rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  align-items: flex-start;
-}
-
-.horse-header img {
-  width: 300px;
-  height: 300px;
-  object-fit: cover;
-  border-radius: 8px;
-  background-color: #F5F3F1;
-}
-
-.horse-header-info {
-  flex: 1;
-}
-
-.horse-header-info h1 {
-  font-size: 2.5rem;
-  color: #2C3E50;
-  margin: 0 0 0.5rem 0;
-}
-
-.horse-sire {
-  font-size: 1.1rem;
-  color: #546E7A;
-  margin: 0 0 1rem 0;
-}
-
-.horse-details {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.horse-details span {
-  background-color: #F5F3F1;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: #546E7A;
-}
-
-.programs-section {
-  margin-bottom: 2rem;
-}
-
-.programs-section h2 {
-  font-size: 1.5rem;
-  color: #2C3E50;
-  margin-bottom: 1.5rem;
-}
-
-.programs-list {
-  display: grid;
-  gap: 1rem;
-}
-
-.program-item {
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.program-item h3 {
-  margin: 0 0 1rem 0;
-  color: #2C3E50;
-}
-
-.program-actions {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn-secondary {
-  background-color: #F5F3F1;
-  border: 1px solid #E8E6E3;
-  color: #2C3E50;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-  border-color: #C7967A;
-  background-color: #FFFBF7;
-}
-
-.btn-status {
-  background-color: #D4A574;
-  color: #FFFFFF;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.btn-status:hover {
-  background-color: #C49860;
-}
-
-.notes-section {
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.notes-section h2 {
-  margin-top: 0;
-}
-
-.header-title-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.btn-edit-horse {
-  background-color: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.btn-edit-horse:hover {
-  background-color: #F5F3F1;
-}
-
-.horse-registered {
-  color: #546E7A;
-  font-size: 1rem;
-  margin: 0.5rem 0 0 0;
-}
-
-/* Edit Modal */
-.edit-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.edit-modal {
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #E8E6E3;
-  position: sticky;
-  top: 0;
-  background-color: #FFFFFF;
-}
-
-.modal-header h2 {
-  margin: 0;
-  color: #2C3E50;
-  font-size: 1.5rem;
-}
-
-.modal-close {
-  background-color: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #546E7A;
-  padding: 0;
-  width: 2rem;
-  height: 2rem;
-  transition: color 0.2s;
-}
-
-.modal-close:hover {
-  color: #2C3E50;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group:last-child {
-  margin-bottom: 0;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  color: #2C3E50;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #E8E6E3;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: inherit;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #D4A574;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.programs-checkbox-list {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.checkbox-item input[type="checkbox"] {
-  width: auto;
-  margin: 0;
-  cursor: pointer;
-}
-
-.checkbox-item label {
-  margin: 0;
-  cursor: pointer;
-  font-weight: 400;
-}
-
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  border-left: 4px solid #c62828;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid #E8E6E3;
-  background-color: #F9F8F6;
-  justify-content: flex-end;
-  position: sticky;
-  bottom: 0;
-}
-
-.btn-cancel {
-  background-color: #546E7A;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-.btn-cancel:hover {
-  background-color: #3d5563;
-}
-
-.btn-save {
-  background-color: #D4A574;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-.btn-save:hover:not(:disabled) {
-  background-color: #C49860;
-}
-
-.btn-save:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-@media (max-width: 768px) {
-  .horse-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .horse-header img {
-    width: 100%;
-    height: auto;
-  }
-
-  .horse-header-info h1 {
-    font-size: 1.8rem;
-  }
-
-  .horse-details {
-    gap: 0.5rem;
-  }
-
-  .program-actions {
-    flex-direction: column;
-  }
-
-  .btn-secondary, .btn-status {
-    width: 100%;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .edit-modal {
-    width: 95%;
-  }
-
-  .modal-footer {
-    flex-direction: column-reverse;
-  }
-
-  .btn-cancel, .btn-save {
-    width: 100%;
-  }
-}
+export default HorseProfile;
