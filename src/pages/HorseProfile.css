@@ -87,6 +87,7 @@
 
 .programs-list {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1rem;
 }
 
@@ -95,30 +96,37 @@
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 250px;
 }
 
 .program-item h3 {
   margin: 0 0 1rem 0;
   color: #2C3E50;
+  font-size: 1.1rem;
 }
 
 .program-actions {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .btn-secondary {
   background-color: #F5F3F1;
   border: 1px solid #E8E6E3;
   color: #2C3E50;
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1rem;
   border-radius: 6px;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s;
   cursor: pointer;
   font-family: inherit;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .btn-secondary:hover {
@@ -130,11 +138,12 @@
   background-color: #D4A574;
   color: #FFFFFF;
   border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1rem;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-size: 0.9rem;
 }
 
 .btn-status:hover {
@@ -192,14 +201,15 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .edit-modal {
   background-color: #FFFFFF;
   border-radius: 8px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
@@ -218,7 +228,7 @@
 .modal-header h2 {
   margin: 0;
   color: #2C3E50;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
 }
 
 .modal-close {
@@ -255,7 +265,7 @@
   font-weight: 600;
   color: #2C3E50;
   margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .form-group input {
@@ -263,7 +273,7 @@
   padding: 0.75rem;
   border: 2px solid #E8E6E3;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-family: inherit;
   transition: border-color 0.2s;
   box-sizing: border-box;
@@ -282,6 +292,7 @@
 
 .programs-checkbox-list {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 0.75rem;
   background-color: #FFFFFF;
   padding: 1rem;
@@ -307,6 +318,7 @@
   cursor: pointer;
   font-weight: 400;
   color: #2C3E50;
+  font-size: 0.9rem;
 }
 
 .error-message {
@@ -323,7 +335,7 @@
   gap: 1rem;
   padding: 1.5rem;
   border-top: 1px solid #E8E6E3;
-  background-color: #F9F8F6;
+  background-color: #FFFFFF;
   justify-content: flex-end;
   position: sticky;
   bottom: 0;
@@ -338,6 +350,7 @@
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.2s;
+  font-size: 0.9rem;
 }
 
 .btn-cancel:hover {
@@ -353,6 +366,7 @@
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.2s;
+  font-size: 0.9rem;
 }
 
 .btn-save:hover:not(:disabled) {
@@ -383,20 +397,29 @@
     gap: 0.5rem;
   }
 
+  .programs-list {
+    grid-template-columns: 1fr;
+  }
+
+  .program-item {
+    min-height: auto;
+  }
+
   .program-actions {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .btn-secondary, .btn-status {
-    width: 100%;
+    flex: 1;
+    font-size: 0.85rem;
   }
 
   .form-row {
     grid-template-columns: 1fr;
   }
 
-  .edit-modal {
-    width: 95%;
+  .programs-checkbox-list {
+    grid-template-columns: 1fr;
   }
 
   .modal-footer {
