@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import './GenerateReport.css';
@@ -27,7 +27,6 @@ function GenerateReport() {
 
         setUser(currentUser);
 
-        // Fetch user's horses
         const horsesRef = collection(db, 'horses');
         const horsesQuery = query(horsesRef, where('userId', '==', currentUser.uid));
         const horsesSnapshot = await getDocs(horsesQuery);
@@ -37,7 +36,6 @@ function GenerateReport() {
         }));
         setHorses(horsesList);
 
-        // Fetch all programs
         const programsSnapshot = await getDocs(collection(db, 'programs'));
         const programsMap = {};
         programsSnapshot.forEach(doc => {
@@ -45,7 +43,6 @@ function GenerateReport() {
         });
         setPrograms(programsMap);
 
-        // Auto-select first horse
         if (horsesList.length > 0) {
           setSelectedHorses([horsesList[0].id]);
         }
@@ -67,11 +64,6 @@ function GenerateReport() {
     );
   };
 
-  const getStatusColor = (isPaid, deadline) => {
-    if (isPaid) return { bg: '#D4F1D4', text: '#2D5F2E' };
-    return { bg: '#FFE5CC', text: '#8B4513' };
-  };
-
   const generateExcel = () => {
     setGenerating(true);
 
@@ -79,7 +71,6 @@ function GenerateReport() {
       const selectedHorseData = horses.filter(h => selectedHorses.includes(h.id));
       const workbook = XLSX.utils.book_new();
 
-      // Summary sheet
       const summaryData = [
         ['Incentive Vault - Report Summary'],
         ['Generated:', new Date().toLocaleDateString()],
@@ -91,7 +82,6 @@ function GenerateReport() {
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
 
-      // Per-horse sheets
       selectedHorseData.forEach(horse => {
         const horseData = [
           ['Horse Information'],
@@ -150,12 +140,13 @@ function GenerateReport() {
       pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPosition);
       yPosition += 10;
 
-      selectedHorseData.forEach((horse, index) => {
+      selectedHorseData.forEach(() => {
         if (yPosition > 250) {
           pdf.addPage();
           yPosition = 20;
         }
 
+        const horse = selectedHorseData[0];
         pdf.setFontSize(12);
         pdf.text(`${horse.name}`, 20, yPosition);
         yPosition += 8;
