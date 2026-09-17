@@ -79,7 +79,7 @@ function CalendarView() {
     });
 
     return { eventMap, allDeadlines };
-  }, [programs, horses, currentMonth]);
+  }, [programs, horses, currentMonth, monthOrder]);
 
   const upcomingDeadlines = useMemo(() => {
     return events.allDeadlines
@@ -96,7 +96,7 @@ function CalendarView() {
         return monthDiff !== 0 ? monthDiff : a.day - b.day;
       })
       .slice(0, 5);
-  }, [events.allDeadlines, currentMonth]);
+  }, [events.allDeadlines, currentMonth, monthOrder]);
 
   if (loading) {
     return <div className="calendar-page">Loading calendar...</div>;
