@@ -49,7 +49,7 @@ function CalendarView() {
 
         const horsesInProgram = horses.filter(h => h.programs && h.programs.includes(program.name));
         const horsePaidStatus = horsesInProgram.map(h => ({
-          name: h.name,
+          name: h.barnName,
           isPaid: h.programsPaid && h.programsPaid[program.name] === true
         }));
 
@@ -79,7 +79,8 @@ function CalendarView() {
         day: deadlineDay,
         totalHorses: horsesInProgram.length,
         paidCount,
-        unpaidCount
+        unpaidCount,
+        horseNames: horsesInProgram.map(h => h.barnName)
       });
     });
 
@@ -168,7 +169,7 @@ function CalendarView() {
                     <div className="event-title">{deadline.program}</div>
                     <div className="event-status-text">
                       {deadline.unpaidCount > 0 
-                        ? `${deadline.unpaidCount} horse${deadline.unpaidCount !== 1 ? 's' : ''} need${deadline.unpaidCount !== 1 ? '' : 's'} payment`
+                        ? `${deadline.horseNames.join(', ')} need${deadline.unpaidCount !== 1 ? '' : 's'} payment`
                         : 'All horses paid'
                       }
                     </div>
