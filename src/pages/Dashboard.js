@@ -1,38 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { db, auth } from '../firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { UserContext } from '../context/UserContext';
 import './Dashboard.css';
 
 function Dashboard() {
-  const [horses, setHorses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { horses, loading } = useContext(UserContext);
   const [stats, setStats] = useState({ totalHorses: 0, enrolledPrograms: 0, upcomingDeadlines: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchHorses = async () => {
-      try {
-        const q = query(collection(db, 'horses'), where('userId', '==', auth.currentUser.uid));
-        const snapshot = await getDocs(q);
-        const horsesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setHorses(horsesData);
-        setStats({
-          totalHorses: horsesData.length,
-          enrolledPrograms: horsesData.reduce((sum, h) => sum + (h.programs?.length || 0), 0),
-          upcomingDeadlines: 5,
-        });
-      } catch (error) {
-        console.error('Error fetching horses:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (auth.currentUser) {
-      fetchHorses();
-    }
-  }, []);
+    setStats({
+      totalHorses: horses.length,
+      enrolledPrograms: horses.reduce((sum, h) => sum + (h.programs?.length || 0), 0),
+      upcomingDeadlines: 5,
+    });
+  }, [horses]);
 
   if (loading) {
     return <div className="dashboard">Loading your barn...</div>;

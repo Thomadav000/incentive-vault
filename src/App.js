@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { UserContextProvider } from './context/UserContext';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -40,29 +41,31 @@ function App() {
   }
 
   return (
-    <Router>
-      {currentUser && <Navigation />}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={currentUser ? <Navigate to="/" /> : <Login />} />
-        <Route path="/signup" element={currentUser ? <Navigate to="/" /> : <SignUp />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
-        
-        {/* Protected Routes */}
-        {currentUser ? (
-          <>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/horse/:id" element={<HorseProfile />} />
-            <Route path="/add-horse" element={<AddHorse />} />
-            <Route path="/generate-report" element={<GenerateReport />} />
-            <Route path="/calendar" element={<CalendarView />} />
-            <Route path="/admin" element={<AdminPanel />} />
-          </>
-        ) : (
-          <Route path="*" element={<Navigate to="/" />} />
-        )}
-      </Routes>
-    </Router>
+    <UserContextProvider>
+      <Router>
+        {currentUser && <Navigation />}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={currentUser ? <Navigate to="/" /> : <Login />} />
+          <Route path="/signup" element={currentUser ? <Navigate to="/" /> : <SignUp />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          
+          {/* Protected Routes */}
+          {currentUser ? (
+            <>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/horse/:id" element={<HorseProfile />} />
+              <Route path="/add-horse" element={<AddHorse />} />
+              <Route path="/generate-report" element={<GenerateReport />} />
+              <Route path="/calendar" element={<CalendarView />} />
+              <Route path="/admin" element={<AdminPanel />} />
+            </>
+          ) : (
+            <Route path="*" element={<Navigate to="/" />} />
+          )}
+        </Routes>
+      </Router>
+    </UserContextProvider>
   );
 }
 

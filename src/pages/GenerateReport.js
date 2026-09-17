@@ -1,60 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { UserContext } from '../context/UserContext';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import './GenerateReport.css';
 
 function GenerateReport() {
-  const [user, setUser] = useState(null);
-  const [horses, setHorses] = useState([]);
-  const [programs, setPrograms] = useState({});
+  const { horses, programs, user, loading } = useContext(UserContext);
   const [selectedHorses, setSelectedHorses] = useState([]);
   const [format, setFormat] = useState('excel');
-  const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const currentUser = auth.currentUser;
-        if (!currentUser) {
-          navigate('/signup');
-          return;
-        }
-
-        setUser(currentUser);
-
-        const horsesRef = collection(db, 'horses');
-        const horsesQuery = query(horsesRef, where('userId', '==', currentUser.uid));
-        const horsesSnapshot = await getDocs(horsesQuery);
-        const horsesList = horsesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setHorses(horsesList);
-
-        const programsSnapshot = await getDocs(collection(db, 'programs'));
-        const programsMap = {};
-        programsSnapshot.forEach(doc => {
-          programsMap[doc.data().name] = doc.data();
-        });
-        setPrograms(programsMap);
-
-        if (horsesList.length > 0) {
-          setSelectedHorses([horsesList[0].id]);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [navigate]);
+    if (!loading && horses.length > 0) {
+      setSelectedHorses([horses[0].id]);
+    }
+  }, [horses, loading]);
 
   const handleHorseToggle = (horseId) => {
     setSelectedHorses(prev =>
@@ -140,13 +102,12 @@ function GenerateReport() {
       pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPosition);
       yPosition += 10;
 
-      selectedHorseData.forEach(() => {
+      selectedHorseData.forEach(horse => {
         if (yPosition > 250) {
           pdf.addPage();
           yPosition = 20;
         }
 
-        const horse = selectedHorseData[0];
         pdf.setFontSize(12);
         pdf.text(`${horse.name}`, 20, yPosition);
         yPosition += 8;
