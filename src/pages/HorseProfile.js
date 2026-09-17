@@ -135,7 +135,7 @@ function HorseProfile() {
                 <div key={program} className="program-item">
                   <h3>{program}</h3>
                   <div className="program-actions">
-                    <a href="#" className="btn-secondary">Visit Website →</a>
+                    <button className="btn-secondary">Visit Website →</button>
                     <button className="btn-status">Mark as Paid</button>
                   </div>
                 </div>
