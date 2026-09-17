@@ -15,6 +15,7 @@ import GenerateReport from './pages/GenerateReport';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import AddHorse from './pages/AddHorse';
+import ProfilePage from './pages/ProfilePage';
 
 // Navigation
 import Navigation from './components/Navigation';
@@ -56,6 +57,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/horse/:id" element={<HorseProfile />} />
               <Route path="/add-horse" element={<AddHorse />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/generate-report" element={<GenerateReport />} />
               <Route path="/calendar" element={<CalendarView />} />
               <Route path="/admin" element={<AdminPanel />} />
