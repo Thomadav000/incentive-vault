@@ -37,7 +37,7 @@ function GenerateReport() {
         ['Incentive Vault - Report Summary'],
         ['Generated:', new Date().toLocaleDateString()],
         [],
-        ['Horses Included:', selectedHorseData.map(h => h.name).join(', ')],
+        ['Horses Included:', selectedHorseData.map(h => h.barnName).join(', ')],
         []
       ];
 
@@ -47,7 +47,8 @@ function GenerateReport() {
       selectedHorseData.forEach(horse => {
         const horseData = [
           ['Horse Information'],
-          ['Name:', horse.name],
+          ['Barn Name:', horse.barnName],
+          ['Registered Name:', horse.registeredName],
           ['Color:', horse.color],
           ['Age:', horse.age],
           ['Registration #:', horse.registrationNumber || 'N/A'],
@@ -74,7 +75,7 @@ function GenerateReport() {
 
         const sheet = XLSX.utils.aoa_to_sheet(horseData);
         sheet['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 25 }];
-        XLSX.utils.book_append_sheet(workbook, sheet, horse.name.slice(0, 31));
+        XLSX.utils.book_append_sheet(workbook, sheet, horse.barnName.slice(0, 31));
       });
 
       XLSX.writeFile(workbook, `Incentive_Vault_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -109,11 +110,11 @@ function GenerateReport() {
         }
 
         pdf.setFontSize(12);
-        pdf.text(`${horse.name}`, 20, yPosition);
+        pdf.text(`${horse.barnName}`, 20, yPosition);
         yPosition += 8;
 
         pdf.setFontSize(10);
-        pdf.text(`Color: ${horse.color} | Age: ${horse.age} | Reg#: ${horse.registrationNumber || 'N/A'}`, 20, yPosition);
+        pdf.text(`Registered: ${horse.registeredName} | Color: ${horse.color} | Age: ${horse.age} | Reg#: ${horse.registrationNumber || 'N/A'}`, 20, yPosition);
         yPosition += 8;
 
         if (horse.programs && Array.isArray(horse.programs)) {
@@ -185,7 +186,7 @@ function GenerateReport() {
                     checked={selectedHorses.includes(horse.id)}
                     onChange={() => handleHorseToggle(horse.id)}
                   />
-                  <span>{horse.name} - {horse.color}, {horse.age} years old</span>
+                  <span>{horse.barnName} - {horse.color}, {horse.age} years old</span>
                 </label>
               ))}
             </div>
