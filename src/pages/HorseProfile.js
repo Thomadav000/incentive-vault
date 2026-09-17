@@ -1,131 +1,398 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { UserContext } from '../context/UserContext';
-import './HorseProfile.css';
-
-function HorseProfile() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { programs } = useContext(UserContext);
-  const [horse, setHorse] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [programPaidStatus, setProgramPaidStatus] = useState({});
-
-  useEffect(() => {
-    const fetchHorse = async () => {
-      try {
-        const horseRef = doc(db, 'horses', id);
-        const horseSnap = await getDoc(horseRef);
-
-        if (horseSnap.exists()) {
-          const horseData = horseSnap.data();
-          setHorse(horseData);
-          setProgramPaidStatus(horseData.programsPaid || {});
-        } else {
-          alert('Horse not found');
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        console.error('Error fetching horse:', error);
-        alert('Error loading horse');
-        navigate('/dashboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHorse();
-  }, [id, navigate]);
-
-  const handleMarkAsPaid = async (programName) => {
-    try {
-      const horseRef = doc(db, 'horses', id);
-      const newStatus = { ...programPaidStatus };
-      newStatus[programName] = !newStatus[programName];
-      setProgramPaidStatus(newStatus);
-
-      await updateDoc(horseRef, {
-        programsPaid: newStatus
-      });
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Failed to update payment status');
-    }
-  };
-
-  if (loading) {
-    return <div className="horse-profile">Loading...</div>;
-  }
-
-  if (!horse) {
-    return <div className="horse-profile">Horse not found</div>;
-  }
-
-  return (
-    <div className="horse-profile">
-      <div className="profile-container">
-        <button className="back-button" onClick={() => navigate('/dashboard')}>← Back to Barn</button>
-
-        <div className="profile-header">
-          <h1>{horse.barnName}</h1>
-          <p className="registered-name">Registered: {horse.registeredName}</p>
-          <div className="horse-details">
-            <span>Reg# {horse.registrationNumber || 'N/A'}</span>
-            <span>{horse.age} years old</span>
-            <span>{horse.color}</span>
-          </div>
-        </div>
-
-        {horse.sire && <p className="sire-info">By {horse.sire}</p>}
-
-        <section className="enrolled-programs">
-          <h2>Enrolled Programs</h2>
-          {horse.programs && horse.programs.length > 0 ? (
-            <div className="programs-list">
-              {horse.programs.map(programName => {
-                const program = programs[programName];
-                const isPaid = programPaidStatus[programName];
-
-                return (
-                  <div key={programName} className="program-card">
-                    <div className="program-header">
-                      <h3>{programName}</h3>
-                      <div className={`status-badge ${isPaid ? 'paid' : 'unpaid'}`}>
-                        {isPaid ? '✓ Paid' : 'Action Needed'}
-                      </div>
-                    </div>
-
-                    {program && (
-                      <div className="program-info">
-                        <p className="deadline">Next Payment Due: {program.deadline}</p>
-                        <p className="fee">Fee: {program[`fee${horse.age}yo`] || 'TBD'}</p>
-                      </div>
-                    )}
-
-                    <div className="program-actions">
-                      <a href={program?.website} target="_blank" rel="noopener noreferrer" className="btn-website">
-                        Visit Website
-                      </a>
-                      <button
-                        onClick={() => handleMarkAsPaid(programName)}
-                        className={`btn-status ${isPaid ? 'btn-unpaid' : 'btn-paid'}`}
-                      >
-                        {isPaid ? '✓ Mark as Unpaid' : 'Mark as Paid'}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="no-programs">No programs enrolled yet</p>
-          )}
-        </section>
-      </div>
-    </div>
-  );
+.horse-profile {
+  background-color: #F9F8F6;
+  min-height: 100vh;
+  padding: 2rem 0;
 }
 
-export default HorseProfile;
+.horse-profile-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.btn-back {
+  background-color: transparent;
+  border: none;
+  color: #C7967A;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  transition: color 0.3s;
+}
+
+.btn-back:hover {
+  color: #D4A574;
+}
+
+.horse-header {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  align-items: flex-start;
+}
+
+.horse-header img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  background-color: #F5F3F1;
+}
+
+.horse-header-info {
+  flex: 1;
+}
+
+.horse-header-info h1 {
+  font-size: 2.5rem;
+  color: #2C3E50;
+  margin: 0 0 0.5rem 0;
+}
+
+.horse-sire {
+  font-size: 1.1rem;
+  color: #546E7A;
+  margin: 0 0 1rem 0;
+}
+
+.horse-details {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.horse-details span {
+  background-color: #F5F3F1;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #546E7A;
+}
+
+.programs-section {
+  margin-bottom: 2rem;
+}
+
+.programs-section h2 {
+  font-size: 1.5rem;
+  color: #2C3E50;
+  margin-bottom: 1.5rem;
+}
+
+.programs-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.program-item {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.program-item h3 {
+  margin: 0 0 1rem 0;
+  color: #2C3E50;
+}
+
+.program-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-secondary {
+  background-color: #F5F3F1;
+  border: 1px solid #E8E6E3;
+  color: #2C3E50;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  border-color: #C7967A;
+  background-color: #FFFBF7;
+}
+
+.btn-status {
+  background-color: #D4A574;
+  color: #FFFFFF;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-status:hover {
+  background-color: #C49860;
+}
+
+.notes-section {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.notes-section h2 {
+  margin-top: 0;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-edit-horse {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-edit-horse:hover {
+  background-color: #F5F3F1;
+}
+
+.horse-registered {
+  color: #546E7A;
+  font-size: 1rem;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Edit Modal */
+.edit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.edit-modal {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #E8E6E3;
+  position: sticky;
+  top: 0;
+  background-color: #FFFFFF;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2C3E50;
+  font-size: 1.5rem;
+}
+
+.modal-close {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #546E7A;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #2C3E50;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #2C3E50;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #E8E6E3;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #D4A574;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.programs-checkbox-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox-item label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #c62828;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #E8E6E3;
+  background-color: #F9F8F6;
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+}
+
+.btn-cancel {
+  background-color: #546E7A;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #3d5563;
+}
+
+.btn-save {
+  background-color: #D4A574;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #C49860;
+}
+
+.btn-save:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .horse-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .horse-header img {
+    width: 100%;
+    height: auto;
+  }
+
+  .horse-header-info h1 {
+    font-size: 1.8rem;
+  }
+
+  .horse-details {
+    gap: 0.5rem;
+  }
+
+  .program-actions {
+    flex-direction: column;
+  }
+
+  .btn-secondary, .btn-status {
+    width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-modal {
+    width: 95%;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .btn-cancel, .btn-save {
+    width: 100%;
+  }
+}
