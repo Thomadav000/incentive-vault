@@ -11,6 +11,7 @@ const monthOrder = {
 function CalendarView() {
   const { horses, programs, loading } = useContext(UserContext);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [hoveredDeadline, setHoveredDeadline] = useState(null);
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -110,10 +111,6 @@ function CalendarView() {
       .slice(0, 5);
   }, [events.allDeadlines, currentMonth]);
 
-  if (loading) {
-    return <div className="calendar-page">Loading calendar...</div>;
-  }
-
   const getDeadlineText = (deadline) => {
     if (deadline.unpaidCount === 0) {
       return 'All horses paid';
@@ -122,6 +119,52 @@ function CalendarView() {
     const verb = deadline.unpaidCount === 1 ? 'needs' : 'need';
     return `${horseNames} ${verb} payment`;
   };
+
+  const createIcsEvent = (deadline) => {
+    const eventDate = new Date(currentMonth.getFullYear(), monthOrder[deadline.month] - 1, deadline.day);
+    const year = eventDate.getFullYear();
+    const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+    const day = String(eventDate.getDate()).padStart(2, '0');
+    const dtstart = `${year}${month}${day}`;
+
+    const eventTitle = `${deadline.program} - Payment Due`;
+    const eventDescription = getDeadlineText(deadline);
+    const enrollmentUrl = programs[deadline.program]?.website || 'https://theincentivevault.com';
+
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Incentive Vault//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:${deadline.program}-${dtstart}@theincentivevault.com
+DTSTAMP:${new Date().toISOString().replace(/[-:.]/g, '')}
+DTSTART:${dtstart}
+SUMMARY:${eventTitle}
+DESCRIPTION:${eventDescription}\\nEnroll: ${enrollmentUrl}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
+
+    return icsContent;
+  };
+
+  const downloadCalendarEvent = (deadline) => {
+    const icsContent = createIcsEvent(deadline);
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${deadline.program.replace(/\s+/g, '_')}_${deadline.deadline.replace(/\s+/g, '_')}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  if (loading) {
+    return <div className="calendar-page">Loading calendar...</div>;
+  }
 
   return (
     <div className="calendar-page">
@@ -136,6 +179,7 @@ function CalendarView() {
           <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}>
             Next →
           </button>
+          <button className="btn-add-month-calendar">📱 Add Month to Calendar</button>
         </div>
 
         <div className="calendar-legend">
@@ -158,12 +202,25 @@ function CalendarView() {
                   <div className="day-number">{day}</div>
                   <div className="day-events">
                     {events.eventMap[day] && events.eventMap[day].map((event, idx) => (
-                      <div key={idx} className="event deadline" title={event.program}>
+                      <div 
+                        key={idx} 
+                        className="event deadline"
+                        onMouseEnter={() => setHoveredDeadline(`grid-${day}-${idx}`)}
+                        onMouseLeave={() => setHoveredDeadline(null)}
+                      >
                         <span className="event-icon">📅</span>
                         <span className="event-label">{event.program}</span>
                         <span className="event-status">
                           {event.unpaidCount > 0 ? `Pay ${event.unpaidCount}` : 'All Paid'}
                         </span>
+                        {hoveredDeadline === `grid-${day}-${idx}` && (
+                          <button 
+                            className="btn-add-to-calendar"
+                            onClick={() => downloadCalendarEvent({ program: event.program, month: monthOrder[currentMonth.toLocaleString('default', { month: 'long' })], day: day, deadline: event.deadline, unpaidCount: event.unpaidCount, unpaidHorseNames: event.horses.filter(h => !h.isPaid).map(h => h.name) })}
+                          >
+                            Add to Calendar
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -178,7 +235,12 @@ function CalendarView() {
           {upcomingDeadlines.length > 0 ? (
             <div className="events-list">
               {upcomingDeadlines.map((deadline, idx) => (
-                <div key={idx} className="event-item">
+                <div 
+                  key={idx} 
+                  className="event-item"
+                  onMouseEnter={() => setHoveredDeadline(`upcoming-${idx}`)}
+                  onMouseLeave={() => setHoveredDeadline(null)}
+                >
                   <div className="event-date">{deadline.deadline}</div>
                   <div className="event-details">
                     <div className="event-title">{deadline.program}</div>
@@ -186,6 +248,14 @@ function CalendarView() {
                       {getDeadlineText(deadline)}
                     </div>
                   </div>
+                  {hoveredDeadline === `upcoming-${idx}` && (
+                    <button 
+                      className="btn-add-to-calendar"
+                      onClick={() => downloadCalendarEvent(deadline)}
+                    >
+                      Add to Calendar
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
