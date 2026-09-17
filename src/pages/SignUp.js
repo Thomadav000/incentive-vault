@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import './Auth.css';
 
@@ -28,6 +28,11 @@ function SignUp() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+
+      // Set display name in Firebase Auth
+      await updateProfile(user, {
+        displayName: name
+      });
 
       // Create user profile in Firestore
       await setDoc(doc(db, 'users', user.uid), {
