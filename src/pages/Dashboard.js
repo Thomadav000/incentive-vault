@@ -66,9 +66,9 @@ function Dashboard() {
             <div className="horses-grid">
               {horses.map(horse => (
                 <div key={horse.id} className="horse-card">
-                  {horse.photo && <img src={horse.photo} alt={horse.name} />}
+                  {horse.photo && <img src={horse.photo} alt={horse.barnName} />}
                   <div className="horse-info">
-                    <h3>{horse.name}</h3>
+                    <h3>{horse.barnName}</h3>
                     <p className="horse-meta">
                       {horse.sire && <span>By {horse.sire}</span>}
                       {horse.age && <span>{horse.age} yrs</span>}
