@@ -178,9 +178,14 @@ function AddHorse() {
           if (programData[programName].type === 'ONE_TIME' && newStatus === 'Eligible - Not Paid') {
             updatedProg.deadline = programData[programName].deadline;
             updatedProg.estimatedFee = programData[programName].fees[ageGroup];
-          } else if (newStatus === 'Eligible - Paid' || newStatus === 'Not Eligible') {
+          } else if (newStatus === 'Eligible - Paid') {
+            updatedProg.paidDate = new Date().toISOString().split('T')[0];
             updatedProg.deadline = '';
             updatedProg.estimatedFee = '';
+          } else if (newStatus === 'Not Eligible') {
+            updatedProg.deadline = '';
+            updatedProg.estimatedFee = '';
+            updatedProg.paidDate = null;
           }
           
           return updatedProg;
@@ -216,7 +221,7 @@ function AddHorse() {
         status: prog.status || 'Not Eligible',
         deadline: prog.deadline || null,
         estimatedFee: prog.estimatedFee || null,
-        paidDate: null,
+        paidDate: prog.paidDate || null,
         feeType: programData[prog.name].type,
       }));
 
