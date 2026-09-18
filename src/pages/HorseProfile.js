@@ -44,20 +44,23 @@ function HorseProfile() {
     }));
   };
 
-  const handleProgramToggle = (programName) => {
+  const handleProgramStatusChange = (programName, newStatus) => {
     setEditData(prev => {
       const currentPrograms = prev.programs || [];
-      if (currentPrograms.includes(programName)) {
-        return {
-          ...prev,
-          programs: currentPrograms.filter(p => p !== programName)
+      const programIndex = currentPrograms.findIndex(p => p.name === programName);
+      
+      if (programIndex >= 0) {
+        const updatedPrograms = [...currentPrograms];
+        updatedPrograms[programIndex] = {
+          ...updatedPrograms[programIndex],
+          status: newStatus
         };
-      } else {
         return {
           ...prev,
-          programs: [...currentPrograms, programName]
+          programs: updatedPrograms
         };
       }
+      return prev;
     });
   };
 
@@ -132,8 +135,9 @@ function HorseProfile() {
             <h2>Enrolled Programs</h2>
             <div className="programs-list">
               {horse.programs.map(program => (
-                <div key={program} className="program-item">
-                  <h3>{program}</h3>
+                <div key={program.name} className="program-item">
+                  <h3>{program.name}</h3>
+                  <p className="program-status">{program.status}</p>
                   <div className="program-actions">
                     <button className="btn-secondary">Visit Website →</button>
                     <button className="btn-status">Mark as Paid</button>
@@ -229,15 +233,18 @@ function HorseProfile() {
                   <p style={{ color: '#546E7A', textAlign: 'center', padding: '1rem', margin: 0 }}>Loading programs...</p>
                 ) : (
                   <div className="programs-checkbox-list">
-                    {programList.map(programName => (
-                      <div key={programName} className="checkbox-item">
-                        <input
-                          type="checkbox"
-                          id={`program-${programName}`}
-                          checked={(editData.programs || []).includes(programName)}
-                          onChange={() => handleProgramToggle(programName)}
-                        />
-                        <label htmlFor={`program-${programName}`}>{programName}</label>
+                    {(editData.programs || []).map(program => (
+                      <div key={program.name} className="program-edit-item">
+                        <label>{program.name}</label>
+                        <select 
+                          value={program.status || ''}
+                          onChange={(e) => handleProgramStatusChange(program.name, e.target.value)}
+                        >
+                          <option value="">Select status</option>
+                          <option value="Not Eligible">Not Eligible</option>
+                          <option value="Eligible - Not Paid">Eligible - Not Paid</option>
+                          <option value="Eligible - Paid">Eligible - Paid</option>
+                        </select>
                       </div>
                     ))}
                   </div>
