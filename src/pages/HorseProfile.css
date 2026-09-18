@@ -207,8 +207,8 @@
 .edit-modal {
   background-color: #FFFFFF !important;
   border-radius: 8px !important;
-  width: 85% !important;
-  max-width: 600px !important;
+  width: 90% !important;
+  max-width: 700px !important;
   max-height: 90vh !important;
   overflow-y: auto !important;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
@@ -253,7 +253,7 @@
   background-color: #F9F8F6;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .modal-body > .form-group:nth-child(1),
