@@ -69,10 +69,12 @@ function AddHorse() {
     },
     'Pink Buckle': {
       type: 'ANNUAL',
+      deadline: '12/01',
       url: 'https://pinkbuckle.com/nomination/2/2026-nomination-form',
     },
     'Ruby Buckle': {
       type: 'ANNUAL',
+      deadline: '12/01',
       url: 'https://therubybuckle.com/nomination/100/2026-nomination-form',
     },
   };
@@ -104,6 +106,12 @@ function AddHorse() {
   const getFeeForAge = (ageNum) => {
     const ageGroup = (ageNum !== null && ageNum >= 4) ? 4 : (ageNum || 0);
     return ageGroup;
+  };
+
+  // Get next payment year for annual programs
+  const getNextPaymentYear = () => {
+    const currentYear = new Date().getFullYear();
+    return currentYear + 1;
   };
 
   // Recalculate all program fees based on new age
@@ -238,6 +246,7 @@ function AddHorse() {
 
   const ageNum = calculateAge(formData.foalingYear);
   const displayAge = getAgeDisplay(ageNum);
+  const nextPaymentYear = getNextPaymentYear();
 
   return (
     <div className="add-horse-page">
@@ -397,7 +406,11 @@ function AddHorse() {
 
                   {prog.status === 'Eligible - Paid' && (
                     <div className="program-paid-badge">
-                      ✅ Paid for Life
+                      {programData[prog.name].type === 'ONE_TIME' ? (
+                        <>✅ Paid for Life</>
+                      ) : (
+                        <>✓ Paid for 2026 | Next payment due: 12/01/{nextPaymentYear}</>
+                      )}
                     </div>
                   )}
 
