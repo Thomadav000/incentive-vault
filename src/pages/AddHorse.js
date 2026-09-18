@@ -80,7 +80,23 @@ function AddHorse() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let updatedData = { [name]: value };
+
+    // Auto-calculate age from foaling year
+    if (name === 'foalingYear' && value) {
+      const currentYear = new Date().getFullYear();
+      const calculatedAge = currentYear - parseInt(value);
+      updatedData.age = calculatedAge.toString();
+    }
+
+    // Auto-calculate foaling year from age
+    if (name === 'age' && value) {
+      const currentYear = new Date().getFullYear();
+      const calculatedFoalingYear = currentYear - parseInt(value);
+      updatedData.foalingYear = calculatedFoalingYear.toString();
+    }
+
+    setFormData(prev => ({ ...prev, ...updatedData }));
   };
 
   const handlePhotoChange = (e) => {
