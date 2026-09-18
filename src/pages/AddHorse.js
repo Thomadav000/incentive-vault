@@ -1,41 +1,60 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth, storage } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './AddHorse.css';
 
 function AddHorse() {
   const [formData, setFormData] = useState({
     barnName: '',
     registeredName: '',
-    color: '',
-    foalingYear: new Date().getFullYear(),
     sire: '',
-    programs: []
+    registrationNumber: '',
+    age: '',
+    sex: '',
+    color: '',
+    foalingYear: '',
+    notes: '',
+    programs: [],
   });
-  const [calculatedAge, setCalculatedAge] = useState(0);
+  const [photo, setPhoto] = useState(null);
+  const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const allPrograms = [
-    'Future Fortunes',
-    'Pink Buckle',
-    'Ruby Buckle',
-    'Breeders Challenge',
-    'Select Stallion Stakes'
+  const programsData = [
+    {
+      name: 'Future Fortunes',
+      url: 'https://www.futurefortunesinc.com/foals/'
+    },
+    {
+      name: 'Pink Buckle',
+      url: 'https://pinkbuckle.com/nomination/2/2026-nomination-form'
+    },
+    {
+      name: 'Ruby Buckle',
+      url: 'https://therubybuckle.com/nomination/100/2026-nomination-form'
+    },
+    {
+      name: 'Breeders Challenge',
+      url: 'https://breederschallenge.com/search-nominations/'
+    },
+    {
+      name: 'Select Stallion Stakes',
+      url: 'https://www.selectstallionstakes.com/sssfoal'
+    }
   ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-    if (name === 'foalingYear') {
-      const year = parseInt(value);
-      const age = 2026 - year;
-      setCalculatedAge(age);
+  const handlePhotoChange = (e) => {
+    if (e.target.files[0]) {
+      setPhoto(e.target.files[0]);
     }
   };
 
@@ -50,39 +69,27 @@ function AddHorse() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.barnName || !formData.registeredName || !formData.color || !formData.foalingYear) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
+    setError('');
     setLoading(true);
 
     try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        alert('You must be logged in');
-        return;
+      let photoURL = null;
+      if (photo) {
+        const photoRef = ref(storage, `horses/${auth.currentUser.uid}/${photo.name}`);
+        await uploadBytes(photoRef, photo);
+        photoURL = await getDownloadURL(photoRef);
       }
 
       await addDoc(collection(db, 'horses'), {
-        userId: currentUser.uid,
-        barnName: formData.barnName,
-        registeredName: formData.registeredName,
-        color: formData.color,
-        foalingYear: parseInt(formData.foalingYear),
-        age: calculatedAge,
-        sire: formData.sire,
-        programs: formData.programs,
-        programsPaid: {},
-        createdAt: serverTimestamp()
+        ...formData,
+        photo: photoURL,
+        userId: auth.currentUser.uid,
+        createdAt: new Date(),
       });
 
-      alert('Horse added successfully!');
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Error adding horse:', error);
-      alert('Failed to add horse');
+    } catch (err) {
+      setError('Error adding horse: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -91,108 +98,193 @@ function AddHorse() {
   return (
     <div className="add-horse-page">
       <div className="add-horse-container">
-        <h1>Add a Horse</h1>
+        <h1>Add a New Horse</h1>
+        
+        {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="add-horse-form">
+          {/* Step 1: Search & Verify */}
           <div className="form-section">
-            <h2>Horse Information</h2>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="barnName">Barn Name *</label>
-                <input
-                  type="text"
-                  id="barnName"
-                  name="barnName"
-                  value={formData.barnName}
-                  onChange={handleChange}
-                  placeholder="What you call them"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="registeredName">Registered Name *</label>
-                <input
-                  type="text"
-                  id="registeredName"
-                  name="registeredName"
-                  value={formData.registeredName}
-                  onChange={handleChange}
-                  placeholder="Official AQHA registered name"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="color">Color *</label>
-                <input
-                  type="text"
-                  id="color"
-                  name="color"
-                  value={formData.color}
-                  onChange={handleChange}
-                  placeholder="e.g., Palomino, Bay, Sorrel"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="foalingYear">Foaling Year *</label>
-                <input
-                  type="number"
-                  id="foalingYear"
-                  name="foalingYear"
-                  value={formData.foalingYear}
-                  onChange={handleChange}
-                  min="1990"
-                  max="2026"
-                  required
-                />
-                <p className="calculated-age">Age: {calculatedAge} years old</p>
-              </div>
+            <h2>1. Search & Verify Horse</h2>
+            
+            <div className="form-group">
+              <label>Barn Name *</label>
+              <input
+                type="text"
+                name="barnName"
+                value={formData.barnName}
+                onChange={handleChange}
+                placeholder="e.g., Speedy Racer"
+                required
+              />
             </div>
 
             <div className="form-group">
-              <label htmlFor="sire">Sire</label>
+              <label>Registered Name *</label>
               <input
                 type="text"
-                id="sire"
+                name="registeredName"
+                value={formData.registeredName}
+                onChange={handleChange}
+                placeholder="e.g., Aint Bubblin Yet"
+                required
+              />
+            </div>
+
+            <div className="verification-box">
+              <h3>Verify on AQHA</h3>
+              <p>Visit AQHA's official pedigree database to verify registration details, sire, and full bloodline.</p>
+              <a href="https://www.aqha.com/" target="_blank" rel="noopener noreferrer" className="btn-verify">
+                🔗 Open AQHA Pedigree Search
+              </a>
+              <label className="checkbox-group">
+                <input
+                  type="checkbox"
+                  checked={verified}
+                  onChange={(e) => setVerified(e.target.checked)}
+                />
+                I've verified this horse on AQHA
+              </label>
+            </div>
+
+            {verified && <div className="verified-badge">✓ Verified</div>}
+          </div>
+
+          {/* Step 2: Horse Info */}
+          <div className="form-section">
+            <h2>2. Horse Information</h2>
+            
+            <div className="form-group">
+              <label>Registration Number</label>
+              <input
+                type="text"
+                name="registrationNumber"
+                value={formData.registrationNumber}
+                onChange={handleChange}
+                placeholder="AQHA #"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Sire (Stallion)</label>
+              <input
+                type="text"
                 name="sire"
                 value={formData.sire}
                 onChange={handleChange}
-                placeholder="Sire name (optional)"
+                placeholder="e.g., Slick By Design"
               />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Age</label>
+                <input
+                  type="number"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  placeholder="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>Sex</label>
+                <select name="sex" value={formData.sex} onChange={handleChange}>
+                  <option value="">Select...</option>
+                  <option value="Mare">Mare</option>
+                  <option value="Gelding">Gelding</option>
+                  <option value="Stallion">Stallion</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Color</label>
+                <input
+                  type="text"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
+                  placeholder="e.g., Bay"
+                />
+              </div>
+              <div className="form-group">
+                <label>Foaling Year</label>
+                <input
+                  type="number"
+                  name="foalingYear"
+                  value={formData.foalingYear}
+                  onChange={handleChange}
+                  placeholder="2021"
+                />
+              </div>
             </div>
           </div>
 
+          {/* Step 3: Programs */}
           <div className="form-section">
-            <h2>Program Enrollment</h2>
-            <p className="form-description">Select which programs this horse is enrolled in:</p>
-            <div className="programs-grid">
-              {allPrograms.map(program => (
-                <div key={program} className="program-checkbox">
-                  <input
-                    type="checkbox"
-                    id={program}
-                    checked={formData.programs.includes(program)}
-                    onChange={() => handleProgramToggle(program)}
-                  />
-                  <label htmlFor={program}>{program}</label>
+            <h2>3. Incentive Programs</h2>
+            
+            <div className="disclaimer-box">
+              <p className="disclaimer-title">⚠️ Eligibility Verification Required</p>
+              <p className="disclaimer-text">You are responsible for verifying that your horse is eligible for each program before enrolling. Click the program links below to visit each incentive's official website and confirm your horse meets the requirements (sire, age, bloodline, etc.).</p>
+            </div>
+
+            <p>Select which programs you're enrolling in:</p>
+            <div className="programs-list">
+              {programsData.map(program => (
+                <div key={program.name} className="program-item">
+                  <label className="program-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={formData.programs.includes(program.name)}
+                      onChange={() => handleProgramToggle(program.name)}
+                    />
+                    {program.name}
+                  </label>
+                  <a href={program.url} target="_blank" rel="noopener noreferrer" className="program-link">
+                    Verify Eligibility →
+                  </a>
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Step 4: Photo & Notes */}
+          <div className="form-section">
+            <h2>4. Photo & Details (Optional)</h2>
+            
+            <div className="form-group">
+              <label>Horse Photo</label>
+              <div className="photo-upload">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                />
+                <p>📸 Click to upload or drag and drop</p>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                placeholder="Any additional info about this horse..."
+                rows="4"
+              />
+            </div>
+          </div>
+
           <div className="form-actions">
-            <button type="submit" disabled={loading} className="btn-submit">
-              {loading ? 'Adding Horse...' : 'Add Horse'}
-            </button>
             <button type="button" onClick={() => navigate('/dashboard')} className="btn-cancel">
               Cancel
+            </button>
+            <button type="submit" disabled={loading} className="btn-submit">
+              {loading ? 'Adding Horse...' : 'Add Horse to Barn'}
             </button>
           </div>
         </form>
