@@ -441,6 +441,7 @@ function AddHorse() {
                 />
                 <p>📸 Click to upload or drag and drop</p>
               </div>
+              {photo && <div className="photo-selected">✓ {photo.name}</div>}
             </div>
 
             <div className="form-group">
