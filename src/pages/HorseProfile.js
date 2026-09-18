@@ -14,8 +14,7 @@ function HorseProfile() {
   const [error, setError] = useState('');
   const [editData, setEditData] = useState({});
   const navigate = useNavigate();
-  const { programs, programsLoading } = useContext(UserContext);
-  const programList = Object.keys(programs || {});
+  const { programsLoading } = useContext(UserContext);
 
   useEffect(() => {
     const fetchHorse = async () => {
