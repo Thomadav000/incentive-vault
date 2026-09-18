@@ -16,6 +16,29 @@ function HorseProfile() {
   const navigate = useNavigate();
   const { programsLoading } = useContext(UserContext);
 
+  const programData = {
+    'Future Fortunes': {
+      type: 'ONE_TIME',
+      url: 'https://www.futurefortunesinc.com/foals/',
+    },
+    'Breeders Challenge': {
+      type: 'ONE_TIME',
+      url: 'https://breederschallenge.com/search-nominations/',
+    },
+    'Select Stallion Stakes': {
+      type: 'ONE_TIME',
+      url: 'https://www.selectstallionstakes.com/sssfoal',
+    },
+    'Pink Buckle': {
+      type: 'ANNUAL',
+      url: 'https://pinkbuckle.com/nomination/2/2026-nomination-form',
+    },
+    'Ruby Buckle': {
+      type: 'ANNUAL',
+      url: 'https://therubybuckle.com/nomination/100/2026-nomination-form',
+    },
+  };
+
   useEffect(() => {
     const fetchHorse = async () => {
       try {
@@ -104,6 +127,24 @@ function HorseProfile() {
     setError('');
   };
 
+  const getNextPaymentYear = () => {
+    const currentYear = new Date().getFullYear();
+    return currentYear + 1;
+  };
+
+  const getStatusBadge = (program) => {
+    if (program.status === 'Not Eligible') return '❌ Not Eligible';
+    if (program.status === 'Eligible - Not Paid') return '🔔 Eligible - Not Paid';
+    if (program.status === 'Eligible - Paid') {
+      if (programData[program.name]?.type === 'ONE_TIME') {
+        return '✅ Paid for Life';
+      } else {
+        return `✓ Paid for 2026 | Next: 12/01/${getNextPaymentYear()}`;
+      }
+    }
+    return program.status;
+  };
+
   if (loading) return <div className="horse-profile">Loading...</div>;
   if (!horse) return <div className="horse-profile">Horse not found</div>;
 
@@ -131,15 +172,37 @@ function HorseProfile() {
 
         {horse.programs && horse.programs.length > 0 && (
           <section className="programs-section">
-            <h2>Enrolled Programs</h2>
-            <div className="programs-list">
+            <h2>Incentive Programs</h2>
+            <div className="programs-grid">
               {horse.programs.map(program => (
-                <div key={program.name} className="program-item">
-                  <h3>{program.name}</h3>
-                  <p className="program-status">{program.status}</p>
-                  <div className="program-actions">
-                    <button className="btn-secondary">Visit Website →</button>
-                    <button className="btn-status">Mark as Paid</button>
+                <div key={program.name} className="program-card">
+                  <div className="program-header-card">
+                    <h3>{program.name}</h3>
+                  </div>
+
+                  <div className="program-status-badge">
+                    {getStatusBadge(program)}
+                  </div>
+
+                  {program.status === 'Eligible - Not Paid' && program.estimatedFee && (
+                    <div className="program-details-card">
+                      <p><strong>Est. Fee:</strong> {program.estimatedFee}</p>
+                      {program.deadline && <p><strong>Deadline:</strong> {program.deadline}</p>}
+                    </div>
+                  )}
+
+                  <div className="program-card-actions">
+                    <a 
+                      href={programData[program.name]?.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="btn-secondary"
+                    >
+                      Visit Website →
+                    </a>
+                    {program.status === 'Eligible - Not Paid' && (
+                      <button className="btn-status">Mark as Paid</button>
+                    )}
                   </div>
                 </div>
               ))}
