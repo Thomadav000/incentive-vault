@@ -34,7 +34,7 @@ function AddHorse() {
     'Future Fortunes': {
       type: 'ONE_TIME',
       deadline: '12/31',
-      url: 'https://www.futurefortunesinc.com/',
+      url: 'https://www.futurefortunesinc.com/foals/',
       fees: {
         0: '$175 (early by 11/01) / $275 (by 12/31)',
         1: '$375',
@@ -46,7 +46,7 @@ function AddHorse() {
     'Breeders Challenge': {
       type: 'ONE_TIME',
       deadline: '12/01',
-      url: 'https://www.breederschallenge.com/',
+      url: 'https://breederschallenge.com/search-nominations/',
       fees: {
         0: '$250 (weanling - due by 12/01) or $1,250 (yearling late fee)',
         1: '$1,250 (yearling late fee)',
@@ -58,7 +58,7 @@ function AddHorse() {
     'Select Stallion Stakes': {
       type: 'ONE_TIME',
       deadline: '7 days before',
-      url: 'https://www.selectstallionstakes.com/',
+      url: 'https://www.selectstallionstakes.com/sssfoal',
       fees: {
         0: '$200',
         1: '$200',
@@ -69,11 +69,11 @@ function AddHorse() {
     },
     'Pink Buckle': {
       type: 'ANNUAL',
-      url: 'https://www.pinkbuckle.com/',
+      url: 'https://pinkbuckle.com/nomination/2/2026-nomination-form',
     },
     'Ruby Buckle': {
       type: 'ANNUAL',
-      url: 'https://www.therubybuckle.com/',
+      url: 'https://therubybuckle.com/nomination/100/2026-nomination-form',
     },
   };
 
