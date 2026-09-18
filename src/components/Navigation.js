@@ -29,14 +29,17 @@ function Navigation() {
           <Link to="/" className="nav-link">
             Home
           </Link>
+          <Link to="/add-horse" className="nav-link">
+            Add Horse
+          </Link>
           <Link to="/dashboard" className="nav-link">
             Your Barn
           </Link>
+          <Link to="/fee-tracker" className="nav-link">
+            The Vault
+          </Link>
           <Link to="/calendar" className="nav-link">
             Calendar
-          </Link>
-          <Link to="/add-horse" className="nav-link">
-            Add Horse
           </Link>
           <Link to="/profile" className="nav-link">
             Profile
