@@ -9,13 +9,6 @@ function FeeTracker() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const programNames = {
-    'Future Fortunes': 'FF',
-    'Breeders Challenge': 'BC',
-    'Select Stallion Stakes': 'SSS',
-    'Pink Buckle': 'PB',
-    'Ruby Buckle': 'RB',
-  };
 
   useEffect(() => {
     const fetchHorses = async () => {
