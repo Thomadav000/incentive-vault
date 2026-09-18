@@ -9,6 +9,7 @@ export function UserContextProvider({ children }) {
   const [programs, setPrograms] = useState({});
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [programsLoading, setProgramsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
@@ -20,6 +21,7 @@ export function UserContextProvider({ children }) {
         setHorses([]);
         setPrograms({});
         setLoading(false);
+        setProgramsLoading(false);
       }
     });
 
@@ -41,14 +43,17 @@ export function UserContextProvider({ children }) {
       setHorses(horsesList);
 
       // Fetch programs
+      setProgramsLoading(true);
       const programsSnapshot = await getDocs(collection(db, 'programs'));
       const programsMap = {};
       programsSnapshot.forEach(doc => {
         programsMap[doc.data().name] = doc.data();
       });
       setPrograms(programsMap);
+      setProgramsLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
+      setProgramsLoading(false);
     } finally {
       setLoading(false);
     }
@@ -68,12 +73,14 @@ export function UserContextProvider({ children }) {
   };
 
   const refreshPrograms = async () => {
+    setProgramsLoading(true);
     const programsSnapshot = await getDocs(collection(db, 'programs'));
     const programsMap = {};
     programsSnapshot.forEach(doc => {
       programsMap[doc.data().name] = doc.data();
     });
     setPrograms(programsMap);
+    setProgramsLoading(false);
   };
 
   const value = {
@@ -81,6 +88,7 @@ export function UserContextProvider({ children }) {
     programs,
     user,
     loading,
+    programsLoading,
     refreshHorses,
     refreshPrograms
   };

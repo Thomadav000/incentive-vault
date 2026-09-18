@@ -14,7 +14,7 @@ function HorseProfile() {
   const [error, setError] = useState('');
   const [editData, setEditData] = useState({});
   const navigate = useNavigate();
-  const { programs } = useContext(UserContext);
+  const { programs, programsLoading } = useContext(UserContext);
   const programList = Object.keys(programs || {});
 
   useEffect(() => {
@@ -193,26 +193,24 @@ function HorseProfile() {
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Foaling Year</label>
-                  <input
-                    type="number"
-                    value={editData.foalingYear || ''}
-                    onChange={(e) => handleEditChange('foalingYear', e.target.value)}
-                    placeholder="2020"
-                  />
-                </div>
+              <div className="form-group">
+                <label>Foaling Year</label>
+                <input
+                  type="number"
+                  value={editData.foalingYear || ''}
+                  onChange={(e) => handleEditChange('foalingYear', e.target.value)}
+                  placeholder="2020"
+                />
+              </div>
 
-                <div className="form-group">
-                  <label>Age</label>
-                  <input
-                    type="number"
-                    value={editData.age || ''}
-                    onChange={(e) => handleEditChange('age', e.target.value)}
-                    placeholder="Age in years"
-                  />
-                </div>
+              <div className="form-group">
+                <label>Age</label>
+                <input
+                  type="number"
+                  value={editData.age || ''}
+                  onChange={(e) => handleEditChange('age', e.target.value)}
+                  placeholder="Age in years"
+                />
               </div>
 
               <div className="form-group">
@@ -227,19 +225,23 @@ function HorseProfile() {
 
               <div className="form-group">
                 <label>Programs</label>
-                <div className="programs-checkbox-list">
-                  {programList.map(programName => (
-                    <div key={programName} className="checkbox-item">
-                      <input
-                        type="checkbox"
-                        id={`program-${programName}`}
-                        checked={(editData.programs || []).includes(programName)}
-                        onChange={() => handleProgramToggle(programName)}
-                      />
-                      <label htmlFor={`program-${programName}`}>{programName}</label>
-                    </div>
-                  ))}
-                </div>
+                {programsLoading ? (
+                  <p style={{ color: '#546E7A', textAlign: 'center', padding: '1rem', margin: 0 }}>Loading programs...</p>
+                ) : (
+                  <div className="programs-checkbox-list">
+                    {programList.map(programName => (
+                      <div key={programName} className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          id={`program-${programName}`}
+                          checked={(editData.programs || []).includes(programName)}
+                          onChange={() => handleProgramToggle(programName)}
+                        />
+                        <label htmlFor={`program-${programName}`}>{programName}</label>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
