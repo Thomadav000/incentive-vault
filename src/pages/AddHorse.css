@@ -83,6 +83,7 @@
   font-family: 'Lato', sans-serif;
   font-size: 1rem;
   transition: all 0.3s;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
@@ -131,6 +132,7 @@
   width: 100%;
   text-align: center;
   transition: all 0.3s;
+  box-sizing: border-box;
 }
 
 .btn-verify:hover {
@@ -162,87 +164,156 @@
   margin-top: 1rem;
 }
 
-/* Disclaimer */
-.disclaimer-box {
-  background-color: #FFF3E0;
-  border: 2px solid #FF9800;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.disclaimer-title {
-  font-weight: 700;
-  color: #E65100;
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-}
-
-.disclaimer-text {
-  color: #BF360C;
-  font-size: 0.9rem;
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* Programs List */
 .programs-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .program-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
   background-color: #F5F3F1;
-  border: 2px solid #E8E6E3;
-  border-radius: 6px;
+  border: 1px solid #E8E6E3;
+  border-radius: 8px;
+  padding: 1.5rem;
   transition: all 0.3s;
 }
 
 .program-item:hover {
   border-color: #C7967A;
-  background-color: #FFFBF7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.program-checkbox {
+.program-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-weight: 500;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.program-header h3 {
+  font-size: 1.1rem;
+  color: #2C3E50;
+  margin: 0;
   flex: 1;
-  margin: 0;
-  padding: 0;
-  background-color: transparent;
-  border: none;
 }
 
-.program-checkbox input {
-  width: auto;
-  margin: 0;
-  cursor: pointer;
-  accent-color: #D4A574;
-}
-
-.program-link {
-  background-color: #D4A574;
-  color: #FFFFFF;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
+.program-verify-link {
+  background-color: #FFFFFF;
+  border: 1px solid #D4A574;
+  color: #D4A574;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
   transition: all 0.3s;
 }
 
-.program-link:hover {
-  background-color: #C49860;
-  transform: scale(1.05);
+.program-verify-link:hover {
+  background-color: #D4A574;
+  color: #FFFFFF;
+}
+
+.program-status-selector {
+  margin-bottom: 1rem;
+}
+
+.program-status-selector label {
+  display: block;
+  font-weight: 600;
+  color: #2C3E50;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.program-status-selector select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #E8E6E3;
+  border-radius: 6px;
+  font-family: 'Lato', sans-serif;
+  font-size: 1rem;
+  background-color: #FFFFFF;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.program-status-selector select:focus {
+  outline: none;
+  border-color: #C7967A;
+  box-shadow: 0 0 0 3px rgba(199, 150, 122, 0.1);
+}
+
+.program-paid-badge {
+  background-color: #E8F5E9;
+  border: 1px solid #4CAF50;
+  color: #2E7D32;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.program-details {
+  background-color: #FFFFFF;
+  border: 1px solid #E8E6E3;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.program-details p {
+  margin: 0.5rem 0;
+  color: #546E7A;
+  font-size: 0.9rem;
+}
+
+.program-details p:first-child {
+  margin-top: 0;
+}
+
+.program-details p:last-child {
+  margin-bottom: 0;
+}
+
+.program-details strong {
+  color: #2C3E50;
+}
+
+.program-details .disclaimer {
+  color: #D97706;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #FED7AA;
+  font-style: italic;
+}
+
+.disclaimer-box {
+  background-color: #FFF3CD;
+  border: 1px solid #FFC107;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.disclaimer-title {
+  font-size: 1rem;
+  color: #856404;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.disclaimer-text {
+  color: #856404;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .photo-upload {
@@ -327,12 +398,12 @@
     grid-template-columns: 1fr;
   }
 
-  .program-item {
+  .program-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .program-link {
+  .program-verify-link {
     width: 100%;
     text-align: center;
   }
