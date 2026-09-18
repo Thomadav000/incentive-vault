@@ -207,9 +207,9 @@
 .edit-modal {
   background-color: #FFFFFF !important;
   border-radius: 8px !important;
-  width: 90% !important;
-  max-width: 500px !important;
-  max-height: 85vh !important;
+  width: 85% !important;
+  max-width: 600px !important;
+  max-height: 90vh !important;
   overflow-y: auto !important;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
   position: relative !important;
