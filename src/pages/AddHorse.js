@@ -100,9 +100,38 @@ function AddHorse() {
     return age.toString();
   };
 
+  // Get fee for current age
+  const getFeeForAge = (ageNum) => {
+    const ageGroup = (ageNum !== null && ageNum >= 4) ? 4 : (ageNum || 0);
+    return ageGroup;
+  };
+
+  // Recalculate all program fees based on new age
+  const recalculateProgramFees = (newFoalingYear) => {
+    const ageNum = calculateAge(newFoalingYear);
+    const ageGroup = getFeeForAge(ageNum);
+
+    return formData.programs.map(prog => {
+      if (programData[prog.name].type === 'ONE_TIME' && prog.status === 'Eligible - Not Paid') {
+        return {
+          ...prog,
+          deadline: programData[prog.name].deadline,
+          estimatedFee: programData[prog.name].fees[ageGroup],
+        };
+      }
+      return prog;
+    });
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'foalingYear') {
+      const updatedPrograms = recalculateProgramFees(value);
+      setFormData(prev => ({ ...prev, [name]: value, programs: updatedPrograms }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handlePhotoChange = (e) => {
@@ -113,7 +142,7 @@ function AddHorse() {
 
   const handleProgramStatusChange = (programName, newStatus) => {
     const ageNum = calculateAge(formData.foalingYear);
-    const ageGroup = (ageNum !== null && ageNum >= 4) ? 4 : (ageNum || 0);
+    const ageGroup = getFeeForAge(ageNum);
 
     setFormData(prev => ({
       ...prev,
