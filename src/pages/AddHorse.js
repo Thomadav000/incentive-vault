@@ -11,7 +11,6 @@ function AddHorse() {
     registeredName: '',
     sire: '',
     registrationNumber: '',
-    age: '',
     sex: '',
     color: '',
     foalingYear: '',
@@ -78,25 +77,31 @@ function AddHorse() {
     },
   };
 
+  // Calculate age from foaling year
+  const calculateAge = (foalingYear) => {
+    if (!foalingYear) return null;
+    const currentYear = new Date().getFullYear();
+    const ageNum = currentYear - parseInt(foalingYear);
+    return ageNum;
+  };
+
+  // Format age display
+  const getAgeDisplay = (ageNum) => {
+    if (ageNum === null || ageNum === undefined) {
+      return '--';
+    }
+    if (ageNum === 0) {
+      return 'Weanling';
+    }
+    if (ageNum === 1) {
+      return '1-Yearling';
+    }
+    return ageNum.toString();
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let updatedData = { [name]: value };
-
-    // Auto-calculate age from foaling year
-    if (name === 'foalingYear' && value) {
-      const currentYear = new Date().getFullYear();
-      const calculatedAge = currentYear - parseInt(value);
-      updatedData.age = calculatedAge.toString();
-    }
-
-    // Auto-calculate foaling year from age
-    if (name === 'age' && value) {
-      const currentYear = new Date().getFullYear();
-      const calculatedFoalingYear = currentYear - parseInt(value);
-      updatedData.foalingYear = calculatedFoalingYear.toString();
-    }
-
-    setFormData(prev => ({ ...prev, ...updatedData }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handlePhotoChange = (e) => {
@@ -106,15 +111,16 @@ function AddHorse() {
   };
 
   const handleProgramStatusChange = (programName, newStatus) => {
+    const ageNum = calculateAge(formData.foalingYear);
+    const ageGroup = (ageNum !== null && ageNum >= 4) ? 4 : (ageNum || 0);
+
     setFormData(prev => ({
       ...prev,
       programs: prev.programs.map(prog => {
         if (prog.name === programName) {
           const updatedProg = { ...prog, status: newStatus };
           
-          // For one-time programs, populate deadline and fee when status changes
           if (programData[programName].type === 'ONE_TIME' && newStatus === 'Eligible - Not Paid') {
-            const ageGroup = parseInt(formData.age) >= 4 ? 4 : parseInt(formData.age) || 0;
             updatedProg.deadline = programData[programName].deadline;
             updatedProg.estimatedFee = programData[programName].fees[ageGroup];
           } else if (newStatus === 'Eligible - Paid' || newStatus === 'Not Eligible') {
@@ -148,7 +154,8 @@ function AddHorse() {
         photoURL = await getDownloadURL(photoRef);
       }
 
-      // Clean up programs data: only include selected programs
+      const ageNum = calculateAge(formData.foalingYear);
+
       const programsToSave = formData.programs.map(prog => ({
         name: prog.name,
         status: prog.status || 'Not Eligible',
@@ -163,7 +170,7 @@ function AddHorse() {
         registeredName: formData.registeredName,
         sire: formData.sire,
         registrationNumber: formData.registrationNumber,
-        age: parseInt(formData.age) || 0,
+        age: ageNum || 0,
         sex: formData.sex,
         color: formData.color,
         foalingYear: parseInt(formData.foalingYear) || null,
@@ -181,6 +188,9 @@ function AddHorse() {
       setLoading(false);
     }
   };
+
+  const ageNum = calculateAge(formData.foalingYear);
+  const displayAge = getAgeDisplay(ageNum);
 
   return (
     <div className="add-horse-page">
@@ -264,16 +274,25 @@ function AddHorse() {
 
             <div className="form-row">
               <div className="form-group">
-                <label>Age</label>
+                <label>Foaling Year</label>
                 <input
                   type="number"
-                  name="age"
-                  value={formData.age}
+                  name="foalingYear"
+                  value={formData.foalingYear}
                   onChange={handleChange}
-                  placeholder="3"
-                  min="0"
+                  placeholder="2021"
+                  min="1990"
                 />
               </div>
+              <div className="form-group">
+                <label>Age</label>
+                <div className="age-display">
+                  {displayAge}
+                </div>
+              </div>
+            </div>
+
+            <div className="form-row">
               <div className="form-group">
                 <label>Sex</label>
                 <select name="sex" value={formData.sex} onChange={handleChange}>
@@ -283,9 +302,6 @@ function AddHorse() {
                   <option value="Stallion">Stallion</option>
                 </select>
               </div>
-            </div>
-
-            <div className="form-row">
               <div className="form-group">
                 <label>Color</label>
                 <input
@@ -294,17 +310,6 @@ function AddHorse() {
                   value={formData.color}
                   onChange={handleChange}
                   placeholder="e.g., Bay"
-                />
-              </div>
-              <div className="form-group">
-                <label>Foaling Year</label>
-                <input
-                  type="number"
-                  name="foalingYear"
-                  value={formData.foalingYear}
-                  onChange={handleChange}
-                  placeholder="2021"
-                  min="1990"
                 />
               </div>
             </div>
