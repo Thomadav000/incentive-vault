@@ -49,7 +49,31 @@ function AddHorse() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Auto-calculate age from foaling year
+    if (name === 'foalingYear' && value) {
+      const currentYear = new Date().getFullYear();
+      const calculatedAge = currentYear - parseInt(value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        age: calculatedAge > 0 ? calculatedAge : ''
+      }));
+    }
+    // Auto-calculate foaling year from age
+    else if (name === 'age' && value) {
+      const currentYear = new Date().getFullYear();
+      const calculatedYear = currentYear - parseInt(value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        foalingYear: calculatedYear > 0 ? calculatedYear : ''
+      }));
+    }
+    // Normal change for other fields
+    else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handlePhotoChange = (e) => {
