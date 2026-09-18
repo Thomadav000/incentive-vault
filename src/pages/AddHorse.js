@@ -90,13 +90,14 @@ function AddHorse() {
     if (ageNum === null || ageNum === undefined) {
       return '--';
     }
-    if (ageNum === 0) {
+    const age = Number(ageNum);
+    if (age === 0) {
       return 'Weanling';
     }
-    if (ageNum === 1) {
+    if (age === 1) {
       return '1-Yearling';
     }
-    return ageNum.toString();
+    return age.toString();
   };
 
   const handleChange = (e) => {
