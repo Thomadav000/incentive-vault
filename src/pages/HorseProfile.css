@@ -251,6 +251,25 @@
 .modal-body {
   padding: 1.5rem;
   background-color: #F9F8F6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.modal-body > .form-group:nth-child(1),
+.modal-body > .form-group:nth-child(2) {
+  grid-column: span 1;
+}
+
+.modal-body > .form-group:nth-child(3),
+.modal-body > .form-group:nth-child(4),
+.modal-body > .form-group:nth-child(5),
+.modal-body > .form-group:nth-child(6) {
+  grid-column: span 1;
+}
+
+.modal-body > .form-group:nth-child(7) {
+  grid-column: 1 / -1;
 }
 
 .form-group {
@@ -421,6 +440,14 @@
 
   .programs-checkbox-list {
     grid-template-columns: 1fr;
+  }
+
+  .modal-body {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-body > .form-group:nth-child(7) {
+    grid-column: 1;
   }
 
   .modal-footer {
