@@ -197,18 +197,17 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
-  padding: 1rem;
-  overflow: hidden;
 }
 
 .edit-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: #FFFFFF;
   border-radius: 8px;
-  width: 100%;
+  width: 90%;
   max-width: 500px;
   max-height: 85vh;
   overflow-y: auto;
