@@ -49,11 +49,11 @@ function AddHorse() {
       deadline: '12/01',
       url: 'https://www.breederschallenge.com/',
       fees: {
-        0: '$250 (increases if enrolled after weanling year)',
-        1: '$250+',
-        2: '$250+',
-        3: '$250+',
-        4: '$250+',
+        0: '$250 (weanling - due by 12/01) or $1,250 (yearling late fee)',
+        1: '$1,250 (yearling late fee)',
+        2: '$2,500 (2-year-old late fee)',
+        3: '$3,500 (3-year-old late fee)',
+        4: '$5,000 (4+ late fee)',
       },
     },
     'Select Stallion Stakes': {
