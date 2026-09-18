@@ -113,7 +113,7 @@ function Dashboard() {
                   </div>
                   <div className="horse-programs">
                     {horse.programs?.slice(0, 3).map(program => (
-                      <span key={program} className="program-badge">{program}</span>
+                      <span key={program.name} className="program-badge">{program.name}</span>
                     ))}
                     {horse.programs?.length > 3 && <span className="program-badge">+{horse.programs.length - 3}</span>}
                   </div>
