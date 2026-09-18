@@ -140,6 +140,23 @@ function AddHorse() {
     }
   };
 
+  const handlePhotoClick = () => {
+    document.getElementById('photo-input').click();
+  };
+
+  const handlePhotoDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files[0]) {
+      setPhoto(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handlePhotoDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const handleProgramStatusChange = (programName, newStatus) => {
     const ageNum = calculateAge(formData.foalingYear);
     const ageGroup = getFeeForAge(ageNum);
@@ -410,8 +427,14 @@ function AddHorse() {
             
             <div className="form-group">
               <label>Horse Photo</label>
-              <div className="photo-upload">
+              <div 
+                className="photo-upload"
+                onClick={handlePhotoClick}
+                onDrop={handlePhotoDrop}
+                onDragOver={handlePhotoDragOver}
+              >
                 <input
+                  id="photo-input"
                   type="file"
                   accept="image/*"
                   onChange={handlePhotoChange}
