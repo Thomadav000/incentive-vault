@@ -1,36 +1,57 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
-import { doc, deleteDoc } from 'firebase/firestore';
-import { UserContext } from '../context/UserContext';
+import { db, auth } from '../firebase';
+import { collection, query, where, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import './Dashboard.css';
 
 function Dashboard() {
-  const { horses, loading, refreshHorses } = useContext(UserContext);
+  const [horses, setHorses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalHorses: 0, enrolledPrograms: 0, upcomingDeadlines: 0 });
-  const [hoveredHorse, setHoveredHorse] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setStats({
-      totalHorses: horses.length,
-      enrolledPrograms: horses.reduce((sum, h) => sum + (h.programs?.length || 0), 0),
-      upcomingDeadlines: 5,
-    });
-  }, [horses]);
+    const fetchHorses = async () => {
+      try {
+        const q = query(collection(db, 'horses'), where('userId', '==', auth.currentUser.uid));
+        const snapshot = await getDocs(q);
+        const horsesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setHorses(horsesData);
+        setStats({
+          totalHorses: horsesData.length,
+          enrolledPrograms: horsesData.reduce((sum, h) => sum + (h.programs?.length || 0), 0),
+          upcomingDeadlines: 5, // Placeholder - calculate from programs
+        });
+      } catch (error) {
+        console.error('Error fetching horses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleDeleteHorse = async (horseId, horseName) => {
-    try {
-      const horseRef = doc(db, 'horses', horseId);
-      await deleteDoc(horseRef);
-      setDeleteConfirm(null);
-      refreshHorses();
-      alert(`${horseName} has been removed from your barn.`);
-    } catch (error) {
-      console.error('Error deleting horse:', error);
-      alert('Failed to remove horse');
+    if (auth.currentUser) {
+      fetchHorses();
     }
+  }, []);
+
+  const handleDeleteHorse = async (horseId) => {
+    if (window.confirm('Are you sure you want to delete this horse? This cannot be undone.')) {
+      try {
+        await deleteDoc(doc(db, 'horses', horseId));
+        setHorses(horses.filter(h => h.id !== horseId));
+        setStats(prev => ({
+          ...prev,
+          totalHorses: prev.totalHorses - 1
+        }));
+      } catch (error) {
+        console.error('Error deleting horse:', error);
+        alert('Failed to delete horse');
+      }
+    }
+  };
+
+  const handleEditHorse = (horseId) => {
+    navigate(`/horse/${horseId}`);
   };
 
   if (loading) {
@@ -42,12 +63,10 @@ function Dashboard() {
       <div className="dashboard-container">
         <header className="dashboard-header">
           <h1>Your Barn</h1>
-          <div className="header-buttons">
-            <button onClick={() => navigate('/generate-report')} className="btn-generate-report">Generate Report</button>
-            <Link to="/add-horse" className="btn-add-horse">+ Add Horse</Link>
-          </div>
+          <Link to="/add-horse" className="btn-add-horse">+ Add Horse</Link>
         </header>
 
+        {/* Stats */}
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon">🐴</div>
@@ -72,6 +91,7 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* Horses Grid */}
         <section className="horses-section">
           <h2>Your Horses</h2>
           {horses.length === 0 ? (
@@ -82,15 +102,10 @@ function Dashboard() {
           ) : (
             <div className="horses-grid">
               {horses.map(horse => (
-                <div 
-                  key={horse.id} 
-                  className="horse-card"
-                  onMouseEnter={() => setHoveredHorse(horse.id)}
-                  onMouseLeave={() => setHoveredHorse(null)}
-                >
+                <div key={horse.id} className="horse-card">
                   {horse.photo && <img src={horse.photo} alt={horse.barnName} />}
                   <div className="horse-info">
-                    <h3>⭐ {horse.barnName}</h3>
+                    <h3>{horse.barnName}</h3>
                     <p className="horse-meta">
                       {horse.sire && <span>By {horse.sire}</span>}
                       {horse.age && <span>{horse.age} yrs</span>}
@@ -102,37 +117,17 @@ function Dashboard() {
                     ))}
                     {horse.programs?.length > 3 && <span className="program-badge">+{horse.programs.length - 3}</span>}
                   </div>
+                  <div className="horse-actions">
+                    <button onClick={() => handleEditHorse(horse.id)} className="btn-action btn-edit" title="Edit horse">⚙️</button>
+                    <button onClick={() => handleDeleteHorse(horse.id)} className="btn-action btn-delete" title="Delete horse">🗑️</button>
+                  </div>
                   <Link to={`/horse/${horse.id}`} className="btn-secondary">View Details</Link>
-                  
-                  {hoveredHorse === horse.id && (
-                    <button 
-                      className="btn-delete-horse"
-                      onClick={() => setDeleteConfirm(horse.id)}
-                      title="Remove this horse"
-                    >
-                      🗑️
-                    </button>
-                  )}
                 </div>
               ))}
             </div>
           )}
         </section>
       </div>
-
-      {deleteConfirm && (
-        <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Remove Horse</h2>
-            <p>Are you sure you want to remove <strong>⭐ {horses.find(h => h.id === deleteConfirm)?.barnName}</strong>?</p>
-            <p className="warning-text">This cannot be undone.</p>
-            <div className="modal-buttons">
-              <button className="btn-cancel" onClick={() => setDeleteConfirm(null)}>No</button>
-              <button className="btn-remove" onClick={() => handleDeleteHorse(deleteConfirm, horses.find(h => h.id === deleteConfirm)?.barnName)}>Remove</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
