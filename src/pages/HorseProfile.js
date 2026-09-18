@@ -77,6 +77,13 @@ function HorseProfile() {
           ...updatedPrograms[programIndex],
           status: newStatus
         };
+
+        if (newStatus === 'Eligible - Paid') {
+          updatedPrograms[programIndex].paidDate = new Date().toISOString().split('T')[0];
+        } else if (newStatus === 'Not Eligible') {
+          updatedPrograms[programIndex].paidDate = null;
+        }
+
         return {
           ...prev,
           programs: updatedPrograms
