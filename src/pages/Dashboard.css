@@ -117,6 +117,7 @@
   transition: all 0.3s;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .horse-card:hover {
@@ -174,6 +175,54 @@
   white-space: nowrap;
 }
 
+.horse-actions {
+  display: none;
+  gap: 0.75rem;
+  padding: 0 1rem 1rem 1rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.horse-card:hover .horse-actions {
+  display: flex;
+  opacity: 1;
+}
+
+.btn-action {
+  flex: 1;
+  background-color: #546E7A;
+  color: #FFFFFF;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  transform: scale(1.05);
+}
+
+.btn-edit {
+  background-color: #D4A574;
+}
+
+.btn-edit:hover {
+  background-color: #C49860;
+}
+
+.btn-delete {
+  background-color: #c62828;
+}
+
+.btn-delete:hover {
+  background-color: #b71c1c;
+}
+
 .horse-card .btn-secondary {
   background-color: #D4A574;
   color: #FFFFFF;
@@ -201,5 +250,10 @@
 
   .horses-grid {
     grid-template-columns: 1fr;
+  }
+
+  .horse-actions {
+    display: flex !important;
+    opacity: 1 !important;
   }
 }
