@@ -31,6 +31,12 @@
   color: #C9A961;
 }
 
+.navbar-logo-img {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
+
 .logo-icon {
   font-size: 1.8rem;
 }
@@ -48,6 +54,9 @@
   transition: color 0.3s;
   padding: 0.5rem 1rem;
   border-radius: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .nav-link:hover {
@@ -116,5 +125,10 @@
 
   .navbar-logo {
     font-size: 1.2rem;
+  }
+
+  .navbar-logo-img {
+    height: 40px;
+    width: auto;
   }
 }

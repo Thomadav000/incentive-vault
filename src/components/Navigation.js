@@ -21,7 +21,7 @@ function Navigation() {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          <span className="navbar-logo-text">IV</span>
+          <img src="/logo-full.png" alt="Incentive Vault" className="navbar-logo-img" />
         </Link>
 
         <div className={`nav-menu ${showMenu ? 'active' : ''}`}>
