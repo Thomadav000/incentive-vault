@@ -7,44 +7,43 @@ import './HomePage.css';
 function HomePage() {
   const { horses, programs, user, loading } = useContext(UserContext);
   const [userName, setUserName] = useState('');
-  const [upcomingDeadlines, setUpcomingDeadlines] = useState([]);
+  const [deadlinesByProgram, setDeadlinesByProgram] = useState({});
+  const [expandedProgram, setExpandedProgram] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
       setUserName(user.displayName || 'there');
       
-      const deadlines = [];
+      const programDeadlines = {};
+      
       horses.forEach(horse => {
         if (horse.programs && Array.isArray(horse.programs)) {
           horse.programs.forEach(prog => {
             if (prog.deadline && prog.status !== 'Not Eligible') {
-              deadlines.push({
-                horseName: horse.barnName,
-                programName: prog.name,
-                deadline: prog.deadline,
+              if (!programDeadlines[prog.name]) {
+                programDeadlines[prog.name] = {
+                  deadline: prog.deadline,
+                  horses: []
+                };
+              }
+              programDeadlines[prog.name].horses.push({
+                barnName: horse.barnName,
+                status: prog.status,
                 horseId: horse.id
               });
             }
           });
         }
       });
-
-      const monthOrder = {
-        'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5,
-        'June': 6, 'July': 7, 'August': 8, 'September': 9, 'October': 10,
-        'November': 11, 'December': 12
-      };
-
-      deadlines.sort((a, b) => {
-        const monthA = a.deadline.split(' ')[0];
-        const monthB = b.deadline.split(' ')[0];
-        return monthOrder[monthA] - monthOrder[monthB];
-      });
-
-      setUpcomingDeadlines(deadlines.slice(0, 5));
+      
+      setDeadlinesByProgram(programDeadlines);
     }
-  }, [user, horses, programs]);
+  }, [user, horses]);
+
+  const toggleProgram = (programName) => {
+    setExpandedProgram(expandedProgram === programName ? null : programName);
+  };
 
   if (loading) {
     return <div className="home-page">Loading...</div>;
@@ -56,7 +55,7 @@ function HomePage() {
         <section className="dashboard-hero">
           <div className="container">
             <h2>Welcome back, {userName}!</h2>
-            <p>{horses.length} horse{horses.length !== 1 ? 's' : ''} • {upcomingDeadlines.length} upcoming deadlines</p>
+            <p>{horses.length} horse{horses.length !== 1 ? 's' : ''} • {Object.keys(deadlinesByProgram).length} upcoming deadlines</p>
           </div>
         </section>
 
@@ -65,15 +64,31 @@ function HomePage() {
             <div className="dashboard-grid">
               <div className="dashboard-column deadlines-column">
                 <h3>📅 Next Deadlines</h3>
-                {upcomingDeadlines.length > 0 ? (
-                  <div className="cards-stack">
-                    {upcomingDeadlines.map((deadline, index) => (
-                      <div key={index} className="compact-card deadline-card">
-                        <div className="card-header">{deadline.programName}</div>
-                        <div className="card-body">
-                          <p className="card-horse">{deadline.horseName}</p>
-                          <p className="card-date">{deadline.deadline}</p>
-                        </div>
+                {Object.keys(deadlinesByProgram).length > 0 ? (
+                  <div className="programs-accordion">
+                    {Object.entries(deadlinesByProgram).map(([programName, data]) => (
+                      <div key={programName} className="accordion-item">
+                        <button 
+                          className="accordion-header"
+                          onClick={() => toggleProgram(programName)}
+                        >
+                          <span className="program-info">
+                            <span className="program-name">{programName}</span>
+                            <span className="program-deadline">{data.deadline}</span>
+                          </span>
+                          <span className="horse-count">{data.horses.length} horse{data.horses.length !== 1 ? 's' : ''}</span>
+                          <span className="accordion-icon">{expandedProgram === programName ? '▼' : '▶'}</span>
+                        </button>
+                        {expandedProgram === programName && (
+                          <div className="accordion-content">
+                            {data.horses.map((horse, idx) => (
+                              <div key={idx} className="horse-item">
+                                <p className="horse-name">{horse.barnName}</p>
+                                <p className="horse-status">{horse.status}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -85,20 +100,19 @@ function HomePage() {
               <div className="dashboard-column horses-column">
                 <h3>🐴 Your Horses</h3>
                 {horses.length > 0 ? (
-                  <div className="cards-stack">
+                  <div className="horses-list">
                     {horses.map(horse => (
                       <div 
                         key={horse.id} 
-                        className="compact-card horse-card"
+                        className="horse-list-item"
                         onClick={() => navigate(`/horse/${horse.id}`)}
                         style={{ cursor: 'pointer' }}
                       >
-                        <div className="card-header">{horse.barnName}</div>
-                        <div className="card-body">
-                          <p className="card-detail">{horse.color}</p>
-                          <p className="card-detail">{horse.age} years old</p>
-                          <p className="card-programs">{horse.programs ? horse.programs.length : 0} programs</p>
+                        <div className="horse-list-info">
+                          <p className="horse-list-name">{horse.barnName}</p>
+                          <p className="horse-list-meta">{horse.color} • {horse.age} yrs</p>
                         </div>
+                        <p className="horse-list-programs">{horse.programs ? horse.programs.length : 0} programs</p>
                       </div>
                     ))}
                   </div>
@@ -144,7 +158,7 @@ function HomePage() {
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Programs Tracked</span>
-                    <span className="stat-value">{upcomingDeadlines.length}</span>
+                    <span className="stat-value">{Object.keys(deadlinesByProgram).length}</span>
                   </div>
                 </div>
               </div>

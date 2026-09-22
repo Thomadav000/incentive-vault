@@ -41,6 +41,161 @@
   font-weight: 600;
 }
 
+/* Accordion Styles for Deadlines */
+.programs-accordion {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.accordion-item {
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #B8956A;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.accordion-header {
+  width: 100%;
+  padding: 12px 16px;
+  background: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2C3E50;
+  transition: all 0.2s ease;
+}
+
+.accordion-header:hover {
+  background-color: #F9F8F6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.program-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  text-align: left;
+}
+
+.program-name {
+  font-weight: 600;
+  color: #2C3E50;
+}
+
+.program-deadline {
+  font-size: 13px;
+  color: #B8956A;
+  font-weight: 500;
+}
+
+.horse-count {
+  font-size: 13px;
+  color: #546E7A;
+  min-width: 80px;
+  text-align: right;
+}
+
+.accordion-icon {
+  font-size: 12px;
+  color: #B8956A;
+  transition: transform 0.2s ease;
+}
+
+.accordion-content {
+  padding: 8px 16px 12px 16px;
+  background: #FAFAF8;
+  border-top: 1px solid #F5F3F1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.horse-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #F0EEE9;
+}
+
+.horse-item:last-child {
+  border-bottom: none;
+}
+
+.horse-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2C3E50;
+}
+
+.horse-status {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #546E7A;
+}
+
+/* Scrollable Horses List */
+.horses-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.horse-list-item {
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #6BA547;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.horse-list-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.horse-list-info {
+  flex: 1;
+  text-align: left;
+}
+
+.horse-list-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2C3E50;
+}
+
+.horse-list-meta {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #546E7A;
+}
+
+.horse-list-programs {
+  margin: 0;
+  font-size: 13px;
+  color: #B8956A;
+  font-weight: 500;
+  min-width: 70px;
+  text-align: right;
+}
+
 .cards-stack {
   display: flex;
   flex-direction: column;
@@ -483,6 +638,14 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
+
+  .programs-accordion {
+    max-height: 300px;
+  }
+
+  .horses-list {
+    max-height: 300px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -519,6 +682,14 @@
 
   .dashboard-container {
     padding: 20px 10px;
+  }
+
+  .programs-accordion {
+    max-height: 250px;
+  }
+
+  .horses-list {
+    max-height: 250px;
   }
 }
 
