@@ -1,3 +1,203 @@
+/* Dashboard Page */
+.dashboard-page {
+  background-color: #F9F8F6;
+  min-height: 100vh;
+}
+
+.dashboard-hero {
+  background: linear-gradient(135deg, #B8956A 0%, #C9A961 100%);
+  color: white;
+  padding: 20px 20px;
+  text-align: center;
+}
+
+.dashboard-hero h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.dashboard-hero p {
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.dashboard-container {
+  padding: 40px 20px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-column h3 {
+  font-size: 18px;
+  color: #2C3E50;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compact-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid #B8956A;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.compact-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  font-weight: 600;
+  color: #2C3E50;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.card-body {
+  font-size: 13px;
+  color: #546E7A;
+}
+
+.card-horse {
+  margin: 0 0 4px 0;
+  font-weight: 500;
+  color: #2C3E50;
+}
+
+.card-date {
+  margin: 4px 0 0 0;
+  color: #B8956A;
+  font-weight: 500;
+}
+
+.card-detail {
+  margin: 2px 0;
+}
+
+.card-programs {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #F5F3F1;
+  color: #B8956A;
+  font-weight: 500;
+}
+
+.deadline-card {
+  border-left-color: #B8956A;
+}
+
+.horse-card {
+  border-left-color: #6BA547;
+}
+
+.empty-state {
+  background: #F5F3F1;
+  padding: 24px;
+  border-radius: 8px;
+  text-align: center;
+  color: #546E7A;
+  font-size: 14px;
+}
+
+.link-action {
+  display: inline-block;
+  margin-top: 12px;
+  color: #B8956A;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link-action:hover {
+  color: #C9A961;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.action-btn {
+  background: white;
+  border: 2px solid #B8956A;
+  color: #2C3E50;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #B8956A;
+  color: white;
+  border-color: #B8956A;
+}
+
+.action-icon {
+  font-size: 18px;
+}
+
+.stats-section {
+  background: #F5F3F1;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.stats-section h4 {
+  font-size: 14px;
+  color: #2C3E50;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #E0DDD8;
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #546E7A;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #B8956A;
+}
+
+/* Public Homepage Styles */
 .home-page {
   min-height: 100vh;
 }
@@ -278,6 +478,13 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -300,4 +507,26 @@
     flex-direction: column;
     gap: 1rem;
   }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dashboard-hero h2 {
+    font-size: 24px;
+  }
+
+  .dashboard-container {
+    padding: 20px 10px;
+  }
 }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}EOF
+git add src/pages/HomePage.css
+git commit -m "Restore complete HomePage.css with dashboard 3-column layout and shortened hero padding to 20px"
+git push
