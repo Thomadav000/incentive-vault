@@ -14,6 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
 .navbar-logo-center {
@@ -53,10 +54,16 @@
 
 .nav-menu {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   align-items: center;
-  width: 100%;
-  justify-content: space-around;
+}
+
+.nav-menu-left {
+  justify-content: flex-start;
+}
+
+.nav-menu-right {
+  justify-content: flex-end;
 }
 
 .nav-link {
@@ -64,8 +71,9 @@
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.8rem;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -87,7 +95,7 @@
   border: 1px solid #C7967A;
   color: #C7967A;
   cursor: pointer;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.8rem;
 }
 
 .logout-btn:hover {
@@ -102,6 +110,7 @@
   color: #FFFFFF;
   font-size: 1.5rem;
   cursor: pointer;
+  margin-left: auto;
 }
 
 @media (max-width: 768px) {
@@ -109,7 +118,8 @@
     display: block;
   }
 
-  .nav-menu {
+  .nav-menu-left,
+  .nav-menu-right {
     position: absolute;
     top: 80px;
     left: 0;
@@ -124,7 +134,8 @@
     justify-content: flex-start;
   }
 
-  .nav-menu.active {
+  .nav-menu-left.active,
+  .nav-menu-right.active {
     max-height: 300px;
   }
 
