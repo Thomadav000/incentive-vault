@@ -26,6 +26,19 @@
   z-index: 999;
 }
 
+.navbar-logo-text {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #D4A574;
+  letter-spacing: 0.2em;
+  font-family: Georgia, serif;
+  transition: color 0.3s;
+}
+
+.navbar-logo-text:hover {
+  color: #C7967A;
+}
+
 .navbar-logo-img {
   width: 80px;
   height: 80px;

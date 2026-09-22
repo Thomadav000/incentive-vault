@@ -45,7 +45,7 @@ function Navigation() {
         </div>
 
         <Link to="/" className="navbar-logo-center">
-          <img src="/logo-icon.png" alt="Incentive Vault" className="navbar-logo-img" />
+          <span className="navbar-logo-text">IV</span>
         </Link>
 
         <button 
