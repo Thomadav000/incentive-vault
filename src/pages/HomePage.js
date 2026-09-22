@@ -17,13 +17,12 @@ function HomePage() {
       const deadlines = [];
       horses.forEach(horse => {
         if (horse.programs && Array.isArray(horse.programs)) {
-          horse.programs.forEach(programName => {
-            const program = programs[programName];
-            if (program) {
+          horse.programs.forEach(prog => {
+            if (prog.deadline && prog.status !== 'Not Eligible') {
               deadlines.push({
                 horseName: horse.barnName,
-                programName: program.name,
-                deadline: program.deadline,
+                programName: prog.name,
+                deadline: prog.deadline,
                 horseId: horse.id
               });
             }
