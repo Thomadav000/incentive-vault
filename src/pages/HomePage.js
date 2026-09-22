@@ -5,7 +5,7 @@ import { UserContext } from '../context/UserContext';
 import './HomePage.css';
 
 function HomePage() {
-  const { horses, programs, user, loading } = useContext(UserContext);
+  const { horses, user, loading } = useContext(UserContext);
   const [userName, setUserName] = useState('');
   const [deadlinesByProgram, setDeadlinesByProgram] = useState({});
   const [expandedProgram, setExpandedProgram] = useState(null);
