@@ -2,6 +2,8 @@
 .dashboard-page {
   background-color: #F9F8F6;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-hero {
@@ -24,6 +26,7 @@
 
 .dashboard-container {
   padding: 40px 20px;
+  flex: 1;
 }
 
 .dashboard-grid {
@@ -355,6 +358,8 @@
 /* Public Homepage Styles */
 .home-page {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .home-header {
@@ -403,24 +408,29 @@
   font-weight: 500;
   padding: 0.5rem 1rem;
   transition: color 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-link:hover {
-  color: #C7967A;
+  color: #B8956A;
 }
 
 .btn-primary {
-  background-color: #D4A574;
+  background-color: #B8956A;
   color: #FFFFFF;
   padding: 0.7rem 1.5rem;
   border-radius: 6px;
   text-decoration: none;
   font-weight: 600;
   transition: background-color 0.3s;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
-  background-color: #C49860;
+  background-color: #A0814F;
 }
 
 /* Hero Section */
@@ -446,7 +456,7 @@
 .btn-cta {
   display: inline-block;
   background-color: #FFFFFF;
-  color: #C7967A;
+  color: #B8956A;
   padding: 1rem 2rem;
   border-radius: 6px;
   font-weight: 700;
@@ -515,6 +525,7 @@
 .pricing {
   padding: 4rem 0;
   background-color: #FFFFFF;
+  flex: 1;
 }
 
 .pricing h3 {
@@ -541,17 +552,17 @@
 }
 
 .pricing-card:hover {
-  border-color: #C7967A;
-  box-shadow: 0 10px 20px rgba(199, 150, 122, 0.1);
+  border-color: #B8956A;
+  box-shadow: 0 10px 20px rgba(184, 149, 106, 0.1);
 }
 
 .pricing-card.rider {
-  border-color: #D4A574;
+  border-color: #B8956A;
   background-color: #FFFBF7;
 }
 
 .pricing-card.trainer {
-  border-color: #C7967A;
+  border-color: #B8956A;
   transform: scale(1.05);
 }
 
@@ -564,7 +575,7 @@
 .price {
   font-size: 2rem;
   font-weight: 700;
-  color: #D4A574;
+  color: #B8956A;
   margin-bottom: 0.5rem;
 }
 
@@ -597,7 +608,7 @@
 
 /* CTA Section */
 .cta-section {
-  background: linear-gradient(135deg, #C7967A 0%, #D4A574 100%);
+  background: linear-gradient(135deg, #B8956A 0%, #C9A961 100%);
   color: #FFFFFF;
   padding: 4rem 0;
   text-align: center;
@@ -610,10 +621,11 @@
 
 /* Footer */
 .footer {
-  background-color: #2C3E50;
+  background-color: #1A1A1A;
   color: #FFFFFF;
   padding: 2rem 0;
   text-align: center;
+  margin-top: auto;
 }
 
 .footer-links {
@@ -624,12 +636,12 @@
 }
 
 .footer-links a {
-  color: #C7967A;
+  color: #B8956A;
   text-decoration: none;
 }
 
 .footer-links a:hover {
-  color: #D4A574;
+  color: #C9A961;
 }
 
 /* Responsive */
