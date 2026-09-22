@@ -526,7 +526,4 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
-}EOF
-git add src/pages/HomePage.css
-git commit -m "Restore complete HomePage.css with dashboard 3-column layout and shortened hero padding to 20px"
-git push
+}
