@@ -5,7 +5,7 @@
 }
 
 .dashboard-hero {
-  background: linear-gradient(135deg, #C7967A 0%, #D4A574 100%);
+  background: linear-gradient(135deg, #B8956A 0%, #C9A961 100%);
   color: white;
   padding: 40px 20px;
   text-align: center;
@@ -51,7 +51,7 @@
   background: white;
   border-radius: 8px;
   padding: 16px;
-  border-left: 4px solid #C7967A;
+  border-left: 4px solid #B8956A;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
   cursor: pointer;
@@ -82,7 +82,7 @@
 
 .card-date {
   margin: 4px 0 0 0;
-  color: #D4A574;
+  color: #B8956A;
   font-weight: 500;
 }
 
@@ -94,12 +94,12 @@
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid #F5F3F1;
-  color: #C7967A;
+  color: #B8956A;
   font-weight: 500;
 }
 
 .deadline-card {
-  border-left-color: #D4A574;
+  border-left-color: #B8956A;
 }
 
 .horse-card {
@@ -118,14 +118,14 @@
 .link-action {
   display: inline-block;
   margin-top: 12px;
-  color: #C7967A;
+  color: #B8956A;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .link-action:hover {
-  color: #D4A574;
+  color: #C9A961;
 }
 
 .action-buttons {
@@ -137,7 +137,7 @@
 
 .action-btn {
   background: white;
-  border: 2px solid #C7967A;
+  border: 2px solid #B8956A;
   color: #2C3E50;
   padding: 14px 16px;
   border-radius: 8px;
@@ -152,9 +152,9 @@
 }
 
 .action-btn:hover {
-  background: #C7967A;
+  background: #B8956A;
   color: white;
-  border-color: #C7967A;
+  border-color: #B8956A;
 }
 
 .action-icon {
@@ -194,7 +194,7 @@
 .stat-value {
   font-size: 16px;
   font-weight: 600;
-  color: #C7967A;
+  color: #B8956A;
 }
 
 /* Responsive Design */
@@ -228,10 +228,25 @@
 }
 
 .home-header {
-  background-color: #2C3E50;
+  background-color: #1A1A1A;
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,.03) 2px,
+      rgba(255,255,255,.03) 4px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,.02) 2px,
+      rgba(255,255,255,.02) 4px
+    );
   color: white;
   padding: 15px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -275,15 +290,15 @@
   text-decoration: none;
   cursor: pointer;
   font-size: 14px;
-  transition: opacity 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .btn-link:hover {
-  opacity: 0.8;
+  color: #B8956A;
 }
 
 .btn-primary {
-  background-color: #D4A574;
+  background-color: #B8956A;
   color: white;
   padding: 8px 16px;
   border-radius: 4px;
@@ -295,11 +310,11 @@
 }
 
 .btn-primary:hover {
-  background-color: #C7967A;
+  background-color: #C9A961;
 }
 
 .hero {
-  background: linear-gradient(135deg, #C7967A 0%, #D4A574 100%);
+  background: linear-gradient(135deg, #B8956A 0%, #C9A961 100%);
   color: white;
   padding: 80px 20px;
   text-align: center;
@@ -319,7 +334,7 @@
 .btn-cta {
   display: inline-block;
   background-color: white;
-  color: #C7967A;
+  color: #B8956A;
   padding: 12px 30px;
   border-radius: 4px;
   text-decoration: none;
@@ -422,7 +437,7 @@
 .price {
   font-size: 36px;
   font-weight: bold;
-  color: #C7967A;
+  color: #B8956A;
   margin-bottom: 10px;
 }
 
@@ -477,7 +492,7 @@
 }
 
 .cta-section {
-  background: linear-gradient(135deg, #C7967A 0%, #D4A574 100%);
+  background: linear-gradient(135deg, #B8956A 0%, #C9A961 100%);
   color: white;
   padding: 60px 20px;
   text-align: center;
@@ -489,7 +504,22 @@
 }
 
 .footer {
-  background-color: #2C3E50;
+  background-color: #1A1A1A;
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,.03) 2px,
+      rgba(255,255,255,.03) 4px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,.02) 2px,
+      rgba(255,255,255,.02) 4px
+    );
   color: white;
   text-align: center;
   padding: 30px 20px;
@@ -508,11 +538,11 @@
 }
 
 .footer-links a {
-  color: #D4A574;
+  color: #B8956A;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-  color: white;
+  color: #C9A961;
 }
