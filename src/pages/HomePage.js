@@ -194,16 +194,37 @@ function HomePage() {
 
       <section className="hero">
         <div className="container">
-          <h2>Never Miss an Incentive Deadline Again</h2>
-          <p>Track barrel horse incentive programs, deadlines, and payments all in one place</p>
-          <Link to="/signup" className="btn-cta">Get Started Free</Link>
+          <div className="hero-wrapper">
+            <div className="hero-logo">
+              <img src={logoImage} alt="Incentive Vault" className="hero-logo-img" />
+            </div>
+            <div className="hero-content">
+              <h2>Never Miss an Incentive Deadline Again</h2>
+              <p>Track barrel horse incentive programs, deadlines, and payments all in one place</p>
+              <Link to="/signup" className="btn-cta">Get Started Free</Link>
+            </div>
+          </div>
         </div>
       </section>
 
       <section className="slideshow-section">
         <div className="container">
-          <div className="slideshow-placeholder">
-            {/* Barrel horse incentive programs slideshow will go here */}
+          <div className="slideshow-wrapper">
+            <div className="slideshow-column">
+              <div className="slideshow-placeholder">
+                {/* Barrel horse incentive programs slideshow will go here */}
+              </div>
+            </div>
+            <div className="problem-solution-column">
+              <div className="problem-box">
+                <h3>The Challenge</h3>
+                <p>Tracking multiple incentive programs is chaotic. You juggle deadlines across different websites, manage enrollment fees for each horse, monitor eligibility status, and coordinate payments. Critical deadlines slip through the cracks. Money is left on the table.</p>
+              </div>
+              <div className="solution-box">
+                <h3>The Solution</h3>
+                <p>Incentive Vault brings every program into one centralized dashboard. Track all your deadlines, manage unlimited horses, monitor payment status, and receive smart reminders so you never miss an opportunity again. One platform. Complete clarity. Total peace of mind.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
