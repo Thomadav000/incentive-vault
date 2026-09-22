@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
+import logoImage from '../public/logo-full.png';
 import './Navigation.css';
 
 function Navigation() {
@@ -21,7 +22,7 @@ function Navigation() {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          <img src="/logo-full.png" alt="Incentive Vault" className="navbar-logo-img" />
+          <img src={logoImage} alt="Incentive Vault" className="navbar-logo-img" />
         </Link>
 
         <div className={`nav-menu ${showMenu ? 'active' : ''}`}>
