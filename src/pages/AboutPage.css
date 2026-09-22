@@ -81,48 +81,44 @@
   font-size: 1rem;
 }
 
-/* Problem Section */
-.about-problem {
-  padding: 4rem 0;
-  border-bottom: 1px solid #333;
-}
-
-.about-problem h2 {
-  font-size: 2rem;
-  color: #B8956A;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-}
-
-.content-wrapper {
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.about-problem p {
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: #D0CBBF;
-}
-
-/* Solution Section */
-.about-solution {
+/* Problem & Solution Section */
+.about-problem-solution {
   padding: 4rem 0;
   border-bottom: 1px solid #333;
   background-color: #161616;
 }
 
-.about-solution h2 {
+.problem-solution-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.problem-column h2,
+.solution-column h2 {
   font-size: 2rem;
-  color: #C9A961;
   margin-bottom: 1.5rem;
   font-weight: 600;
 }
 
-.about-solution p {
+.problem-column h2 {
+  color: #B8956A;
+}
+
+.solution-column h2 {
+  color: #C9A961;
+}
+
+.problem-column p,
+.solution-column p {
   font-size: 1.05rem;
   line-height: 1.8;
   color: #D0CBBF;
+}
+
+.content-wrapper {
+  max-width: 100%;
 }
 
 /* Features Section */
@@ -178,6 +174,22 @@
   color: #C0BCAF;
   line-height: 1.6;
   margin: 0;
+}
+
+.feature.vault-highlight {
+  background: linear-gradient(135deg, rgba(184, 149, 106, 0.2) 0%, rgba(201, 169, 97, 0.1) 100%);
+  border-left-color: #C9A961;
+  box-shadow: 0 8px 24px rgba(184, 149, 106, 0.15);
+}
+
+.feature.vault-highlight:hover {
+  border-left-color: #D9B971;
+  background: linear-gradient(135deg, rgba(184, 149, 106, 0.25) 0%, rgba(201, 169, 97, 0.15) 100%);
+  box-shadow: 0 12px 32px rgba(184, 149, 106, 0.2);
+}
+
+.feature.vault-highlight h3 {
+  color: #C9A961;
 }
 
 /* Why It Matters Section */
@@ -277,16 +289,19 @@
     padding: 2.5rem 0;
   }
 
+  .problem-solution-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
   .about-features h2,
-  .about-problem h2,
-  .about-solution h2,
+  .about-problem-solution h2,
   .about-why-matters h2,
   .about-cta h2 {
     font-size: 1.5rem;
   }
 
-  .about-problem,
-  .about-solution,
+  .about-problem-solution,
   .about-features,
   .about-why-matters,
   .about-cta {

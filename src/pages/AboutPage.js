@@ -32,29 +32,27 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="about-problem">
+      <section className="about-problem-solution">
         <div className="container">
-          <div className="content-wrapper">
-            <h2>The Challenge</h2>
-            <p>
-              Tracking multiple incentive programs is chaotic. You juggle deadlines across different websites, 
-              manage enrollment fees for each horse, monitor eligibility status, and coordinate payments. 
-              Critical deadlines slip through the cracks. Money is left on the table. You never know if you're 
-              actually eligible until it's too late.
-            </p>
-          </div>
-        </div>
-      </section>
+          <div className="problem-solution-wrapper">
+            <div className="problem-column">
+              <h2>The Challenge</h2>
+              <p>
+                Tracking multiple incentive programs is chaotic. You juggle deadlines across different websites, 
+                manage enrollment fees for each horse, monitor eligibility status, and coordinate payments. 
+                Critical deadlines slip through the cracks. Money is left on the table. You never know if you're 
+                actually eligible until it's too late.
+              </p>
+            </div>
 
-      <section className="about-solution">
-        <div className="container">
-          <div className="content-wrapper">
-            <h2>The Solution</h2>
-            <p>
-              Incentive Vault brings every program into one centralized dashboard. Track all your deadlines, 
-              manage unlimited horses, monitor payment status, and receive smart reminders so you never miss 
-              an opportunity again. One platform. Complete clarity. Total peace of mind.
-            </p>
+            <div className="solution-column">
+              <h2>The Solution</h2>
+              <p>
+                Incentive Vault brings every program into one centralized dashboard. Track all your deadlines, 
+                manage unlimited horses, monitor payment status, and receive smart reminders so you never miss 
+                an opportunity again. One platform. Complete clarity. Total peace of mind.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -85,6 +83,12 @@ function AboutPage() {
               <div className="feature-icon">🔔</div>
               <h3>Smart Reminders</h3>
               <p>Get iOS and Android notifications plus email alerts for upcoming deadlines, so critical dates never slip your mind.</p>
+            </div>
+
+            <div className="feature vault-highlight">
+              <div className="feature-icon">🏆</div>
+              <h3>The Vault — All In One</h3>
+              <p>See every horse's complete picture at a glance. All programs, all deadlines, all payments in a single, unified view. This is where everything converges.</p>
             </div>
           </div>
         </div>
