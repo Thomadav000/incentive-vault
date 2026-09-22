@@ -54,19 +54,6 @@ function HomePage() {
   if (user) {
     return (
       <div className="home-page dashboard-page">
-        <header className="home-header">
-          <div className="header-content">
-            <div 
-              className="header-logo" 
-              onClick={() => navigate('/')} 
-              style={{ cursor: 'pointer' }}
-            >
-              <span className="logo-icon">🏇</span>
-              <h1>Incentive Vault</h1>
-            </div>
-          </div>
-        </header>
-
         <section className="dashboard-hero">
           <div className="container">
             <h2>Welcome back, {userName}!</h2>
