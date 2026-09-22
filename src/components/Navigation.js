@@ -20,11 +20,6 @@ function Navigation() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
-          <span className="logo-icon">🏇</span>
-          Incentive Vault
-        </Link>
-
         <div className={`nav-menu ${showMenu ? 'active' : ''}`}>
           <Link to="/" className="nav-link">
             Home
@@ -48,6 +43,10 @@ function Navigation() {
             Logout
           </button>
         </div>
+
+        <Link to="/" className="navbar-logo-center">
+          <img src="/logo-icon.png" alt="Incentive Vault" className="navbar-logo-img" />
+        </Link>
 
         <button 
           className="hamburger"
