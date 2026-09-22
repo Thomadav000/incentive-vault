@@ -29,6 +29,8 @@
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .btn-export {
@@ -71,6 +73,18 @@
 
 .btn-print:hover:not(:disabled) {
   background-color: #3d5563;
+}
+
+.logo-section {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.vault-logo {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
 }
 
 .error-message {
@@ -258,7 +272,8 @@
   }
 
   .tracker-header,
-  .action-buttons {
+  .action-buttons,
+  .logo-section {
     display: none;
   }
 

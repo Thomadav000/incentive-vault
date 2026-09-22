@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import logoImage from '../assets/logo-full.png';
 import './FeeTracker.css';
 
 function FeeTracker() {
@@ -144,17 +145,22 @@ function FeeTracker() {
       <div className="fee-tracker-container">
         <div className="tracker-header">
           <h1>The Vault — Year Fee Summary</h1>
-          <div className="action-buttons">
-            <button onClick={handleExportExcel} className="btn-export btn-excel" disabled={selectedHorses.size === 0}>
-              📊 Export to Excel
-            </button>
-            <button onClick={handleExportPDF} className="btn-export btn-pdf" disabled={selectedHorses.size === 0}>
-              📄 Export to PDF
-            </button>
-            <button onClick={handlePrint} className="btn-export btn-print" disabled={selectedHorses.size === 0}>
-              🖨️ Print
-            </button>
-          </div>
+        </div>
+
+        <div className="logo-section">
+          <img src={logoImage} alt="Incentive Vault" className="vault-logo" />
+        </div>
+
+        <div className="action-buttons">
+          <button onClick={handleExportExcel} className="btn-export btn-excel" disabled={selectedHorses.size === 0}>
+            📊 Export to Excel
+          </button>
+          <button onClick={handleExportPDF} className="btn-export btn-pdf" disabled={selectedHorses.size === 0}>
+            📄 Export to PDF
+          </button>
+          <button onClick={handlePrint} className="btn-export btn-print" disabled={selectedHorses.size === 0}>
+            🖨️ Print
+          </button>
         </div>
 
         {error && <div className="error-message">{error}</div>}
