@@ -14,17 +14,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
 }
 
-.navbar-logo-center {
+.navbar-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 999;
+  text-decoration: none;
 }
 
 .navbar-logo-text {
@@ -40,30 +35,10 @@
   color: #C7967A;
 }
 
-.navbar-logo-img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  transition: transform 0.3s;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-}
-
-.navbar-logo-img:hover {
-  transform: scale(1.05);
-}
-
 .nav-menu {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   align-items: center;
-}
-
-.nav-menu-left {
-  justify-content: flex-start;
-}
-
-.nav-menu-right {
-  justify-content: flex-end;
 }
 
 .nav-link {
@@ -71,9 +46,8 @@
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
-  padding: 0.5rem 0.8rem;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
-  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -81,21 +55,12 @@
   background-color: rgba(199, 150, 122, 0.1);
 }
 
-.nav-link.admin-link {
-  background-color: #C7967A;
-  color: #FFFFFF;
-}
-
-.nav-link.admin-link:hover {
-  background-color: #D4A574;
-}
-
 .logout-btn {
   background-color: transparent;
   border: 1px solid #C7967A;
   color: #C7967A;
   cursor: pointer;
-  padding: 0.5rem 0.8rem;
+  padding: 0.5rem 1rem;
 }
 
 .logout-btn:hover {
@@ -110,7 +75,6 @@
   color: #FFFFFF;
   font-size: 1.5rem;
   cursor: pointer;
-  margin-left: auto;
 }
 
 @media (max-width: 768px) {
@@ -118,10 +82,9 @@
     display: block;
   }
 
-  .nav-menu-left,
-  .nav-menu-right {
+  .nav-menu {
     position: absolute;
-    top: 80px;
+    top: 60px;
     left: 0;
     right: 0;
     background-color: #2C3E50;
@@ -131,11 +94,9 @@
     overflow: hidden;
     transition: max-height 0.3s ease;
     width: 100%;
-    justify-content: flex-start;
   }
 
-  .nav-menu-left.active,
-  .nav-menu-right.active {
+  .nav-menu.active {
     max-height: 300px;
   }
 
@@ -143,10 +104,5 @@
     width: 100%;
     padding: 1rem;
     border-radius: 0;
-  }
-
-  .navbar-logo-img {
-    width: 50px;
-    height: 50px;
   }
 }

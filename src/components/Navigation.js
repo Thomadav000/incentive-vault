@@ -20,6 +20,10 @@ function Navigation() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
+        <Link to="/" className="navbar-logo">
+          <span className="navbar-logo-text">IV</span>
+        </Link>
+
         <div className={`nav-menu ${showMenu ? 'active' : ''}`}>
           <Link to="/" className="nav-link">
             Home
@@ -43,10 +47,6 @@ function Navigation() {
             Logout
           </button>
         </div>
-
-        <Link to="/" className="navbar-logo-center">
-          <span className="navbar-logo-text">IV</span>
-        </Link>
 
         <button 
           className="hamburger"
