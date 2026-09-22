@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { UserContext } from '../context/UserContext';
+import logoImage from '../assets/logo-full.png';
 import './HomePage.css';
 
 function HomePage() {
@@ -181,7 +182,7 @@ function HomePage() {
       <header className="home-header">
         <div className="header-content">
           <div className="header-logo">
-            <span className="logo-icon">🏇</span>
+            <img src={logoImage} alt="Incentive Vault" className="home-logo-img" />
             <h1>Incentive Vault</h1>
           </div>
           <div className="header-nav">
@@ -196,6 +197,14 @@ function HomePage() {
           <h2>Never Miss an Incentive Deadline Again</h2>
           <p>Track barrel horse incentive programs, deadlines, and payments all in one place</p>
           <Link to="/signup" className="btn-cta">Get Started Free</Link>
+        </div>
+      </section>
+
+      <section className="slideshow-section">
+        <div className="container">
+          <div className="slideshow-placeholder">
+            {/* Barrel horse incentive programs slideshow will go here */}
+          </div>
         </div>
       </section>
 
