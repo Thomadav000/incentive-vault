@@ -1,0 +1,259 @@
+/* About Page */
+.about-page {
+  background-color: #1A1A1A;
+  color: #E8E6E1;
+  min-height: 100vh;
+}
+
+.about-header {
+  background-color: #0F0F0F;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.about-header-logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #B8956A;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.about-header-logo:hover {
+  color: #C9A961;
+}
+
+/* Hero Section */
+.about-hero {
+  padding: 5rem 0 4rem;
+  text-align: center;
+  border-bottom: 1px solid #333;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #B8956A;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.about-hero p {
+  font-size: 1.2rem;
+  color: #C0BCAF;
+  margin: 0;
+}
+
+/* Problem Section */
+.about-problem {
+  padding: 4rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.about-problem h2 {
+  font-size: 2rem;
+  color: #B8956A;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.content-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.about-problem p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #D0CBBF;
+}
+
+/* Solution Section */
+.about-solution {
+  padding: 4rem 0;
+  border-bottom: 1px solid #333;
+  background-color: #161616;
+}
+
+.about-solution h2 {
+  font-size: 2rem;
+  color: #C9A961;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.about-solution p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #D0CBBF;
+}
+
+/* Features Section */
+.about-features {
+  padding: 4rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.about-features h2 {
+  font-size: 2rem;
+  color: #B8956A;
+  text-align: center;
+  margin-bottom: 3rem;
+  font-weight: 600;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature {
+  background-color: #252525;
+  padding: 2rem;
+  border-radius: 12px;
+  border-left: 4px solid #B8956A;
+  transition: all 0.3s ease;
+}
+
+.feature:hover {
+  border-left-color: #C9A961;
+  background-color: #2A2A2A;
+  transform: translateY(-4px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature h3 {
+  font-size: 1.2rem;
+  color: #B8956A;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.feature p {
+  font-size: 0.95rem;
+  color: #C0BCAF;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Why It Matters Section */
+.about-why-matters {
+  padding: 4rem 0;
+  border-bottom: 1px solid #333;
+  background-color: #161616;
+}
+
+.about-why-matters h2 {
+  font-size: 2rem;
+  color: #C9A961;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.about-why-matters p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #D0CBBF;
+}
+
+/* CTA Section */
+.about-cta {
+  padding: 4rem 0;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  background: linear-gradient(135deg, rgba(184, 149, 106, 0.15) 0%, rgba(201, 169, 97, 0.1) 100%);
+}
+
+.about-cta h2 {
+  font-size: 2rem;
+  color: #C9A961;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.cta-button {
+  display: inline-block;
+  background-color: #B8956A;
+  color: #FFFFFF;
+  padding: 1rem 2.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: 2px solid #B8956A;
+}
+
+.cta-button:hover {
+  background-color: #C9A961;
+  border-color: #C9A961;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(184, 149, 106, 0.2);
+}
+
+/* Footer */
+.about-footer {
+  padding: 2rem 0;
+  text-align: center;
+  border-top: 1px solid #333;
+  color: #8A8680;
+  font-size: 0.9rem;
+}
+
+.about-footer p {
+  margin: 0;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-hero h1 {
+    font-size: 2rem;
+  }
+
+  .about-hero p {
+    font-size: 1rem;
+  }
+
+  .about-features h2,
+  .about-problem h2,
+  .about-solution h2,
+  .about-why-matters h2,
+  .about-cta h2 {
+    font-size: 1.5rem;
+  }
+
+  .about-problem,
+  .about-solution,
+  .about-features,
+  .about-why-matters,
+  .about-cta {
+    padding: 2.5rem 0;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .cta-button {
+    padding: 0.8rem 2rem;
+    font-size: 0.95rem;
+  }
+}

@@ -17,6 +17,7 @@ import SignUp from './pages/SignUp';
 import AddHorse from './pages/AddHorse';
 import ProfilePage from './pages/ProfilePage';
 import FeeTracker from './pages/FeeTracker';
+import AboutPage from './pages/AboutPage';
 
 // Navigation
 import Navigation from './components/Navigation';
@@ -48,6 +49,7 @@ function App() {
         {currentUser && <Navigation />}
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={currentUser ? <Navigate to="/" /> : <Login />} />
           <Route path="/signup" element={currentUser ? <Navigate to="/" /> : <SignUp />} />
           <Route path="/admin-login" element={<AdminLogin />} />
