@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logoImage from '../assets/logo-full.png';
 import './AboutPage.css';
 
 function AboutPage() {
@@ -17,6 +18,17 @@ function AboutPage() {
         <div className="container">
           <h1>All Incentives in One Place</h1>
           <p>Centralize your incentive program tracking across all disciplines</p>
+        </div>
+      </section>
+
+      <section className="about-visual">
+        <div className="container">
+          <div className="visual-wrapper">
+            <img src={logoImage} alt="Incentive Vault" className="about-logo" />
+            <div className="slideshow-placeholder">
+              {/* Slideshow will go here */}
+            </div>
+          </div>
         </div>
       </section>
 

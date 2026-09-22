@@ -47,6 +47,40 @@
   margin: 0;
 }
 
+/* Visual Section (Logo + Slideshow) */
+.about-visual {
+  padding: 4rem 0;
+  border-bottom: 1px solid #333;
+  background-color: #161616;
+}
+
+.visual-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+.about-logo {
+  height: 140px;
+  width: auto;
+  object-fit: contain;
+}
+
+.slideshow-placeholder {
+  width: 100%;
+  max-width: 600px;
+  height: 350px;
+  background: linear-gradient(135deg, rgba(184, 149, 106, 0.1) 0%, rgba(201, 169, 97, 0.05) 100%);
+  border: 2px dashed #B8956A;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8A8680;
+  font-size: 1rem;
+}
+
 /* Problem Section */
 .about-problem {
   padding: 4rem 0;
@@ -229,6 +263,18 @@
 
   .about-hero p {
     font-size: 1rem;
+  }
+
+  .about-logo {
+    height: 100px;
+  }
+
+  .slideshow-placeholder {
+    height: 280px;
+  }
+
+  .about-visual {
+    padding: 2.5rem 0;
   }
 
   .about-features h2,

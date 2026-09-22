@@ -41,6 +41,9 @@ function Navigation() {
           <Link to="/calendar" className="nav-link">
             Calendar
           </Link>
+          <Link to="/about" className="nav-link">
+            About
+          </Link>
           <Link to="/profile" className="nav-link">
             Profile
           </Link>
