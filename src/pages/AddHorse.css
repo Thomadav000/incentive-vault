@@ -1,27 +1,33 @@
 .add-horse-page {
-  background-color: #F9F8F6;
+  background-color: #1A1A1A;
   min-height: 100vh;
-  padding: 2rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .add-horse-container {
   max-width: 700px;
   margin: 0 auto;
   padding: 0 1.5rem;
+  width: 100%;
 }
 
 .add-horse-page h1 {
   font-size: 2rem;
-  color: #2C3E50;
+  color: #B8956A;
   text-align: center;
-  margin-bottom: 2rem;
+  margin: 3rem 0 0 0;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #333;
 }
 
 .add-horse-form {
   background-color: #FFFFFF;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 2rem 0 3rem 0;
 }
 
 .form-section {
@@ -435,9 +441,14 @@
   padding: 1rem;
   border-radius: 6px;
   margin-bottom: 1.5rem;
+  margin-top: 2rem;
 }
 
 @media (max-width: 600px) {
+  .add-horse-page h1 {
+    font-size: 1.5rem;
+  }
+
   .form-row {
     grid-template-columns: 1fr;
   }
