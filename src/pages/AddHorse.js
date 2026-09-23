@@ -8,28 +8,9 @@ import './AddHorse.css';
 
 function AddHorse() {
   const navigate = useNavigate();
+  
+  // ALL HOOKS MUST BE CALLED HERE, BEFORE ANY CONDITIONAL LOGIC
   const { user, horses } = useContext(UserContext);
-
-  // Check horse limit for free tier
-  if (user && user.subscription === 'free' && horses.length >= 1) {
-    return (
-      <div className="add-horse-page">
-        <div className="add-horse-container">
-          <div className="horse-limit-banner">
-            <h2>Horse Limit Reached</h2>
-            <p>Free tier allows 1 horse. Upgrade to Rider tier to add unlimited horses.</p>
-            <button onClick={() => navigate('/dashboard')} className="btn-cancel">
-              Back to Dashboard
-            </button>
-            <button onClick={() => navigate('/upgrade')} className="btn-submit">
-              Upgrade to Rider
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const [formData, setFormData] = useState({
     barnName: '',
     registeredName: '',
@@ -51,6 +32,26 @@ function AddHorse() {
   const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // NOW WE CAN CHECK THE CONDITION AFTER ALL HOOKS
+  if (user && user.subscription === 'free' && horses.length >= 1) {
+    return (
+      <div className="add-horse-page">
+        <div className="add-horse-container">
+          <div className="horse-limit-banner">
+            <h2>Horse Limit Reached</h2>
+            <p>Free tier allows 1 horse. Upgrade to Rider tier to add unlimited horses.</p>
+            <button onClick={() => navigate('/dashboard')} className="btn-cancel">
+              Back to Dashboard
+            </button>
+            <button onClick={() => navigate('/upgrade')} className="btn-submit">
+              Upgrade to Rider
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Program data for one-time programs
   const programData = {
