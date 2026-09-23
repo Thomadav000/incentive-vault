@@ -161,24 +161,23 @@
 }
 
 .btn-secondary {
-  background-color: #F5F3F1;
-  border: 1px solid #E8E6E3;
-  color: #2C3E50;
-  padding: 0.6rem 1rem;
+  background-color: #B8956A;
+  border: none;
+  color: #FFFFFF;
+  padding: 0.4rem 0.8rem;
   border-radius: 6px;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s;
+  font-weight: 600;
+  transition: background-color 0.3s;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
   text-align: center;
-  display: block;
+  display: inline-block;
 }
 
 .btn-secondary:hover {
-  border-color: #C7967A;
-  background-color: #FFFBF7;
+  background-color: #C9A961;
 }
 
 .btn-status {
