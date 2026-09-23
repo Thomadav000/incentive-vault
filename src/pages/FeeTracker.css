@@ -1,5 +1,5 @@
 .fee-tracker {
-  background-color: #F9F8F6;
+  background-color: #1A1A1A;
   min-height: 100vh;
   padding: 2rem 0;
 }
@@ -21,7 +21,7 @@
 
 .tracker-header h1 {
   font-size: 2rem;
-  color: #2C3E50;
+  color: #B8956A;
   margin: 0;
 }
 
@@ -33,7 +33,7 @@
 
 .btn-export {
   padding: 0.75rem 1.5rem;
-  border: none;
+  border: 2px solid #B8956A;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -49,28 +49,34 @@
 .btn-excel {
   background-color: #1F7F2E;
   color: white;
+  border-color: #B8956A;
 }
 
 .btn-excel:hover:not(:disabled) {
   background-color: #1a6628;
+  border-color: #C9A961;
 }
 
 .btn-pdf {
   background-color: #D32F2F;
   color: white;
+  border-color: #B8956A;
 }
 
 .btn-pdf:hover:not(:disabled) {
   background-color: #B71C1C;
+  border-color: #C9A961;
 }
 
 .btn-print {
   background-color: #546E7A;
   color: white;
+  border-color: #B8956A;
 }
 
 .btn-print:hover:not(:disabled) {
   background-color: #3d5563;
+  border-color: #C9A961;
 }
 
 .logo-section {
