@@ -17,23 +17,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
   padding-top: 3rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid #333;
-  flex-wrap: wrap;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .dashboard-header h1 {
   font-size: 2rem;
   color: #B8956A;
   margin: 0;
-  width: 100%;
+  flex: 1;
   text-align: center;
-  order: -1;
-  padding-bottom: 2rem;
-  border-bottom: none;
 }
 
 .btn-add-horse {
@@ -44,6 +39,7 @@
   text-decoration: none;
   font-weight: 600;
   transition: background-color 0.3s;
+  white-space: nowrap;
 }
 
 .btn-add-horse:hover {
@@ -55,7 +51,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 .stat-card {
@@ -93,13 +90,14 @@
 
 /* Horses Section */
 .horses-section {
-  margin-top: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
 }
 
 .horses-section h2 {
   font-size: 1.5rem;
-  color: #2C3E50;
-  margin-bottom: 1.5rem;
+  color: #B8956A;
+  margin: 0 0 1.5rem 0;
 }
 
 .empty-state {
@@ -120,6 +118,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2.5rem;
+  padding-bottom: 2rem;
 }
 
 .horse-card {
@@ -299,6 +298,12 @@
 
   .dashboard-header h1 {
     font-size: 1.5rem;
+    width: 100%;
+  }
+
+  .btn-add-horse {
+    width: 100%;
+    text-align: center;
   }
 
   .horses-grid {
