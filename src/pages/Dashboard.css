@@ -24,7 +24,7 @@
 }
 
 .btn-add-horse {
-  background-color: #D4A574;
+  background-color: #B8956A;
   color: #FFFFFF;
   padding: 0.8rem 1.5rem;
   border-radius: 6px;
@@ -34,7 +34,7 @@
 }
 
 .btn-add-horse:hover {
-  background-color: #C49860;
+  background-color: #C9A961;
 }
 
 /* Stats */
@@ -74,7 +74,7 @@
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: #C7967A;
+  color: #B8956A;
   margin: 0;
 }
 
@@ -91,7 +91,7 @@
 
 .empty-state {
   background-color: #FFFFFF;
-  border: 2px dashed #C7967A;
+  border: 2px dashed #B8956A;
   border-radius: 8px;
   padding: 3rem;
   text-align: center;
@@ -105,7 +105,7 @@
 
 .horses-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 2.5rem;
 }
 
@@ -163,6 +163,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  position: relative;
 }
 
 .program-badge {
@@ -173,6 +174,34 @@
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.program-more-badge {
+  background-color: #FFF3E0;
+  color: #E65100;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+}
+
+.program-more-badge:hover::after {
+  content: attr(data-programs);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2C3E50;
+  color: #FFFFFF;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  margin-bottom: 0.5rem;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .horse-actions {
@@ -208,11 +237,11 @@
 }
 
 .btn-edit {
-  background-color: #D4A574;
+  background-color: #B8956A;
 }
 
 .btn-edit:hover {
-  background-color: #C49860;
+  background-color: #C9A961;
 }
 
 .btn-delete {
@@ -224,19 +253,29 @@
 }
 
 .horse-card .btn-secondary {
-  background-color: #D4A574;
+  background-color: #B8956A;
   color: #FFFFFF;
   margin: 1rem;
+  padding: 0.6rem 1rem;
   text-align: center;
   text-decoration: none;
   display: block;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background-color 0.3s;
 }
 
 .horse-card .btn-secondary:hover {
-  background-color: #C49860;
+  background-color: #C9A961;
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .horses-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
