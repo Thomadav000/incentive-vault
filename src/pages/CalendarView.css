@@ -1,5 +1,5 @@
 .calendar-page {
-  background-color: #F9F8F6;
+  background-color: #1A1A1A;
   min-height: 100vh;
   padding: 2rem 0;
 }
@@ -12,7 +12,7 @@
 
 .calendar-page h1 {
   font-size: 2.5rem;
-  color: #2C3E50;
+  color: #B8956A;
   margin-bottom: 2rem;
 }
 
@@ -25,23 +25,24 @@
 }
 
 .calendar-controls button {
-  background-color: #D4A574;
-  color: #FFFFFF;
-  border: none;
+  background-color: transparent;
+  color: #B8956A;
+  border: 2px solid #B8956A;
   padding: 0.7rem 1.5rem;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .calendar-controls button:hover {
-  background-color: #C49860;
+  border-color: #C9A961;
+  color: #C9A961;
 }
 
 .calendar-controls h2 {
   font-size: 1.5rem;
-  color: #2C3E50;
+  color: #B8956A;
   margin: 0;
   flex: 1;
   text-align: center;
@@ -59,7 +60,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
-  color: #546E7A;
+  color: #C0BCAF;
 }
 
 .calendar-grid {
@@ -137,6 +138,7 @@
 
 .upcoming-events h2 {
   margin-top: 0;
+  color: #2C3E50;
 }
 
 .events-list {
@@ -194,38 +196,41 @@
 }
 
 .btn-add-to-calendar {
-  background-color: #D4A574;
+  background-color: #B8956A;
   color: #FFFFFF;
-  border: none;
+  border: 2px solid #B8956A;
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   margin-left: 8px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .btn-add-to-calendar:hover {
-  background-color: #C49860;
+  background-color: transparent;
+  color: #C9A961;
+  border-color: #C9A961;
 }
 
 .btn-add-month-calendar {
-  background-color: #D4A574;
-  color: #FFFFFF;
-  border: none;
+  background-color: transparent;
+  color: #B8956A;
+  border: 2px solid #B8956A;
   padding: 8px 16px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
   margin-left: 16px;
 }
 
 .btn-add-month-calendar:hover {
-  background-color: #C49860;
+  color: #C9A961;
+  border-color: #C9A961;
 }
 
 @media (max-width: 768px) {

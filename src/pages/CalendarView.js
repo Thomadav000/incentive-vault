@@ -232,7 +232,7 @@ END:VEVENT
           <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}>
             Next →
           </button>
-          <button className="btn-add-month-calendar" onClick={downloadMonthCalendar}>📱 Add Month to Calendar</button>
+          <button className="btn-add-month-calendar" onClick={downloadMonthCalendar}>Add Month to Calendar</button>
         </div>
 
         <div className="calendar-legend">
