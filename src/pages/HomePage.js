@@ -60,6 +60,10 @@ function HomePage() {
           </div>
         </section>
 
+        <section className="dashboard-logo">
+          <img src={logoImage} alt="Incentive Vault" />
+        </section>
+
         <section className="dashboard-container">
           <div className="container">
             <div className="dashboard-grid">

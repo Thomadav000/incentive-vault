@@ -447,21 +447,36 @@
 }
 
 .dashboard-hero {
-  background: linear-gradient(135deg, #B8956A 0%, #C9A961 100%);
-  color: white;
-  padding: 20px 20px;
+  background-color: #1A1A1A;
+  padding: 3rem 0 2rem;
   text-align: center;
+  border-bottom: 1px solid #333;
 }
 
 .dashboard-hero h2 {
-  font-size: 32px;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
+  color: #B8956A;
 }
 
 .dashboard-hero p {
-  font-size: 16px;
-  opacity: 0.95;
+  font-size: 0.95rem;
+  color: #C0BCAF;
+  margin: 0;
+}
+
+.dashboard-logo {
+  background-color: #161616;
+  padding: 2rem 0;
+  text-align: center;
+  border-bottom: 1px solid #333;
+}
+
+.dashboard-logo img {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
 }
 
 .dashboard-container {
