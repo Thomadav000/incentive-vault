@@ -96,6 +96,11 @@
   border-color: #F5F3F1;
 }
 
+.calendar-day.today {
+  border: 3px solid #B8956A;
+  box-shadow: inset 0 0 0 1px #B8956A, 0 0 8px rgba(184, 149, 106, 0.3);
+}
+
 .day-number {
   font-weight: 700;
   color: #2C3E50;

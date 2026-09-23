@@ -10,8 +10,12 @@ const monthOrder = {
 
 function CalendarView() {
   const { horses, programs, loading } = useContext(UserContext);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [hoveredDeadline, setHoveredDeadline] = useState(null);
+
+  const today = new Date();
+  const isCurrentMonth = currentMonth.getFullYear() === today.getFullYear() && 
+                         currentMonth.getMonth() === today.getMonth();
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -249,7 +253,7 @@ END:VEVENT
           <div className="calendar-header">Sat</div>
 
           {days.map((day, index) => (
-            <div key={index} className={`calendar-day ${day ? '' : 'empty'}`}>
+            <div key={index} className={`calendar-day ${day ? '' : 'empty'} ${isCurrentMonth && day === today.getDate() ? 'today' : ''}`}>
               {day && (
                 <>
                   <div className="day-number">{day}</div>
