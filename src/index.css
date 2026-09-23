@@ -113,15 +113,19 @@ button {
 }
 
 .btn-secondary {
-  background-color: var(--bg-white);
-  color: var(--charcoal);
-  border: 1px solid #E8E6E3;
-  padding: var(--spacing-md) var(--spacing-lg);
+  display: inline-block;
+  background-color: #B8956A;
+  color: #FFFFFF;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.3s;
 }
 
 .btn-secondary:hover {
-  border-color: var(--dusty-rose);
-  background-color: var(--bg-warm-gray);
+  background-color: #C9A961;
 }
 
 /* Forms */
