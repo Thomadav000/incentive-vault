@@ -47,20 +47,29 @@ function CalendarView() {
       const deadlineMonth = program.deadline.split(' ')[0];
       const deadlineDay = parseInt(program.deadline.split(' ')[1]);
 
+      // Find all horses that have this program
+      const horsesInProgram = horses.filter(h => 
+        h.programs && h.programs.some(p => p.name === program.name)
+      );
+
+      // Get paid status by checking each horse's program status
+      const horsePaidStatus = horsesInProgram.map(h => {
+        const horseProgram = h.programs.find(p => p.name === program.name);
+        return {
+          name: h.barnName,
+          isPaid: horseProgram && horseProgram.status === 'Eligible - Paid'
+        };
+      });
+
+      const totalHorses = horsesInProgram.length;
+      const paidCount = horsePaidStatus.filter(h => h.isPaid).length;
+      const unpaidCount = totalHorses - paidCount;
+
+      // Add to calendar grid if in current month
       if (monthOrder[deadlineMonth] === currentMonth.getMonth() + 1) {
         if (!eventMap[deadlineDay]) {
           eventMap[deadlineDay] = [];
         }
-
-        const horsesInProgram = horses.filter(h => h.programs && h.programs.includes(program.name));
-        const horsePaidStatus = horsesInProgram.map(h => ({
-          name: h.barnName,
-          isPaid: h.programsPaid && h.programsPaid[program.name] === true
-        }));
-
-        const totalHorses = horsesInProgram.length;
-        const paidCount = horsePaidStatus.filter(h => h.isPaid).length;
-        const unpaidCount = totalHorses - paidCount;
 
         eventMap[deadlineDay].push({
           type: 'deadline',
@@ -73,14 +82,8 @@ function CalendarView() {
         });
       }
 
-      const horsesInProgram = horses.filter(h => h.programs && h.programs.includes(program.name));
-      const horsePaidStatus = horsesInProgram.map(h => ({
-        name: h.barnName,
-        isPaid: h.programsPaid && h.programsPaid[program.name] === true
-      }));
+      // Add to all deadlines list
       const unpaidHorses = horsePaidStatus.filter(h => !h.isPaid).map(h => h.name);
-      const paidCount = horsePaidStatus.filter(h => h.isPaid).length;
-      const unpaidCount = horsesInProgram.length - paidCount;
 
       allDeadlines.push({
         program: program.name,
