@@ -6,7 +6,7 @@
 
 :root {
   /* Primary Colors */
-  --dusty-rose: #C7967A;
+  --dusty-rose: #B8956A;
   --charcoal: #2C3E50;
   --slate: #546E7A;
   --warm-gold: #D4A574;
@@ -141,7 +141,7 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--dusty-rose);
-  box-shadow: 0 0 0 3px rgba(199, 150, 122, 0.1);
+  box-shadow: 0 0 0 3px rgba(184, 149, 106, 0.1);
 }
 
 /* Cards */

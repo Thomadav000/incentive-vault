@@ -1,5 +1,5 @@
 .admin-login-page {
-  background: linear-gradient(135deg, #C7967A 0%, #D4A574 100%);
+  background: linear-gradient(135deg, #B8956A 0%, #D4A574 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -72,11 +72,11 @@ form {
 
 .form-group input:focus {
   outline: none;
-  border-color: #C7967A;
+  border-color: #B8956A;
 }
 
 .btn-login {
-  background-color: #C7967A;
+  background-color: #B8956A;
   color: white;
   padding: 12px;
   border: none;
@@ -88,7 +88,7 @@ form {
 }
 
 .btn-login:hover:not(:disabled) {
-  background-color: #B8845A;
+  background-color: #C9A961;
 }
 
 .btn-login:disabled {
@@ -104,7 +104,7 @@ form {
 .btn-back-link {
   background: none;
   border: none;
-  color: #C7967A;
+  color: #B8956A;
   cursor: pointer;
   font-size: 14px;
   text-decoration: none;
@@ -112,7 +112,7 @@ form {
 }
 
 .btn-back-link:hover {
-  color: #B8845A;
+  color: #C9A961;
 }
 
 @media (max-width: 480px) {

@@ -27,7 +27,7 @@
 
 .profile-header {
   margin-bottom: 40px;
-  border-bottom: 2px solid #C7967A;
+  border-bottom: 2px solid #B8956A;
   padding-bottom: 20px;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .btn-edit:hover {
-  background-color: #C7967A;
+  background-color: #C9A961;
 }
 
 .edit-field {
@@ -140,7 +140,7 @@
 
 .edit-field input:focus {
   outline: none;
-  border-color: #C7967A;
+  border-color: #B8956A;
 }
 
 .btn-save {

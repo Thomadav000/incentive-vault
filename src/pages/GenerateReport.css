@@ -46,7 +46,7 @@
 }
 
 .no-horses a {
-  color: #C7967A;
+  color: #B8956A;
   text-decoration: none;
   font-weight: 600;
 }
@@ -80,7 +80,7 @@
   cursor: pointer;
   width: 18px;
   height: 18px;
-  accent-color: #C7967A;
+  accent-color: #B8956A;
 }
 
 .horse-checkbox span {
@@ -105,7 +105,7 @@
   cursor: pointer;
   width: 18px;
   height: 18px;
-  accent-color: #C7967A;
+  accent-color: #B8956A;
 }
 
 .format-options span {
@@ -133,7 +133,7 @@
 }
 
 .btn-generate:hover:not(:disabled) {
-  background-color: #C7967A;
+  background-color: #C9A961;
 }
 
 .btn-generate:disabled {
