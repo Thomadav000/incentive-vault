@@ -30,7 +30,6 @@ function AddHorse() {
   const [userTier, setUserTier] = useState(null);
   const [horseCount, setHorseCount] = useState(0);
   const [showLimitModal, setShowLimitModal] = useState(false);
-  const [tierLimitReached, setTierLimitReached] = useState(false);
   const navigate = useNavigate();
 
   // Tier limits
@@ -58,12 +57,6 @@ function AddHorse() {
           const horsesQuery = query(collection(db, 'horses'), where('userId', '==', user.uid));
           const horsesSnapshot = await getDocs(horsesQuery);
           setHorseCount(horsesSnapshot.size);
-
-          // Check if they've hit their limit
-          const limit = tierLimits[tier];
-          if (horsesSnapshot.size >= limit) {
-            setTierLimitReached(true);
-          }
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -231,7 +224,8 @@ function AddHorse() {
     setError('');
 
     // Check horse limit before allowing submission
-    if (tierLimitReached) {
+    const limit = tierLimits[userTier];
+    if (horseCount >= limit) {
       setShowLimitModal(true);
       return;
     }
@@ -279,6 +273,7 @@ function AddHorse() {
         createdAt: new Date(),
       });
 
+      setHorseCount(prev => prev + 1);
       navigate('/dashboard');
     } catch (err) {
       setError('Error adding horse: ' + err.message);
@@ -288,7 +283,7 @@ function AddHorse() {
   };
 
   const handleUpgradeClick = () => {
-    navigate('/profile'); // Navigate to profile page for tier upgrade
+    navigate('/profile');
   };
 
   const ageNum = calculateAge(formData.foalingYear);
