@@ -29,7 +29,7 @@ function AddHorse() {
   const [error, setError] = useState('');
   const [userTier, setUserTier] = useState(null);
   const [horseCount, setHorseCount] = useState(0);
-  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const navigate = useNavigate();
 
   // Tier limits
@@ -60,6 +60,13 @@ function AddHorse() {
           const horsesSnapshot = await getDocs(horsesQuery);
           console.log('Horse count:', horsesSnapshot.size);
           setHorseCount(horsesSnapshot.size);
+
+          // Check if limit is already reached on page load
+          const limit = tierLimits[tier];
+          if (horsesSnapshot.size >= limit) {
+            console.log('Limit already reached on page load');
+            setLimitReached(true);
+          }
         } else {
           console.log('User document does not exist');
         }
@@ -228,19 +235,6 @@ function AddHorse() {
     e.preventDefault();
     setError('');
 
-    // Debug logging
-    console.log('Form submitted - userTier:', userTier, 'horseCount:', horseCount);
-
-    // Check horse limit before allowing submission
-    const limit = tierLimits[userTier];
-    console.log('Tier limit:', limit, 'horseCount >= limit:', horseCount >= limit);
-    
-    if (horseCount >= limit) {
-      console.log('Horse limit reached - showing modal');
-      setShowLimitModal(true);
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -299,256 +293,250 @@ function AddHorse() {
 
   const ageNum = calculateAge(formData.foalingYear);
   const displayAge = getAgeDisplay(ageNum);
+  const limit = tierLimits[userTier];
 
   return (
     <div className="add-horse-page">
-      {showLimitModal && (
-        <div className="modal-overlay">
-          <div className="horse-limit-banner">
-            <h2>Horse Limit Reached</h2>
-            <p>
-              Your current plan allows for <strong>{tierLimits[userTier]}</strong> horses.
-              You've reached your limit.
-            </p>
-            <p className="upgrade-text">
-              Upgrade your plan to add more horses to your barn.
-            </p>
-            <div className="modal-buttons">
-              <button onClick={handleUpgradeClick} className="btn-upgrade">
+      <div className="add-horse-container">
+        <h1>Add a New Horse</h1>
+
+        {/* Upfront limit warning banner */}
+        {limitReached && (
+          <div className="limit-warning-banner">
+            <p className="limit-warning-icon">⚠️</p>
+            <div className="limit-warning-content">
+              <h3>You've reached your horse limit</h3>
+              <p>Your {userTier === 'tier1' ? 'Basic' : userTier === 'tier2' ? 'Professional' : userTier === 'tier3' ? 'Elite' : 'Unlimited'} plan allows for <strong>{limit}</strong> horses. Upgrade your plan to add more.</p>
+              <button onClick={handleUpgradeClick} className="btn-upgrade-banner">
                 Upgrade Plan
-              </button>
-              <button onClick={() => setShowLimitModal(false)} className="btn-cancel-modal">
-                Cancel
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      <div className="add-horse-container">
-        <h1>Add a New Horse</h1>
+        )}
         
         {error && <div className="error-message">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="add-horse-form">
-          {/* Step 1: Search & Verify */}
-          <div className="form-section">
-            <h2>1. Search & Verify Horse</h2>
-            
-            <div className="form-group">
-              <label>Barn Name *</label>
-              <input
-                type="text"
-                name="barnName"
-                value={formData.barnName}
-                onChange={handleChange}
-                placeholder="e.g., Aint Bubblin Yet"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Registered Name</label>
-              <input
-                type="text"
-                name="registeredName"
-                value={formData.registeredName}
-                onChange={handleChange}
-                placeholder="Official AQHA name"
-              />
-            </div>
-
-            <div className="verification-box">
-              <h3>Verify on AQHA</h3>
-              <p>Visit AQHA's official pedigree database to verify registration details, sire, and full bloodline.</p>
-              <a href="https://www.aqha.com/" target="_blank" rel="noopener noreferrer" className="btn-verify">
-                🔗 Open AQHA Pedigree Search
-              </a>
-              <label className="checkbox-group">
-                <input
-                  type="checkbox"
-                  checked={verified}
-                  onChange={(e) => setVerified(e.target.checked)}
-                />
-                I've verified this horse on AQHA
-              </label>
-            </div>
-
-            {verified && <div className="verified-badge">✓ Verified</div>}
-          </div>
-
-          {/* Step 2: Horse Info */}
-          <div className="form-section">
-            <h2>2. Horse Information</h2>
-            
-            <div className="form-group">
-              <label>Registration Number</label>
-              <input
-                type="text"
-                name="registrationNumber"
-                value={formData.registrationNumber}
-                onChange={handleChange}
-                placeholder="AQHA #"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Sire (Stallion)</label>
-              <input
-                type="text"
-                name="sire"
-                value={formData.sire}
-                onChange={handleChange}
-                placeholder="e.g., Slick By Design"
-              />
-            </div>
-
-            <div className="form-row">
+        {!limitReached && (
+          <form onSubmit={handleSubmit} className="add-horse-form">
+            {/* Step 1: Search & Verify */}
+            <div className="form-section">
+              <h2>1. Search & Verify Horse</h2>
+              
               <div className="form-group">
-                <label>Foaling Year</label>
-                <input
-                  type="number"
-                  name="foalingYear"
-                  value={formData.foalingYear}
-                  onChange={handleChange}
-                  placeholder="2021"
-                  min="1990"
-                />
-              </div>
-              <div className="form-group">
-                <label>Age</label>
-                <div className="age-display">
-                  {displayAge}
-                </div>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Sex</label>
-                <select name="sex" value={formData.sex} onChange={handleChange}>
-                  <option value="">Select...</option>
-                  <option value="Mare">Mare</option>
-                  <option value="Gelding">Gelding</option>
-                  <option value="Stallion">Stallion</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Color</label>
+                <label>Barn Name *</label>
                 <input
                   type="text"
-                  name="color"
-                  value={formData.color}
+                  name="barnName"
+                  value={formData.barnName}
                   onChange={handleChange}
-                  placeholder="e.g., Bay"
+                  placeholder="e.g., Aint Bubblin Yet"
+                  required
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Step 3: Programs */}
-          <div className="form-section">
-            <h2>3. Incentive Programs</h2>
-            <p>For each program, select your horse's eligibility status:</p>
-            
-            <div className="programs-list">
-              {formData.programs.map(prog => (
-                <div key={prog.name} className="program-item">
-                  <div className="program-header">
-                    <h3>{prog.name}</h3>
-                    <a 
-                      href={programData[prog.name].url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="program-verify-link"
-                    >
-                      Verify Eligibility →
-                    </a>
-                  </div>
-
-                  <div className="program-status-selector">
-                    <label>Eligibility</label>
-                    <select 
-                      value={prog.status}
-                      onChange={(e) => handleProgramStatusChange(prog.name, e.target.value)}
-                    >
-                      <option value="">Select eligibility status</option>
-                      <option value="Not Eligible">Not Eligible</option>
-                      <option value="Eligible - Not Paid">Eligible - Not Paid</option>
-                      <option value="Eligible - Paid">Eligible - Paid</option>
-                    </select>
-                  </div>
-
-                  {prog.status === 'Eligible - Paid' && (
-                    <div className="program-paid-badge">
-                      ✅ Paid for Life
-                    </div>
-                  )}
-
-                  {prog.status === 'Eligible - Not Paid' && prog.estimatedFee && (
-                    <div className="program-details">
-                      <p><strong>Estimated Fee:</strong> {prog.estimatedFee}</p>
-                      <p><strong>Deadline:</strong> {prog.deadline}</p>
-                      <p className="disclaimer">Verify current fees on program website before enrolling.</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="disclaimer-box">
-              <p className="disclaimer-title">⚠️ Eligibility Verification Required</p>
-              <p className="disclaimer-text">
-                Enrollment fees, deadlines, and eligibility requirements vary by program and may change. 
-                Please verify all information on each program's official website before enrolling your horse.
-              </p>
-            </div>
-          </div>
-
-          {/* Step 4: Photo & Notes */}
-          <div className="form-section">
-            <h2>4. Photo & Details (Optional)</h2>
-            
-            <div className="form-group">
-              <label>Horse Photo</label>
-              <div 
-                className="photo-upload"
-                onClick={handlePhotoClick}
-                onDrop={handlePhotoDrop}
-                onDragOver={handlePhotoDragOver}
-              >
+              <div className="form-group">
+                <label>Registered Name</label>
                 <input
-                  id="photo-input"
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
+                  type="text"
+                  name="registeredName"
+                  value={formData.registeredName}
+                  onChange={handleChange}
+                  placeholder="Official AQHA name"
                 />
-                <p>📸 Click to upload or drag and drop</p>
               </div>
-              {photo && <div className="photo-selected">✓ {photo.name}</div>}
+
+              <div className="verification-box">
+                <h3>Verify on AQHA</h3>
+                <p>Visit AQHA's official pedigree database to verify registration details, sire, and full bloodline.</p>
+                <a href="https://www.aqha.com/" target="_blank" rel="noopener noreferrer" className="btn-verify">
+                  🔗 Open AQHA Pedigree Search
+                </a>
+                <label className="checkbox-group">
+                  <input
+                    type="checkbox"
+                    checked={verified}
+                    onChange={(e) => setVerified(e.target.checked)}
+                  />
+                  I've verified this horse on AQHA
+                </label>
+              </div>
+
+              {verified && <div className="verified-badge">✓ Verified</div>}
             </div>
 
-            <div className="form-group">
-              <label>Notes</label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                placeholder="Any additional info about this horse..."
-                rows="4"
-              />
-            </div>
-          </div>
+            {/* Step 2: Horse Info */}
+            <div className="form-section">
+              <h2>2. Horse Information</h2>
+              
+              <div className="form-group">
+                <label>Registration Number</label>
+                <input
+                  type="text"
+                  name="registrationNumber"
+                  value={formData.registrationNumber}
+                  onChange={handleChange}
+                  placeholder="AQHA #"
+                />
+              </div>
 
-          <div className="form-actions">
-            <button type="button" onClick={() => navigate('/dashboard')} className="btn-cancel">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className="btn-submit">
-              {loading ? 'Adding Horse...' : 'Add Horse to Barn'}
-            </button>
-          </div>
-        </form>
+              <div className="form-group">
+                <label>Sire (Stallion)</label>
+                <input
+                  type="text"
+                  name="sire"
+                  value={formData.sire}
+                  onChange={handleChange}
+                  placeholder="e.g., Slick By Design"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Foaling Year</label>
+                  <input
+                    type="number"
+                    name="foalingYear"
+                    value={formData.foalingYear}
+                    onChange={handleChange}
+                    placeholder="2021"
+                    min="1990"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Age</label>
+                  <div className="age-display">
+                    {displayAge}
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Sex</label>
+                  <select name="sex" value={formData.sex} onChange={handleChange}>
+                    <option value="">Select...</option>
+                    <option value="Mare">Mare</option>
+                    <option value="Gelding">Gelding</option>
+                    <option value="Stallion">Stallion</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Color</label>
+                  <input
+                    type="text"
+                    name="color"
+                    value={formData.color}
+                    onChange={handleChange}
+                    placeholder="e.g., Bay"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3: Programs */}
+            <div className="form-section">
+              <h2>3. Incentive Programs</h2>
+              <p>For each program, select your horse's eligibility status:</p>
+              
+              <div className="programs-list">
+                {formData.programs.map(prog => (
+                  <div key={prog.name} className="program-item">
+                    <div className="program-header">
+                      <h3>{prog.name}</h3>
+                      <a 
+                        href={programData[prog.name].url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="program-verify-link"
+                      >
+                        Verify Eligibility →
+                      </a>
+                    </div>
+
+                    <div className="program-status-selector">
+                      <label>Eligibility</label>
+                      <select 
+                        value={prog.status}
+                        onChange={(e) => handleProgramStatusChange(prog.name, e.target.value)}
+                      >
+                        <option value="">Select eligibility status</option>
+                        <option value="Not Eligible">Not Eligible</option>
+                        <option value="Eligible - Not Paid">Eligible - Not Paid</option>
+                        <option value="Eligible - Paid">Eligible - Paid</option>
+                      </select>
+                    </div>
+
+                    {prog.status === 'Eligible - Paid' && (
+                      <div className="program-paid-badge">
+                        ✅ Paid for Life
+                      </div>
+                    )}
+
+                    {prog.status === 'Eligible - Not Paid' && prog.estimatedFee && (
+                      <div className="program-details">
+                        <p><strong>Estimated Fee:</strong> {prog.estimatedFee}</p>
+                        <p><strong>Deadline:</strong> {prog.deadline}</p>
+                        <p className="disclaimer">Verify current fees on program website before enrolling.</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="disclaimer-box">
+                <p className="disclaimer-title">⚠️ Eligibility Verification Required</p>
+                <p className="disclaimer-text">
+                  Enrollment fees, deadlines, and eligibility requirements vary by program and may change. 
+                  Please verify all information on each program's official website before enrolling your horse.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4: Photo & Notes */}
+            <div className="form-section">
+              <h2>4. Photo & Details (Optional)</h2>
+              
+              <div className="form-group">
+                <label>Horse Photo</label>
+                <div 
+                  className="photo-upload"
+                  onClick={handlePhotoClick}
+                  onDrop={handlePhotoDrop}
+                  onDragOver={handlePhotoDragOver}
+                >
+                  <input
+                    id="photo-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                  />
+                  <p>📸 Click to upload or drag and drop</p>
+                </div>
+                {photo && <div className="photo-selected">✓ {photo.name}</div>}
+              </div>
+
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Any additional info about this horse..."
+                  rows="4"
+                />
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button type="button" onClick={() => navigate('/dashboard')} className="btn-cancel">
+                Cancel
+              </button>
+              <button type="submit" disabled={loading} className="btn-submit">
+                {loading ? 'Adding Horse...' : 'Add Horse to Barn'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
