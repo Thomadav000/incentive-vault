@@ -5,6 +5,14 @@ import { collection, addDoc, query, where, getDocs, getDoc, doc } from 'firebase
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './AddHorse.css';
 
+// Tier limits (outside component to avoid recreating on every render)
+const tierLimits = {
+  tier1: 2,
+  tier2: 5,
+  tier3: 10,
+  tier4: Infinity,
+};
+
 function AddHorse() {
   const [formData, setFormData] = useState({
     barnName: '',
@@ -28,55 +36,8 @@ function AddHorse() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [userTier, setUserTier] = useState(null);
-  const [horseCount, setHorseCount] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const navigate = useNavigate();
-
-  // Tier limits
-  const tierLimits = {
-    tier1: 2,
-    tier2: 5,
-    tier3: 10,
-    tier4: Infinity,
-  };
-
-  // Fetch user tier and horse count on mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const user = auth.currentUser;
-        if (!user) {
-          console.log('No user logged in');
-          return;
-        }
-
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          const tier = userDoc.data().selectedTier || 'tier1';
-          console.log('User tier from Firebase:', tier);
-          setUserTier(tier);
-
-          const horsesQuery = query(collection(db, 'horses'), where('userId', '==', user.uid));
-          const horsesSnapshot = await getDocs(horsesQuery);
-          console.log('Horse count:', horsesSnapshot.size);
-          setHorseCount(horsesSnapshot.size);
-
-          // Check if limit is already reached on page load
-          const limit = tierLimits[tier];
-          if (horsesSnapshot.size >= limit) {
-            console.log('Limit already reached on page load');
-            setLimitReached(true);
-          }
-        } else {
-          console.log('User document does not exist');
-        }
-      } catch (err) {
-        console.error('Error fetching user data:', err);
-      }
-    };
-
-    fetchUserData();
-  }, []);
 
   // Program data for one-time programs
   const programData = {
@@ -125,6 +86,43 @@ function AddHorse() {
       url: 'https://therubybuckle.com/nomination/100/2026-nomination-form',
     },
   };
+
+  // Fetch user tier and horse count on mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          console.log('No user logged in');
+          return;
+        }
+
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const tier = userDoc.data().selectedTier || 'tier1';
+          console.log('User tier from Firebase:', tier);
+          setUserTier(tier);
+
+          const horsesQuery = query(collection(db, 'horses'), where('userId', '==', user.uid));
+          const horsesSnapshot = await getDocs(horsesQuery);
+          console.log('Horse count:', horsesSnapshot.size);
+
+          // Check if limit is already reached on page load
+          const limit = tierLimits[tier];
+          if (horsesSnapshot.size >= limit) {
+            console.log('Limit already reached on page load');
+            setLimitReached(true);
+          }
+        } else {
+          console.log('User document does not exist');
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Calculate age from foaling year
   const calculateAge = (foalingYear) => {
@@ -278,7 +276,6 @@ function AddHorse() {
         createdAt: new Date(),
       });
 
-      setHorseCount(prev => prev + 1);
       navigate('/dashboard');
     } catch (err) {
       setError('Error adding horse: ' + err.message);
