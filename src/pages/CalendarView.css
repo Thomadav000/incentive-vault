@@ -188,6 +188,9 @@
   border-left: 3px solid;
   border-radius: 3px;
   background-color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .event.deadline {
@@ -204,17 +207,22 @@
   flex: 1;
   font-weight: 500;
   word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .event-status {
   font-size: 0.75rem;
   color: #546E7A;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .event-actions {
   display: flex;
   gap: 0.3rem;
+  min-width: max-content;
 }
 
 .btn-edit-event,
@@ -225,6 +233,7 @@
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-edit-event {
@@ -287,6 +296,8 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: all 0.4s ease;
   margin-bottom: 2rem;
+  max-height: none;
+  overflow: visible;
 }
 
 .upcoming-events.slide-up {
@@ -322,9 +333,10 @@
   background-color: #F5F3F1;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   transition: background-color 0.2s ease;
+  flex-wrap: wrap;
 }
 
 .event-item.deadline-item {
@@ -343,21 +355,28 @@
   font-weight: 700;
   color: #2C3E50;
   min-width: 100px;
+  flex-shrink: 0;
 }
 
 .event-title {
   color: #2C3E50;
   font-weight: 600;
   flex: 1;
+  min-width: 200px;
 }
 
 .event-status-text {
   color: #546E7A;
   font-size: 0.9rem;
+  word-wrap: break-word;
 }
 
 .event-details {
   flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
 .event-link {
@@ -368,6 +387,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .event-link:hover {
@@ -387,6 +407,7 @@
   margin-left: 8px;
   transition: all 0.2s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-add-to-calendar:hover {
@@ -440,6 +461,8 @@
   max-width: 500px;
   width: 90%;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-content h2 {
@@ -460,7 +483,8 @@
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 0.8rem;
   border: 1px solid #E8E6E3;
@@ -472,7 +496,8 @@
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: #B8956A;
   box-shadow: 0 0 0 3px rgba(184, 149, 106, 0.1);
@@ -480,6 +505,17 @@
 
 .form-group textarea {
   resize: vertical;
+}
+
+.date-selectors {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.date-selectors select {
+  flex: 1;
+  min-width: 100px;
 }
 
 .modal-actions {
@@ -538,7 +574,7 @@
 
   .event-item {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
   }
 
   .event-date {
@@ -577,5 +613,13 @@
 
   .modal-content {
     max-width: 90%;
+  }
+
+  .date-selectors {
+    flex-direction: column;
+  }
+
+  .date-selectors select {
+    min-width: auto;
   }
 }

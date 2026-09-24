@@ -10,6 +10,8 @@ const monthOrder = {
   'November': 11, 'December': 12
 };
 
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 function CalendarView() {
   const { horses, programs, loading, user } = useContext(UserContext);
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
@@ -25,7 +27,9 @@ function CalendarView() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    date: '',
+    month: '',
+    day: '',
+    year: new Date().getFullYear(),
     description: '',
     link: ''
   });
@@ -64,16 +68,36 @@ function CalendarView() {
 
   const handleOpenModal = (selectedDate = null) => {
     if (selectedDate) {
-      setFormData({ ...formData, date: selectedDate });
+      const parts = selectedDate.split(' ');
+      setFormData({
+        name: '',
+        month: parts[0],
+        day: parts[1],
+        year: new Date().getFullYear(),
+        description: '',
+        link: ''
+      });
+    } else {
+      setFormData({
+        name: '',
+        month: '',
+        day: '',
+        year: new Date().getFullYear(),
+        description: '',
+        link: ''
+      });
     }
     setEditingEvent(null);
     setShowPersonalModal(true);
   };
 
   const handleEditEvent = (event) => {
+    const parts = event.date.split(' ');
     setFormData({
       name: event.name,
-      date: event.date,
+      month: parts[0],
+      day: parts[1],
+      year: new Date().getFullYear(),
       description: event.description,
       link: event.link || ''
     });
@@ -84,14 +108,16 @@ function CalendarView() {
   const handleCloseModal = () => {
     setShowPersonalModal(false);
     setEditingEvent(null);
-    setFormData({ name: '', date: '', description: '', link: '' });
+    setFormData({ name: '', month: '', day: '', year: new Date().getFullYear(), description: '', link: '' });
   };
 
   const handleSaveEvent = async () => {
-    if (!formData.name || !formData.date || !user?.uid) {
-      alert('Name and date are required');
+    if (!formData.name || !formData.month || !formData.day || !user?.uid) {
+      alert('Event name, month, and day are required');
       return;
     }
+
+    const dateString = `${formData.month} ${formData.day}`;
 
     try {
       if (editingEvent) {
@@ -99,7 +125,7 @@ function CalendarView() {
         const eventDoc = doc(db, 'personalEvents', editingEvent.id);
         await updateDoc(eventDoc, {
           name: formData.name,
-          date: formData.date,
+          date: dateString,
           description: formData.description,
           link: formData.link,
           updatedAt: serverTimestamp()
@@ -109,7 +135,7 @@ function CalendarView() {
         await addDoc(collection(db, 'personalEvents'), {
           userId: user.uid,
           name: formData.name,
-          date: formData.date,
+          date: dateString,
           description: formData.description,
           link: formData.link,
           createdAt: serverTimestamp()
@@ -592,12 +618,37 @@ END:VEVENT
 
               <div className="form-group">
                 <label>Date *</label>
-                <input
-                  type="text"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  placeholder="e.g., September 15"
-                />
+                <div className="date-selectors">
+                  <select
+                    value={formData.month}
+                    onChange={(e) => setFormData({ ...formData, month: e.target.value })}
+                  >
+                    <option value="">Month</option>
+                    {monthNames.map(month => (
+                      <option key={month} value={month}>{month}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={formData.day}
+                    onChange={(e) => setFormData({ ...formData, day: e.target.value })}
+                  >
+                    <option value="">Day</option>
+                    {[...Array(31)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>{i + 1}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={formData.year}
+                    onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                  >
+                    {[...Array(5)].map((_, i) => {
+                      const year = new Date().getFullYear() + i;
+                      return <option key={year} value={year}>{year}</option>;
+                    })}
+                  </select>
+                </div>
               </div>
 
               <div className="form-group">
