@@ -63,15 +63,53 @@
   color: #C0BCAF;
 }
 
+/* COLLAPSIBLE CALENDAR SECTION */
+.calendar-section {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.calendar-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #F9F8F6;
+  border-bottom: 1px solid #E8E6E3;
+}
+
+.calendar-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2C3E50;
+}
+
+.btn-collapse-calendar {
+  background-color: transparent;
+  border: none;
+  color: #B8956A;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.btn-collapse-calendar:hover {
+  opacity: 1;
+  color: #C9A961;
+}
+
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1rem;
   background-color: #FFFFFF;
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
+  border-radius: 0;
 }
 
 .calendar-header {
@@ -134,11 +172,29 @@
   color: #9C27B0;
 }
 
+/* UPCOMING EVENTS SECTION WITH SLIDE-UP ANIMATION */
 .upcoming-events {
   background-color: #FFFFFF;
   border-radius: 8px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s ease;
+  margin-bottom: 2rem;
+}
+
+.upcoming-events.slide-up {
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .upcoming-events h2 {
@@ -238,6 +294,12 @@
   border-color: #C9A961;
 }
 
+.no-events {
+  color: #546E7A;
+  text-align: center;
+  padding: 2rem;
+}
+
 @media (max-width: 768px) {
   .calendar-controls {
     flex-wrap: wrap;
@@ -269,5 +331,17 @@
   .btn-add-to-calendar {
     margin-left: 0;
     margin-top: 0.5rem;
+  }
+
+  .calendar-header-bar {
+    padding: 1rem;
+  }
+
+  .calendar-label {
+    font-size: 1rem;
+  }
+
+  .btn-collapse-calendar {
+    font-size: 1.2rem;
   }
 }
