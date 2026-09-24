@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db, auth, storage } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './AddHorse.css';
 
@@ -27,7 +27,51 @@ function AddHorse() {
   const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [userTier, setUserTier] = useState(null);
+  const [horseCount, setHorseCount] = useState(0);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [tierLimitReached, setTierLimitReached] = useState(false);
   const navigate = useNavigate();
+
+  // Tier limits
+  const tierLimits = {
+    tier1: 2,
+    tier2: 5,
+    tier3: 10,
+    tier4: Infinity,
+  };
+
+  // Fetch user tier and horse count on mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        // Get user tier from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const tier = userDoc.data().selectedTier || 'tier1';
+          setUserTier(tier);
+
+          // Count existing horses for this user
+          const horsesQuery = query(collection(db, 'horses'), where('userId', '==', user.uid));
+          const horsesSnapshot = await getDocs(horsesQuery);
+          setHorseCount(horsesSnapshot.size);
+
+          // Check if they've hit their limit
+          const limit = tierLimits[tier];
+          if (horsesSnapshot.size >= limit) {
+            setTierLimitReached(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Program data for one-time programs
   const programData = {
@@ -185,6 +229,13 @@ function AddHorse() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Check horse limit before allowing submission
+    if (tierLimitReached) {
+      setShowLimitModal(true);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -236,11 +287,38 @@ function AddHorse() {
     }
   };
 
+  const handleUpgradeClick = () => {
+    navigate('/profile'); // Navigate to profile page for tier upgrade
+  };
+
   const ageNum = calculateAge(formData.foalingYear);
   const displayAge = getAgeDisplay(ageNum);
 
   return (
     <div className="add-horse-page">
+      {showLimitModal && (
+        <div className="modal-overlay">
+          <div className="horse-limit-banner">
+            <h2>Horse Limit Reached</h2>
+            <p>
+              Your current plan allows for <strong>{tierLimits[userTier]}</strong> horses.
+              You've reached your limit.
+            </p>
+            <p className="upgrade-text">
+              Upgrade your plan to add more horses to your barn.
+            </p>
+            <div className="modal-buttons">
+              <button onClick={handleUpgradeClick} className="btn-upgrade">
+                Upgrade Plan
+              </button>
+              <button onClick={() => setShowLimitModal(false)} className="btn-cancel-modal">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="add-horse-container">
         <h1>Add a New Horse</h1>
         
