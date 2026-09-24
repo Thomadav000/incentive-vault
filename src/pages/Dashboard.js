@@ -51,10 +51,6 @@ function Dashboard() {
     }
   };
 
-  const handleEditHorse = (horseId) => {
-    navigate(`/horse/${horseId}`);
-  };
-
   if (loading) {
     return <div className="dashboard">Loading your barn...</div>;
   }
@@ -104,6 +100,13 @@ function Dashboard() {
             <div className="horses-grid">
               {horses.map(horse => (
                 <div key={horse.id} className="horse-card">
+                  <button 
+                    onClick={() => handleDeleteHorse(horse.id)} 
+                    className="btn-delete-corner" 
+                    title="Delete horse"
+                  >
+                    ✕
+                  </button>
                   {horse.photo && <img src={horse.photo} alt={horse.barnName} />}
                   <div className="horse-info">
                     <h3>{horse.barnName}</h3>
@@ -131,10 +134,6 @@ function Dashboard() {
                         )}
                       </div>
                     )}
-                  </div>
-                  <div className="horse-actions">
-                    <button onClick={() => handleEditHorse(horse.id)} className="btn-action btn-edit" title="Edit horse">⚙️</button>
-                    <button onClick={() => handleDeleteHorse(horse.id)} className="btn-action btn-delete" title="Delete horse">🗑️</button>
                   </div>
                   <Link to={`/horse/${horse.id}`} className="btn-secondary">View Details</Link>
                 </div>
