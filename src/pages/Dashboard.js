@@ -8,6 +8,7 @@ function Dashboard() {
   const [horses, setHorses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalHorses: 0, enrolledPrograms: 0, upcomingDeadlines: 0 });
+  const [hoveredMoreBadge, setHoveredMoreBadge] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -115,7 +116,21 @@ function Dashboard() {
                     {horse.programs?.slice(0, 3).map(program => (
                       <span key={program.name} className="program-badge">{program.name}</span>
                     ))}
-                    {horse.programs?.length > 3 && <span className="program-badge">+{horse.programs.length - 3}</span>}
+                    {horse.programs?.length > 3 && (
+                      <div className="more-programs-container"
+                        onMouseEnter={() => setHoveredMoreBadge(horse.id)}
+                        onMouseLeave={() => setHoveredMoreBadge(null)}
+                      >
+                        <span className="program-badge more-badge">+{horse.programs.length - 3}</span>
+                        {hoveredMoreBadge === horse.id && (
+                          <div className="more-programs-tooltip">
+                            {horse.programs.slice(3).map(program => (
+                              <div key={program.name} className="tooltip-item">{program.name}</div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="horse-actions">
                     <button onClick={() => handleEditHorse(horse.id)} className="btn-action btn-edit" title="Edit horse">⚙️</button>
