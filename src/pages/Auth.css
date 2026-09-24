@@ -137,16 +137,13 @@
 /* Logo Section */
 .signup-logo-section {
   margin-bottom: 50px;
-  text-align: right;
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 40px;
+  text-align: center;
 }
 
 .signup-logo {
-  height: 160px;
+  height: 200px;
   width: auto;
-  max-width: 500px;
+  max-width: 600px;
   object-fit: contain;
   filter: brightness(1.1);
 }
