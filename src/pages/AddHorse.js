@@ -45,18 +45,23 @@ function AddHorse() {
     const fetchUserData = async () => {
       try {
         const user = auth.currentUser;
-        if (!user) return;
+        if (!user) {
+          console.log('No user logged in');
+          return;
+        }
 
-        // Get user tier from Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const tier = userDoc.data().selectedTier || 'tier1';
+          console.log('User tier from Firebase:', tier);
           setUserTier(tier);
 
-          // Count existing horses for this user
           const horsesQuery = query(collection(db, 'horses'), where('userId', '==', user.uid));
           const horsesSnapshot = await getDocs(horsesQuery);
+          console.log('Horse count:', horsesSnapshot.size);
           setHorseCount(horsesSnapshot.size);
+        } else {
+          console.log('User document does not exist');
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -223,9 +228,15 @@ function AddHorse() {
     e.preventDefault();
     setError('');
 
+    // Debug logging
+    console.log('Form submitted - userTier:', userTier, 'horseCount:', horseCount);
+
     // Check horse limit before allowing submission
     const limit = tierLimits[userTier];
+    console.log('Tier limit:', limit, 'horseCount >= limit:', horseCount >= limit);
+    
     if (horseCount >= limit) {
+      console.log('Horse limit reached - showing modal');
       setShowLimitModal(true);
       return;
     }
