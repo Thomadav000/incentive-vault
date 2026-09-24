@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo, useEffect } from 'react';
+import React, { useContext, useState, useMemo, useEffect, useCallback } from 'react';
 import { UserContext } from '../context/UserContext';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
@@ -34,12 +34,23 @@ function CalendarView() {
     return saved ? JSON.parse(saved) : 'deadlines';
   });
 
-  // Fetch personal events on mount
-  useEffect(() => {
-    if (user?.uid) {
-      fetchPersonalEvents();
+  // Fetch personal events with useCallback
+  const fetchPersonalEventsCallback = useCallback(async () => {
+    if (!user?.uid) return;
+    try {
+      const q = query(collection(db, 'personalEvents'), where('userId', '==', user.uid));
+      const snapshot = await getDocs(q);
+      const events = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+      setPersonalEvents(events);
+    } catch (error) {
+      console.error('Error fetching personal events:', error);
     }
   }, [user?.uid]);
+
+  // Fetch personal events on mount
+  useEffect(() => {
+    fetchPersonalEventsCallback();
+  }, [fetchPersonalEventsCallback]);
 
   // Save active tab preference
   useEffect(() => {
@@ -50,18 +61,6 @@ function CalendarView() {
   useEffect(() => {
     localStorage.setItem('calendarViewCollapsed', JSON.stringify(isCalendarOpen));
   }, [isCalendarOpen]);
-
-  const fetchPersonalEvents = async () => {
-    if (!user?.uid) return;
-    try {
-      const q = query(collection(db, 'personalEvents'), where('userId', '==', user.uid));
-      const snapshot = await getDocs(q);
-      const events = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-      setPersonalEvents(events);
-    } catch (error) {
-      console.error('Error fetching personal events:', error);
-    }
-  };
 
   const handleOpenModal = (selectedDate = null) => {
     if (selectedDate) {
@@ -116,7 +115,7 @@ function CalendarView() {
           createdAt: serverTimestamp()
         });
       }
-      await fetchPersonalEvents();
+      await fetchPersonalEventsCallback();
       handleCloseModal();
     } catch (error) {
       console.error('Error saving event:', error);
@@ -128,7 +127,7 @@ function CalendarView() {
     if (window.confirm('Delete this event?')) {
       try {
         await deleteDoc(doc(db, 'personalEvents', eventId));
-        await fetchPersonalEvents();
+        await fetchPersonalEventsCallback();
       } catch (error) {
         console.error('Error deleting event:', error);
         alert('Error deleting event');
