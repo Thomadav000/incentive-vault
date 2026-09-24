@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { UserContext } from '../context/UserContext';
 import './CalendarView.css';
 
@@ -12,6 +12,14 @@ function CalendarView() {
   const { horses, programs, loading } = useContext(UserContext);
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [hoveredDeadline, setHoveredDeadline] = useState(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(() => {
+    const saved = localStorage.getItem('calendarViewCollapsed');
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('calendarViewCollapsed', JSON.stringify(isCalendarOpen));
+  }, [isCalendarOpen]);
 
   const today = new Date();
   const isCurrentMonth = currentMonth.getFullYear() === today.getFullYear() && 
@@ -246,51 +254,68 @@ END:VEVENT
           <div className="legend-item">📅 Deadline</div>
         </div>
 
-        <div className="calendar-grid">
-          <div className="calendar-header">Sun</div>
-          <div className="calendar-header">Mon</div>
-          <div className="calendar-header">Tue</div>
-          <div className="calendar-header">Wed</div>
-          <div className="calendar-header">Thu</div>
-          <div className="calendar-header">Fri</div>
-          <div className="calendar-header">Sat</div>
+        {/* COLLAPSIBLE CALENDAR SECTION */}
+        <div className="calendar-section">
+          <div className="calendar-header-bar">
+            <span className="calendar-label">Calendar</span>
+            <button 
+              className="btn-collapse-calendar"
+              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+              title={isCalendarOpen ? 'Collapse' : 'Expand'}
+            >
+              {isCalendarOpen ? '▼' : '▲'}
+            </button>
+          </div>
 
-          {days.map((day, index) => (
-            <div key={index} className={`calendar-day ${day ? '' : 'empty'} ${isCurrentMonth && day === today.getDate() ? 'today' : ''}`}>
-              {day && (
-                <>
-                  <div className="day-number">{day}</div>
-                  <div className="day-events">
-                    {events.eventMap[day] && events.eventMap[day].map((event, idx) => (
-                      <div 
-                        key={idx} 
-                        className="event deadline"
-                        onMouseEnter={() => setHoveredDeadline(`grid-${day}-${idx}`)}
-                        onMouseLeave={() => setHoveredDeadline(null)}
-                      >
-                        <span className="event-icon">📅</span>
-                        <span className="event-label">{event.program}</span>
-                        <span className="event-status">
-                          {event.unpaidCount > 0 ? `Pay ${event.unpaidCount}` : 'All Paid'}
-                        </span>
-                        {hoveredDeadline === `grid-${day}-${idx}` && (
-                          <button 
-                            className="btn-add-to-calendar"
-                            onClick={() => downloadCalendarEvent({ program: event.program, month: monthOrder[currentMonth.toLocaleString('default', { month: 'long' })], day: day, deadline: event.deadline, unpaidCount: event.unpaidCount, unpaidHorseNames: event.horses.filter(h => !h.isPaid).map(h => h.name) })}
+          {isCalendarOpen && (
+            <div className="calendar-grid">
+              <div className="calendar-header">Sun</div>
+              <div className="calendar-header">Mon</div>
+              <div className="calendar-header">Tue</div>
+              <div className="calendar-header">Wed</div>
+              <div className="calendar-header">Thu</div>
+              <div className="calendar-header">Fri</div>
+              <div className="calendar-header">Sat</div>
+
+              {days.map((day, index) => (
+                <div key={index} className={`calendar-day ${day ? '' : 'empty'} ${isCurrentMonth && day === today.getDate() ? 'today' : ''}`}>
+                  {day && (
+                    <>
+                      <div className="day-number">{day}</div>
+                      <div className="day-events">
+                        {events.eventMap[day] && events.eventMap[day].map((event, idx) => (
+                          <div 
+                            key={idx} 
+                            className="event deadline"
+                            onMouseEnter={() => setHoveredDeadline(`grid-${day}-${idx}`)}
+                            onMouseLeave={() => setHoveredDeadline(null)}
                           >
-                            Add to Calendar
-                          </button>
-                        )}
+                            <span className="event-icon">📅</span>
+                            <span className="event-label">{event.program}</span>
+                            <span className="event-status">
+                              {event.unpaidCount > 0 ? `Pay ${event.unpaidCount}` : 'All Paid'}
+                            </span>
+                            {hoveredDeadline === `grid-${day}-${idx}` && (
+                              <button 
+                                className="btn-add-to-calendar"
+                                onClick={() => downloadCalendarEvent({ program: event.program, month: monthOrder[currentMonth.toLocaleString('default', { month: 'long' })], day: day, deadline: event.deadline, unpaidCount: event.unpaidCount, unpaidHorseNames: event.horses.filter(h => !h.isPaid).map(h => h.name) })}
+                              >
+                                Add to Calendar
+                              </button>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </>
-              )}
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
-        <section className="upcoming-events">
+        {/* UPCOMING DEADLINES SECTION - SLIDES UP WHEN CALENDAR COLLAPSED */}
+        <section className={`upcoming-events ${!isCalendarOpen ? 'slide-up' : ''}`}>
           <h2>Upcoming Deadlines</h2>
           {upcomingDeadlines.length > 0 ? (
             <div className="events-list">
