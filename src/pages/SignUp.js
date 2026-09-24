@@ -170,7 +170,11 @@ function SignUp() {
                 <div className="tier-card-header">
                   <h3>{tier.horses}</h3>
                 </div>
+                <div className="tier-card-free">
+                  <span className="free-text">7 Days FREE ✓</span>
+                </div>
                 <div className="tier-card-price">
+                  <span className="price-label">Then</span>
                   <span className="price">${getPrice(tier).toFixed(2)}</span>
                   <span className="period">{getPriceLabel()}</span>
                 </div>
