@@ -154,6 +154,18 @@ function AddHorse() {
     return ageGroup;
   };
 
+  // Get nomination fee and initial fee based on age
+  const getNominationFeeInfo = (ageNum) => {
+    if (ageNum === null) return { canNominate: false, initialFee: 'N/A', annualFee: 'N/A' };
+    if (ageNum === 0) return { canNominate: true, initialFee: '$220', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    if (ageNum === 1 || ageNum === 2) return { canNominate: false, initialFee: '—', annualFee: '—' };
+    if (ageNum === 3) return { canNominate: true, initialFee: '$2,000', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    if (ageNum === 4) return { canNominate: true, initialFee: '$3,000', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    if (ageNum >= 5 && ageNum <= 8) return { canNominate: false, initialFee: '—', annualFee: '—' };
+    if (ageNum >= 9) return { canNominate: true, initialFee: '$4,000', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    return { canNominate: false, initialFee: 'N/A', annualFee: 'N/A' };
+  };
+
   // Recalculate all program fees based on new age
   const recalculateProgramFees = (newFoalingYear) => {
     const ageNum = calculateAge(newFoalingYear);
@@ -535,7 +547,7 @@ function AddHorse() {
                               onClick={() => setShowFeeTable(prog.name)}
                               className="btn-nomination btn-check-fees"
                             >
-                              Check Fees
+                              No – Check Fees
                             </button>
                             <button
                               type="button"
@@ -546,6 +558,21 @@ function AddHorse() {
                             </button>
                           </div>
                         </div>
+
+                        {/* Show fee info if they clicked "No – Check Fees" */}
+                        {showFeeTable === prog.name && ageNum !== null && (
+                          <div className="nomination-fee-info">
+                            {getNominationFeeInfo(ageNum).canNominate ? (
+                              <>
+                                <p><strong>Age:</strong> {displayAge}</p>
+                                <p><strong>Initial Fee:</strong> {getNominationFeeInfo(ageNum).initialFee}</p>
+                                <p><strong>Annual Fee:</strong> {getNominationFeeInfo(ageNum).annualFee}</p>
+                              </>
+                            ) : (
+                              <p className="not-eligible-note">Your horse cannot be nominated at this age.</p>
+                            )}
+                          </div>
+                        )}
 
                         {/* Show annual status if already nominated */}
                         {prog.nominationStatus === 'already-nominated' && (
@@ -661,43 +688,43 @@ function AddHorse() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr className={ageNum === 0 ? 'fee-table-highlighted' : ''}>
                   <td>Weanling</td>
                   <td>Can nominate</td>
                   <td>$220</td>
                   <td>$220 (Aug 1) or $350 (Dec 1)</td>
                 </tr>
-                <tr>
+                <tr className={ageNum === 1 ? 'fee-table-highlighted' : ''}>
                   <td>Yearling</td>
                   <td>Cannot nominate</td>
                   <td>—</td>
                   <td>—</td>
                 </tr>
-                <tr>
+                <tr className={ageNum === 2 ? 'fee-table-highlighted' : ''}>
                   <td>2-Year-Old</td>
                   <td>Cannot nominate</td>
                   <td>—</td>
                   <td>—</td>
                 </tr>
-                <tr>
+                <tr className={ageNum === 3 ? 'fee-table-highlighted' : ''}>
                   <td>3-Year-Old</td>
                   <td>Can nominate</td>
                   <td>$2,000</td>
                   <td>$220 (Aug 1) or $350 (Dec 1)</td>
                 </tr>
-                <tr>
+                <tr className={ageNum === 4 ? 'fee-table-highlighted' : ''}>
                   <td>4-Year-Old</td>
                   <td>Can nominate</td>
                   <td>$3,000</td>
                   <td>$220 (Aug 1) or $350 (Dec 1)</td>
                 </tr>
-                <tr>
+                <tr className={ageNum >= 5 && ageNum <= 8 ? 'fee-table-highlighted' : ''}>
                   <td>5-8 Years</td>
                   <td>Cannot nominate</td>
                   <td>—</td>
                   <td>—</td>
                 </tr>
-                <tr>
+                <tr className={ageNum >= 9 ? 'fee-table-highlighted' : ''}>
                   <td>9+ Years</td>
                   <td>Can nominate</td>
                   <td>$4,000</td>
