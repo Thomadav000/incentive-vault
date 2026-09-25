@@ -273,7 +273,7 @@ function AddHorse() {
     setFormData(prev => ({
       ...prev,
       programs: prev.programs.map(prog => {
-        if (prop.name === programName) {
+        if (prog.name === programName) {
           return {
             ...prog,
             annualPaidFor: annualStatus,
