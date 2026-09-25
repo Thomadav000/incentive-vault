@@ -13,6 +13,17 @@ const tierLimits = {
   tier4: Infinity,
 };
 
+// Pink & Ruby Buckle nomination fees
+const annualNominationFees = {
+  0: '$220 (by Aug 1) or $350 (by Dec 1)',  // Weanling
+  1: 'Cannot nominate',                       // Yearling
+  2: 'Cannot nominate',                       // 2-Year-Old
+  3: '$2,000 (by Nov 1)',                    // 3-Year-Old
+  4: '$3,000 (by Nov 1)',                    // 4-Year-Old
+  5: 'Cannot nominate',                       // 5-8 Years
+  9: '$4,000 (by Dec 1)',                    // 9+ Years
+};
+
 function AddHorse() {
   const [formData, setFormData] = useState({
     barnName: '',
@@ -27,8 +38,8 @@ function AddHorse() {
       { name: 'Future Fortunes', status: '', deadline: '', estimatedFee: '' },
       { name: 'Breeders Challenge', status: '', deadline: '', estimatedFee: '' },
       { name: 'Select Stallion Stakes', status: '', deadline: '', estimatedFee: '' },
-      { name: 'Pink Buckle', status: '' },
-      { name: 'Ruby Buckle', status: '' },
+      { name: 'Pink Buckle', status: '', nominationStatus: null, annualPaidFor: null },
+      { name: 'Ruby Buckle', status: '', nominationStatus: null, annualPaidFor: null },
     ],
   });
   const [photo, setPhoto] = useState(null);
@@ -37,6 +48,7 @@ function AddHorse() {
   const [error, setError] = useState('');
   const [userTier, setUserTier] = useState(null);
   const [limitReached, setLimitReached] = useState(false);
+  const [showFeeTable, setShowFeeTable] = useState(null); // 'Pink Buckle' or 'Ruby Buckle'
   const navigate = useNavigate();
 
   // Program data for one-time programs
@@ -153,6 +165,18 @@ function AddHorse() {
     return ageGroup;
   };
 
+  // Get nomination fee based on age
+  const getNominationFee = (ageNum) => {
+    if (ageNum === null) return 'N/A';
+    if (ageNum === 0) return '$220 (by Aug 1) or $350 (by Dec 1)';
+    if (ageNum === 1 || ageNum === 2) return 'Cannot nominate at this age';
+    if (ageNum === 3) return '$2,000 (by Nov 1)';
+    if (ageNum === 4) return '$3,000 (by Nov 1)';
+    if (ageNum >= 5 && ageNum <= 8) return 'Cannot nominate at this age';
+    if (ageNum >= 9) return '$4,000 (by Dec 1)';
+    return 'N/A';
+  };
+
   // Recalculate all program fees based on new age
   const recalculateProgramFees = (newFoalingYear) => {
     const ageNum = calculateAge(newFoalingYear);
@@ -229,6 +253,37 @@ function AddHorse() {
     }));
   };
 
+  const handleNominationStatusChange = (programName, nominationStatus) => {
+    setFormData(prev => ({
+      ...prev,
+      programs: prev.programs.map(prog => {
+        if (prog.name === programName) {
+          return {
+            ...prog,
+            nominationStatus: nominationStatus,
+            annualPaidFor: nominationStatus === 'not-nominated' ? null : prog.annualPaidFor,
+          };
+        }
+        return prog;
+      }),
+    }));
+  };
+
+  const handleAnnualStatusChange = (programName, annualStatus) => {
+    setFormData(prev => ({
+      ...prev,
+      programs: prev.programs.map(prog => {
+        if (prop.name === programName) {
+          return {
+            ...prog,
+            annualPaidFor: annualStatus,
+          };
+        }
+        return prog;
+      }),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -258,6 +313,8 @@ function AddHorse() {
         estimatedFee: prog.estimatedFee || null,
         paidDate: null,
         feeType: programData[prog.name].type,
+        nominationStatus: prog.nominationStatus || null,
+        annualPaidFor: prog.annualPaidFor || null,
       }));
 
       await addDoc(collection(db, 'horses'), {
@@ -291,6 +348,7 @@ function AddHorse() {
   const ageNum = calculateAge(formData.foalingYear);
   const displayAge = getAgeDisplay(ageNum);
   const limit = tierLimits[userTier];
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="add-horse-page">
@@ -450,31 +508,103 @@ function AddHorse() {
                       </a>
                     </div>
 
-                    <div className="program-status-selector">
-                      <label>Eligibility</label>
-                      <select 
-                        value={prog.status}
-                        onChange={(e) => handleProgramStatusChange(prog.name, e.target.value)}
-                      >
-                        <option value="">Select eligibility status</option>
-                        <option value="Not Eligible">Not Eligible</option>
-                        <option value="Eligible - Not Paid">Eligible - Not Paid</option>
-                        <option value="Eligible - Paid">Eligible - Paid</option>
-                      </select>
-                    </div>
+                    {/* Standard programs (ONE_TIME) */}
+                    {programData[prog.name].type === 'ONE_TIME' && (
+                      <>
+                        <div className="program-status-selector">
+                          <label>Eligibility</label>
+                          <select 
+                            value={prog.status}
+                            onChange={(e) => handleProgramStatusChange(prog.name, e.target.value)}
+                          >
+                            <option value="">Select eligibility status</option>
+                            <option value="Not Eligible">Not Eligible</option>
+                            <option value="Eligible - Not Paid">Eligible - Not Paid</option>
+                            <option value="Eligible - Paid">Eligible - Paid</option>
+                          </select>
+                        </div>
 
-                    {prog.status === 'Eligible - Paid' && (
-                      <div className="program-paid-badge">
-                        ✅ Paid for Life
-                      </div>
+                        {prog.status === 'Eligible - Paid' && (
+                          <div className="program-paid-badge">
+                            ✅ Paid for Life
+                          </div>
+                        )}
+
+                        {prog.status === 'Eligible - Not Paid' && prog.estimatedFee && (
+                          <div className="program-details">
+                            <p><strong>Estimated Fee:</strong> {prog.estimatedFee}</p>
+                            <p><strong>Deadline:</strong> {prog.deadline}</p>
+                            <p className="disclaimer">Verify current fees on program website before enrolling.</p>
+                          </div>
+                        )}
+                      </>
                     )}
 
-                    {prog.status === 'Eligible - Not Paid' && prog.estimatedFee && (
-                      <div className="program-details">
-                        <p><strong>Estimated Fee:</strong> {prog.estimatedFee}</p>
-                        <p><strong>Deadline:</strong> {prog.deadline}</p>
-                        <p className="disclaimer">Verify current fees on program website before enrolling.</p>
-                      </div>
+                    {/* Pink & Ruby Buckle (ANNUAL) */}
+                    {(prog.name === 'Pink Buckle' || prog.name === 'Ruby Buckle') && (
+                      <>
+                        <div className="nomination-question">
+                          <p>Has this horse ever been nominated to {prog.name}?</p>
+                          <div className="nomination-buttons">
+                            <button
+                              type="button"
+                              onClick={() => handleNominationStatusChange(prog.name, 'not-eligible')}
+                              className={`btn-nomination ${prog.nominationStatus === 'not-eligible' ? 'active' : ''}`}
+                            >
+                              Not Eligible
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowFeeTable(prog.name)}
+                              className="btn-nomination btn-check-fees"
+                            >
+                              Check Fees
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleNominationStatusChange(prog.name, 'already-nominated')}
+                              className={`btn-nomination ${prog.nominationStatus === 'already-nominated' ? 'active' : ''}`}
+                            >
+                              Yes, Already Nominated
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Show annual status if already nominated */}
+                        {prog.nominationStatus === 'already-nominated' && (
+                          <div className="annual-status-selector">
+                            <label>Annual Payment Status</label>
+                            <select 
+                              value={prog.annualPaidFor || ''}
+                              onChange={(e) => handleAnnualStatusChange(prog.name, e.target.value)}
+                            >
+                              <option value="">Select status</option>
+                              <option value="paid">Annual Fee Paid for {currentYear}</option>
+                              <option value="not-paid">Annual Fee Not Paid</option>
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Show payment details based on status */}
+                        {prog.nominationStatus === 'already-nominated' && prog.annualPaidFor === 'paid' && (
+                          <div className="program-paid-badge">
+                            ✅ Paid for {currentYear} (next due Aug {currentYear + 1})
+                          </div>
+                        )}
+
+                        {prog.nominationStatus === 'already-nominated' && prog.annualPaidFor === 'not-paid' && (
+                          <div className="program-details">
+                            <p><strong>Annual Fee Due:</strong> $220 (by Aug 1) or $350 (by Dec 1)</p>
+                            <p className="disclaimer">Annual nomination required every year to maintain eligibility.</p>
+                          </div>
+                        )}
+
+                        {prog.nominationStatus === 'not-eligible' && (
+                          <div className="program-details">
+                            <p className="not-eligible-note">Horse is not eligible for nomination.</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 ))}
@@ -535,6 +665,75 @@ function AddHorse() {
           </form>
         )}
       </div>
+
+      {/* Fee Table Modal */}
+      {showFeeTable && (
+        <div className="modal-overlay" onClick={() => setShowFeeTable(null)}>
+          <div className="fee-table-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="fee-table-header">
+              <h3>{showFeeTable} Nomination Fees</h3>
+              <button onClick={() => setShowFeeTable(null)} className="btn-close-modal">✕</button>
+            </div>
+            <table className="fee-table">
+              <thead>
+                <tr>
+                  <th>Age</th>
+                  <th>Status</th>
+                  <th>Initial Fee (One-Time)</th>
+                  <th>Annual Fee (Flat)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Weanling</td>
+                  <td>Can nominate</td>
+                  <td>$220</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
+                </tr>
+                <tr>
+                  <td>Yearling</td>
+                  <td>Cannot nominate</td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>2-Year-Old</td>
+                  <td>Cannot nominate</td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>3-Year-Old</td>
+                  <td>Can nominate</td>
+                  <td>$2,000</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
+                </tr>
+                <tr>
+                  <td>4-Year-Old</td>
+                  <td>Can nominate</td>
+                  <td>$3,000</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
+                </tr>
+                <tr>
+                  <td>5-8 Years</td>
+                  <td>Cannot nominate</td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>9+ Years</td>
+                  <td>Can nominate</td>
+                  <td>$4,000</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="fee-table-note">
+              <p><strong>Note:</strong> Regardless of age, once nominated, horses always pay a flat $220 or $350 annually (depending on deadline).</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
