@@ -13,17 +13,6 @@ const tierLimits = {
   tier4: Infinity,
 };
 
-// Pink & Ruby Buckle nomination fees
-const annualNominationFees = {
-  0: '$220 (by Aug 1) or $350 (by Dec 1)',  // Weanling
-  1: 'Cannot nominate',                       // Yearling
-  2: 'Cannot nominate',                       // 2-Year-Old
-  3: '$2,000 (by Nov 1)',                    // 3-Year-Old
-  4: '$3,000 (by Nov 1)',                    // 4-Year-Old
-  5: 'Cannot nominate',                       // 5-8 Years
-  9: '$4,000 (by Dec 1)',                    // 9+ Years
-};
-
 function AddHorse() {
   const [formData, setFormData] = useState({
     barnName: '',
@@ -163,18 +152,6 @@ function AddHorse() {
   const getFeeForAge = (ageNum) => {
     const ageGroup = (ageNum !== null && ageNum >= 4) ? 4 : (ageNum || 0);
     return ageGroup;
-  };
-
-  // Get nomination fee based on age
-  const getNominationFee = (ageNum) => {
-    if (ageNum === null) return 'N/A';
-    if (ageNum === 0) return '$220 (by Aug 1) or $350 (by Dec 1)';
-    if (ageNum === 1 || ageNum === 2) return 'Cannot nominate at this age';
-    if (ageNum === 3) return '$2,000 (by Nov 1)';
-    if (ageNum === 4) return '$3,000 (by Nov 1)';
-    if (ageNum >= 5 && ageNum <= 8) return 'Cannot nominate at this age';
-    if (ageNum >= 9) return '$4,000 (by Dec 1)';
-    return 'N/A';
   };
 
   // Recalculate all program fees based on new age
