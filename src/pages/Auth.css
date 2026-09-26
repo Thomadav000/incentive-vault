@@ -562,3 +562,247 @@
     font-size: 12px;
   }
 }
+/* ===== PAYMENT MODAL STYLES ===== */
+
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.payment-modal {
+  background: linear-gradient(135deg, #1A1A1A 0%, #0F0F0F 100%);
+  border: 1px solid rgba(201, 169, 97, 0.2);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.payment-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 30px 20px 30px;
+  border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+}
+
+.payment-modal-header h2 {
+  color: #C9A961;
+  font-size: 22px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.payment-modal-close {
+  background: transparent;
+  border: none;
+  color: #C9A961;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.payment-modal-close:hover:not(:disabled) {
+  color: #E8C274;
+  transform: scale(1.1);
+}
+
+.payment-modal-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.payment-modal-content {
+  padding: 30px;
+}
+
+.payment-trial-info {
+  background: rgba(201, 169, 97, 0.1);
+  border: 1px solid rgba(201, 169, 97, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.trial-message {
+  color: #C9A961;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.trial-date {
+  color: #D0CBBF;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.payment-error-message {
+  background-color: rgba(231, 76, 60, 0.15);
+  border: 1px solid #E74C3C;
+  color: #FF6B6B;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border-left: 3px solid #E74C3C;
+}
+
+.payment-form-group {
+  margin-bottom: 20px;
+}
+
+.payment-form-group label {
+  display: block;
+  color: #C9A961;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(15, 15, 15, 0.8);
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  border-radius: 6px;
+  color: #F9F8F6;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.payment-form-group input:focus {
+  outline: none;
+  border-color: #C9A961;
+  background: rgba(15, 15, 15, 1);
+  box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.1);
+}
+
+.payment-form-group input::placeholder {
+  color: #666;
+}
+
+.payment-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.payment-summary {
+  background: rgba(201, 169, 97, 0.1);
+  border: 1px solid rgba(201, 169, 97, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 24px 0;
+}
+
+.payment-summary p {
+  color: #D0CBBF;
+  font-size: 14px;
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.payment-summary p strong {
+  color: #C9A961;
+}
+
+.payment-btn-submit {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #C9A961 0%, #B8956A 100%);
+  border: none;
+  border-radius: 6px;
+  color: #1A1A1A;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+
+.payment-btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(201, 169, 97, 0.3);
+}
+
+.payment-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tier-card-free {
+  margin: 12px 0;
+}
+
+.free-text {
+  color: #C9A961;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(201, 169, 97, 0.1);
+  padding: 6px 12px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.tier-card.selected .free-text {
+  color: #E8C274;
+  background: rgba(232, 194, 116, 0.15);
+}
+
+.tier-card-price .price-label {
+  color: #999;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 600px) {
+  .payment-modal {
+    max-width: 90%;
+    max-height: 95vh;
+  }
+
+  .payment-modal-header {
+    padding: 20px;
+  }
+
+  .payment-modal-header h2 {
+    font-size: 18px;
+  }
+
+  .payment-modal-content {
+    padding: 20px;
+  }
+
+  .payment-form-row {
+    grid-template-columns: 1fr;
+  }
+}
