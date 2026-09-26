@@ -1,0 +1,11 @@
+STRIPE PRICE IDs - TEST MODE
+
+Tier 1 Monthly ($3.99): price_1UJusgDgYhWF2kJzxnjU4BzH
+Tier 2 Monthly ($6.99): price_1UJv0HDgYhWF2kJz9UycNSLi
+Tier 3 Monthly ($9.99): price_1UJv35DgYhWF2kJzEStdcNGM
+Tier 4 Monthly ($14.99): price_1UJv4PDgYhWF2kJz1s78AMKR
+
+Tier 1 Annual ($38.30): price_1UJvCcDgYhWF2kJz2XDXdZji
+Tier 2 Annual ($66.91): price_1UJvEHDgYhWF2kJzsvGdDlI3
+Tier 3 Annual ($95.91): price_1UJvGmDgYhWF2kJzShzxnMuM
+Tier 4 Annual ($143.91):price_1UJvIKDgYhWF2kJz9sds8x33

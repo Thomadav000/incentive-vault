@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, db, functions } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
@@ -17,11 +17,11 @@ function SignUp() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
-  const [cardZip, setCardZip] = useState('');
   const [paymentError, setPaymentError] = useState('');
+  const [stripe, setStripe] = useState(null);
+  const [elements, setElements] = useState(null);
+  const [cardElement, setCardElement] = useState(null);
+  const cardElementRef = useRef(null);
   const navigate = useNavigate();
 
   const tiers = [
@@ -30,6 +30,46 @@ function SignUp() {
     { id: 'tier3', horses: '6-10 Horses', monthly: 9.99, annual: 95.91, monthlyPriceId: 'price_1UJv35DgYhWF2kJzEStdcNGM', annualPriceId: 'price_1UJvGmDgYhWF2kJzShzxnMuM' },
     { id: 'tier4', horses: 'Unlimited Horses', monthly: 14.99, annual: 143.91, monthlyPriceId: 'price_1UJv4PDgYhWF2kJz1s78AMKR', annualPriceId: 'price_1UJvIKDgYhWF2kJz9sds8x33' },
   ];
+
+  // Initialize Stripe
+  useEffect(() => {
+    const loadStripe = async () => {
+      const stripeModule = await import('@stripe/stripe-js');
+      const stripeInstance = await stripeModule.loadStripe('pk_test_51UIcg6DgYhWF2kJzEs2AkkH9K9Um5k31YdLfDmiKip701LnB5vjl9zhWkrtJVRjP8OUzu2ffaFZ5gJzd41mSPSSz00JzgepH2X');
+      setStripe(stripeInstance);
+
+      if (stripeInstance) {
+        const elementsInstance = stripeInstance.elements();
+        setElements(elementsInstance);
+
+        const card = elementsInstance.create('card', {
+          style: {
+            base: {
+              color: '#F9F8F6',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontSize: '16px',
+              '::placeholder': {
+                color: '#666',
+              },
+            },
+            invalid: {
+              color: '#FF6B6B',
+            },
+          },
+        });
+        setCardElement(card);
+      }
+    };
+
+    loadStripe();
+  }, []);
+
+  // Mount card element when payment modal opens
+  useEffect(() => {
+    if (showPaymentModal && cardElement && cardElementRef.current && !cardElementRef.current.hasChildNodes()) {
+      cardElement.mount(cardElementRef.current);
+    }
+  }, [showPaymentModal, cardElement]);
 
   const getPrice = (tier) => {
     return isAnnual ? tier.annual : tier.monthly;
@@ -68,12 +108,29 @@ function SignUp() {
     setLoading(true);
 
     try {
-      if (!cardNumber || !cardExpiry || !cardCvc || !cardZip) {
-        setPaymentError('Please fill in all card fields');
+      if (!stripe || !elements || !cardElement) {
+        setPaymentError('Payment system not ready');
         setLoading(false);
         return;
       }
 
+      // Create payment method with Stripe
+      const { paymentMethod, error: paymentMethodError } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+        billing_details: {
+          email: email,
+          name: name,
+        },
+      });
+
+      if (paymentMethodError) {
+        setPaymentError(paymentMethodError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Create Firebase user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -81,6 +138,7 @@ function SignUp() {
         displayName: name
       });
 
+      // Save user profile with payment method ID
       await setDoc(doc(db, 'users', user.uid), {
         name,
         email,
@@ -90,8 +148,10 @@ function SignUp() {
         trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         trialUsed: false,
         subscription: 'trial',
+        paymentMethodId: paymentMethod.id,
       });
 
+      // Call Cloud Function to create Stripe subscription
       const createSubscription = httpsCallable(functions, 'createSubscription');
       const selectedTierObj = tiers.find(t => t.id === selectedTier);
       
@@ -99,6 +159,7 @@ function SignUp() {
         email: email,
         tierPrice: getPriceId(selectedTierObj),
         tierName: selectedTier,
+        paymentMethodId: paymentMethod.id,
       });
 
       setShowPaymentModal(false);
@@ -113,10 +174,6 @@ function SignUp() {
 
   const closePaymentModal = () => {
     setShowPaymentModal(false);
-    setCardNumber('');
-    setCardExpiry('');
-    setCardCvc('');
-    setCardZip('');
     setPaymentError('');
   };
 
@@ -262,51 +319,10 @@ function SignUp() {
 
               <form onSubmit={handlePaymentSubmit}>
                 <div className="payment-form-group">
-                  <label>Card Number</label>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value.replace(/\s/g, ''))}
-                    placeholder="1234 5678 9012 3456"
-                    maxLength="16"
-                    required
-                  />
-                </div>
-
-                <div className="payment-form-row">
-                  <div className="payment-form-group">
-                    <label>MM/YY</label>
-                    <input
-                      type="text"
-                      value={cardExpiry}
-                      onChange={(e) => setCardExpiry(e.target.value)}
-                      placeholder="12/25"
-                      maxLength="5"
-                      required
-                    />
-                  </div>
-                  <div className="payment-form-group">
-                    <label>CVC</label>
-                    <input
-                      type="text"
-                      value={cardCvc}
-                      onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ''))}
-                      placeholder="123"
-                      maxLength="4"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="payment-form-group">
-                  <label>Billing ZIP</label>
-                  <input
-                    type="text"
-                    value={cardZip}
-                    onChange={(e) => setCardZip(e.target.value.replace(/\D/g, ''))}
-                    placeholder="12345"
-                    maxLength="5"
-                    required
+                  <label>Card Details</label>
+                  <div 
+                    ref={cardElementRef}
+                    className="stripe-card-element"
                   />
                 </div>
 

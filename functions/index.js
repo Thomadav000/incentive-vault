@@ -13,12 +13,16 @@ exports.createSubscription = functions.https.onCall(async (data, context) => {
   }
 
   const userId = context.auth.uid;
-  const {email, tierPrice, tierName} = data;
+  const {email, tierPrice, tierName, paymentMethodId} = data;
 
   try {
     const customer = await stripe.customers.create({
       email: email,
       metadata: {firebaseUID: userId},
+      payment_method: paymentMethodId,
+      invoice_settings: {
+        default_payment_method: paymentMethodId,
+      },
     });
 
     const subscription = await stripe.subscriptions.create({
@@ -26,11 +30,13 @@ exports.createSubscription = functions.https.onCall(async (data, context) => {
       items: [{price: tierPrice}],
       trial_period_days: 7,
       metadata: {tier: tierName},
+      default_payment_method: paymentMethodId,
     });
 
     await admin.firestore().collection("users").doc(userId).update({
       stripeCustomerId: customer.id,
       stripeSubscriptionId: subscription.id,
+      stripePaymentMethodId: paymentMethodId,
       selectedTier: tierName,
       trialEndsAt: new Date(subscription.trial_end * 1000),
       subscriptionStatus: subscription.status,
