@@ -49,3 +49,5 @@ Thumbs.db
 # Misc
 .cache
 .eslintcache
+.env.local.rtf
+Incentive_Vault_Project_Structure.txt
