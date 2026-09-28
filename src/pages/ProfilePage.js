@@ -203,7 +203,7 @@ function ProfilePage() {
 
           {deleteConfirm ? (
             <div className="delete-confirm">
-              <p>Are you sure you want to delete your account? This cannot be undone.</p>
+              <p>Are you sure you want to delete your account? This cannot be undone. Your subscription will be cancelled immediately and all your data will be permanently removed. If you're in your free trial, you won't be charged.</p>
               <div className="delete-buttons">
                 <button 
                   onClick={() => setDeleteConfirm(false)}
