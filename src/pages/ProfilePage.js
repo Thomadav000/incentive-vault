@@ -6,8 +6,8 @@ import {
   sendPasswordResetEmail,
   deleteUser,
   updateProfile,
-  reauthenticateWithPopup,
-  GoogleAuthProvider,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import { UserContext } from '../context/UserContext';
 import './ProfilePage.css';
@@ -20,6 +20,7 @@ function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -96,23 +97,28 @@ function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setError('Please enter your password to confirm deletion');
+      return;
+    }
+
     setSaving(true);
     setError('');
 
     try {
-      // Re-authenticate user before deletion
-      const provider = new GoogleAuthProvider();
-      await reauthenticateWithPopup(user, provider);
+      // Re-authenticate user with email and password
+      const credential = EmailAuthProvider.credential(user.email, deletePassword);
+      await reauthenticateWithCredential(user, credential);
 
       // Delete user account
       await deleteUser(user);
       navigate('/');
     } catch (err) {
       console.error('Error deleting account:', err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError('Sign-in cancelled. Account was not deleted.');
-      } else if (err.code === 'auth/cancelled-popup-request') {
-        setError('Sign-in cancelled. Account was not deleted.');
+      if (err.code === 'auth/wrong-password') {
+        setError('Incorrect password. Account was not deleted.');
+      } else if (err.code === 'auth/invalid-credential') {
+        setError('Incorrect password. Account was not deleted.');
       } else {
         setError('Failed to delete account. Please try again.');
       }
@@ -220,10 +226,22 @@ function ProfilePage() {
 
           {deleteConfirm ? (
             <div className="delete-confirm">
-              <p>Are you sure you want to delete your account? This cannot be undone. Your subscription will be cancelled immediately and all your data will be permanently removed. If you're in your free trial, you won't be charged. You'll need to sign in again to confirm deletion.</p>
+              <p>Are you sure you want to delete your account? This cannot be undone. Your subscription will be cancelled immediately and all your data will be permanently removed. If you're in your free trial, you won't be charged.</p>
+              <div className="delete-password-field">
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Enter your password to confirm"
+                  className="delete-password-input"
+                />
+              </div>
               <div className="delete-buttons">
                 <button 
-                  onClick={() => setDeleteConfirm(false)}
+                  onClick={() => {
+                    setDeleteConfirm(false);
+                    setDeletePassword('');
+                  }}
                   className="btn-cancel"
                 >
                   Cancel
