@@ -37,60 +37,13 @@ function AddHorse() {
   const [error, setError] = useState('');
   const [userTier, setUserTier] = useState(null);
   const [limitReached, setLimitReached] = useState(false);
-  const [showFeeTable, setShowFeeTable] = useState(null); // 'Pink Buckle' or 'Ruby Buckle'
+  const [showFeeTable, setShowFeeTable] = useState(null);
+  const [programData, setProgramData] = useState({}); // Firestore programs
   const navigate = useNavigate();
 
-  // Program data for one-time programs
-  const programData = {
-    'Future Fortunes': {
-      type: 'ONE_TIME',
-      deadline: '12/31',
-      url: 'https://www.futurefortunesinc.com/foals/',
-      fees: {
-        0: '$175 (early by 11/01) / $275 (by 12/31)',
-        1: '$375',
-        2: '$1,000',
-        3: '$1,500',
-        4: '$2,000',
-      },
-    },
-    'Breeders Challenge': {
-      type: 'ONE_TIME',
-      deadline: '12/01',
-      url: 'https://breederschallenge.com/search-nominations/',
-      fees: {
-        0: '$250 (weanling - due by 12/01) or $1,250 (yearling late fee)',
-        1: '$1,250 (yearling late fee)',
-        2: '$2,500 (2-year-old late fee)',
-        3: '$3,500 (3-year-old late fee)',
-        4: '$5,000 (4+ late fee)',
-      },
-    },
-    'Select Stallion Stakes': {
-      type: 'ONE_TIME',
-      deadline: '7 days before',
-      url: 'https://www.selectstallionstakes.com/sssfoal',
-      fees: {
-        0: '$200',
-        1: '$200',
-        2: '$200',
-        3: '$200',
-        4: '$200',
-      },
-    },
-    'Pink Buckle': {
-      type: 'ANNUAL',
-      url: 'https://pinkbuckle.com/nomination/2/2026-nomination-form',
-    },
-    'Ruby Buckle': {
-      type: 'ANNUAL',
-      url: 'https://therubybuckle.com/nomination/100/2026-nomination-form',
-    },
-  };
-
-  // Fetch user tier and horse count on mount
+  // Fetch programs from Firestore and user data on mount
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
         const user = auth.currentUser;
         if (!user) {
@@ -98,6 +51,7 @@ function AddHorse() {
           return;
         }
 
+        // Fetch user tier and horse count
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const tier = userDoc.data().selectedTier || 'tier1';
@@ -108,7 +62,6 @@ function AddHorse() {
           const horsesSnapshot = await getDocs(horsesQuery);
           console.log('Horse count:', horsesSnapshot.size);
 
-          // Check if limit is already reached on page load
           const limit = tierLimits[tier];
           if (horsesSnapshot.size >= limit) {
             console.log('Limit already reached on page load');
@@ -117,12 +70,21 @@ function AddHorse() {
         } else {
           console.log('User document does not exist');
         }
+
+        // Fetch programs from Firestore
+        const programsSnapshot = await getDocs(collection(db, 'programs'));
+        const programs = {};
+        programsSnapshot.forEach(doc => {
+          programs[doc.data().name] = doc.data();
+        });
+        console.log('Programs loaded from Firestore:', programs);
+        setProgramData(programs);
       } catch (err) {
-        console.error('Error fetching user data:', err);
+        console.error('Error fetching data:', err);
       }
     };
 
-    fetchUserData();
+    fetchData();
   }, []);
 
   // Calculate age from foaling year
@@ -173,11 +135,9 @@ function AddHorse() {
     const feeInfo = getNominationFeeInfo(ageNum);
     
     if (feeInfo.canNominate) {
-      // Already eligible
       return { eligibleDate: null, initialFee: null };
     }
 
-    // Calculate when they become eligible
     let eligibleAge = null;
     if (ageNum === 1 || ageNum === 2) {
       eligibleAge = 3;
@@ -189,29 +149,28 @@ function AddHorse() {
       return { eligibleDate: null, initialFee: null };
     }
 
-    // Calculate the year they turn that age (Jan 1 is the cutoff)
     const foalingYearNum = parseInt(foalingYear);
     const eligibleYear = foalingYearNum + eligibleAge;
     const eligibleDate = `01/01/${eligibleYear}`;
 
-    // Get the fee for that age
     const futureAgeInfo = getNominationFeeInfo(eligibleAge);
     const initialFee = futureAgeInfo.initialFee;
 
     return { eligibleDate, initialFee };
   };
 
-  // Recalculate all program fees based on new age
+  // Recalculate all program fees based on new age (uses Firestore data)
   const recalculateProgramFees = (newFoalingYear) => {
     const ageNum = calculateAge(newFoalingYear);
     const ageGroup = getFeeForAge(ageNum);
 
     return formData.programs.map(prog => {
-      if (programData[prog.name].type === 'ONE_TIME' && prog.status === 'Eligible - Not Paid') {
+      const progInfo = programData[prog.name];
+      if (progInfo && progInfo.type === 'ONE_TIME' && prog.status === 'Eligible - Not Paid') {
         return {
           ...prog,
-          deadline: programData[prog.name].deadline,
-          estimatedFee: programData[prog.name].fees[ageGroup],
+          deadline: progInfo.deadline,
+          estimatedFee: progInfo.fees[ageGroup],
         };
       }
       return prog;
@@ -255,6 +214,7 @@ function AddHorse() {
   const handleProgramStatusChange = (programName, newStatus) => {
     const ageNum = calculateAge(formData.foalingYear);
     const ageGroup = getFeeForAge(ageNum);
+    const progInfo = programData[programName];
 
     setFormData(prev => ({
       ...prev,
@@ -262,9 +222,9 @@ function AddHorse() {
         if (prog.name === programName) {
           const updatedProg = { ...prog, status: newStatus };
           
-          if (programData[programName].type === 'ONE_TIME' && newStatus === 'Eligible - Not Paid') {
-            updatedProg.deadline = programData[programName].deadline;
-            updatedProg.estimatedFee = programData[programName].fees[ageGroup];
+          if (progInfo && progInfo.type === 'ONE_TIME' && newStatus === 'Eligible - Not Paid') {
+            updatedProg.deadline = progInfo.deadline;
+            updatedProg.estimatedFee = progInfo.fees[ageGroup];
           } else if (newStatus === 'Eligible - Paid' || newStatus === 'Not Eligible') {
             updatedProg.deadline = '';
             updatedProg.estimatedFee = '';
@@ -312,7 +272,6 @@ function AddHorse() {
     const ageNum = calculateAge(formData.foalingYear);
     const { eligibleDate, initialFee } = getEligibilityDateAndFee(ageNum, formData.foalingYear);
 
-    // Auto-save the eligibility data
     setFormData(prev => ({
       ...prev,
       programs: prev.programs.map(prog => {
@@ -328,7 +287,6 @@ function AddHorse() {
       }),
     }));
 
-    // Open modal to show fee table
     setShowFeeTable(programName);
   };
 
@@ -369,19 +327,22 @@ function AddHorse() {
 
       const ageNum = calculateAge(formData.foalingYear);
 
-      const programsToSave = formData.programs.map(prog => ({
-        name: prog.name,
-        status: prog.status || 'Not Eligible',
-        deadline: prog.deadline || null,
-        estimatedFee: prog.estimatedFee || null,
-        paidDate: null,
-        feeType: programData[prog.name].type,
-        nominationStatus: prog.nominationStatus || null,
-        annualPaidFor: prog.annualPaidFor || null,
-        estimatedEligibleDate: prog.estimatedEligibleDate || null,
-        estimatedInitialFee: prog.estimatedInitialFee || null,
-        reminderSet: prog.reminderSet || false,
-      }));
+      const programsToSave = formData.programs.map(prog => {
+        const progInfo = programData[prog.name];
+        return {
+          name: prog.name,
+          status: prog.status || 'Not Eligible',
+          deadline: prog.deadline || null,
+          estimatedFee: prog.estimatedFee || null,
+          paidDate: null,
+          feeType: progInfo ? progInfo.type : 'ONE_TIME',
+          nominationStatus: prog.nominationStatus || null,
+          annualPaidFor: prog.annualPaidFor || null,
+          estimatedEligibleDate: prog.estimatedEligibleDate || null,
+          estimatedInitialFee: prog.estimatedInitialFee || null,
+          reminderSet: prog.reminderSet || false,
+        };
+      });
 
       await addDoc(collection(db, 'horses'), {
         barnName: formData.barnName,
@@ -421,7 +382,6 @@ function AddHorse() {
       <div className="add-horse-container">
         <h1>Add a New Horse</h1>
 
-        {/* Upfront limit warning banner */}
         {limitReached && (
           <div className="limit-warning-banner">
             <p className="limit-warning-icon">⚠️</p>
@@ -560,129 +520,131 @@ function AddHorse() {
               <p>For each program, select your horse's eligibility status:</p>
               
               <div className="programs-list">
-                {formData.programs.map(prog => (
-                  <div key={prog.name} className="program-item">
-                    <div className="program-header">
-                      <h3>{prog.name}</h3>
-                      <a 
-                        href={programData[prog.name].url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="program-verify-link"
-                      >
-                        Verify Eligibility →
-                      </a>
-                    </div>
+                {formData.programs.map(prog => {
+                  const progInfo = programData[prog.name];
+                  if (!progInfo) return null; // Don't render until programData loads
+                  
+                  return (
+                    <div key={prog.name} className="program-item">
+                      <div className="program-header">
+                        <h3>{prog.name}</h3>
+                        <a 
+                          href={progInfo.url || progInfo.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="program-verify-link"
+                        >
+                          Verify Eligibility →
+                        </a>
+                      </div>
 
-                    {/* Standard programs (ONE_TIME) */}
-                    {programData[prog.name].type === 'ONE_TIME' && (
-                      <>
-                        <div className="program-status-selector">
-                          <label>Eligibility</label>
-                          <select 
-                            value={prog.status}
-                            onChange={(e) => handleProgramStatusChange(prog.name, e.target.value)}
-                          >
-                            <option value="">Select eligibility status</option>
-                            <option value="Not Eligible">Not Eligible</option>
-                            <option value="Eligible - Not Paid">Eligible - Not Paid</option>
-                            <option value="Eligible - Paid">Eligible - Paid</option>
-                          </select>
-                        </div>
-
-                        {prog.status === 'Eligible - Paid' && (
-                          <div className="program-paid-badge">
-                            ✅ Paid for Life
-                          </div>
-                        )}
-
-                        {prog.status === 'Eligible - Not Paid' && prog.estimatedFee && (
-                          <div className="program-details">
-                            <p><strong>Estimated Fee:</strong> {prog.estimatedFee}</p>
-                            <p><strong>Deadline:</strong> {prog.deadline}</p>
-                            <p className="disclaimer">Verify current fees on program website before enrolling.</p>
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Pink & Ruby Buckle (ANNUAL) */}
-                    {(prog.name === 'Pink Buckle' || prog.name === 'Ruby Buckle') && (
-                      <>
-                        <div className="nomination-question">
-                          <p>Has this horse ever been nominated to {prog.name}?</p>
-                          <div className="nomination-buttons">
-                            <button
-                              type="button"
-                              onClick={() => handleNominationStatusChange(prog.name, 'not-eligible')}
-                              className={`btn-nomination ${prog.nominationStatus === 'not-eligible' ? 'active' : ''}`}
-                            >
-                              Not Eligible
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleCheckFees(prog.name)}
-                              className="btn-nomination btn-check-fees"
-                            >
-                              No – Check Fees
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleNominationStatusChange(prog.name, 'already-nominated')}
-                              className={`btn-nomination ${prog.nominationStatus === 'already-nominated' ? 'active' : ''}`}
-                            >
-                              Yes, Already Nominated
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Show eligibility info if they clicked "No – Check Fees" and are not eligible yet */}
-                        {prog.nominationStatus === 'not-eligible' && prog.estimatedEligibleDate && (
-                          <div className="program-details">
-                            <p><strong>Eligible to nominate on:</strong> {prog.estimatedEligibleDate}</p>
-                            <p><strong>Estimated initial fee:</strong> {prog.estimatedInitialFee}</p>
-                            <button
-                              type="button"
-                              onClick={() => handleAddReminder(prog.name)}
-                              className={`btn-add-reminder ${prog.reminderSet ? 'reminder-set' : ''}`}
-                            >
-                              {prog.reminderSet ? '📅 Reminder Set' : '📅 Add Reminder'}
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Show annual status if already nominated */}
-                        {prog.nominationStatus === 'already-nominated' && (
-                          <div className="annual-status-selector">
-                            <label>Annual Payment Status</label>
+                      {/* Standard programs (ONE_TIME) */}
+                      {progInfo.type === 'ONE_TIME' && (
+                        <>
+                          <div className="program-status-selector">
+                            <label>Eligibility</label>
                             <select 
-                              value={prog.annualPaidFor || ''}
-                              onChange={(e) => handleAnnualStatusChange(prog.name, e.target.value)}
+                              value={prog.status}
+                              onChange={(e) => handleProgramStatusChange(prog.name, e.target.value)}
                             >
-                              <option value="">Select status</option>
-                              <option value="paid">Annual Fee Paid for {currentYear}</option>
-                              <option value="not-paid">Annual Fee Not Paid</option>
+                              <option value="">Select eligibility status</option>
+                              <option value="Not Eligible">Not Eligible</option>
+                              <option value="Eligible - Not Paid">Eligible - Not Paid</option>
+                              <option value="Eligible - Paid">Eligible - Paid</option>
                             </select>
                           </div>
-                        )}
 
-                        {/* Show payment details based on status */}
-                        {prog.nominationStatus === 'already-nominated' && prog.annualPaidFor === 'paid' && (
-                          <div className="program-paid-badge">
-                            ✅ Paid for {currentYear} (next due Aug {currentYear + 1})
-                          </div>
-                        )}
+                          {prog.status === 'Eligible - Paid' && (
+                            <div className="program-paid-badge">
+                              ✅ Paid for Life
+                            </div>
+                          )}
 
-                        {prog.nominationStatus === 'already-nominated' && prog.annualPaidFor === 'not-paid' && (
-                          <div className="program-details">
-                            <p><strong>Annual Fee Due:</strong> $220 (by Aug 1) or $350 (by Dec 1)</p>
-                            <p className="disclaimer">Annual nomination required every year to maintain eligibility.</p>
+                          {prog.status === 'Eligible - Not Paid' && prog.estimatedFee && (
+                            <div className="program-details">
+                              <p><strong>Estimated Fee:</strong> {prog.estimatedFee}</p>
+                              <p><strong>Deadline:</strong> {prog.deadline}</p>
+                              <p className="disclaimer">Verify current fees on program website before enrolling.</p>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {/* Pink & Ruby Buckle (ANNUAL) */}
+                      {progInfo.type === 'ANNUAL' && (
+                        <>
+                          <div className="nomination-question">
+                            <p>Has this horse ever been nominated to {prog.name}?</p>
+                            <div className="nomination-buttons">
+                              <button
+                                type="button"
+                                onClick={() => handleNominationStatusChange(prog.name, 'not-eligible')}
+                                className={`btn-nomination ${prog.nominationStatus === 'not-eligible' ? 'active' : ''}`}
+                              >
+                                Not Eligible
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleCheckFees(prog.name)}
+                                className="btn-nomination btn-check-fees"
+                              >
+                                No – Check Fees
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleNominationStatusChange(prog.name, 'already-nominated')}
+                                className={`btn-nomination ${prog.nominationStatus === 'already-nominated' ? 'active' : ''}`}
+                              >
+                                Yes, Already Nominated
+                              </button>
+                            </div>
                           </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
+
+                          {prog.nominationStatus === 'not-eligible' && prog.estimatedEligibleDate && (
+                            <div className="program-details">
+                              <p><strong>Eligible to nominate on:</strong> {prog.estimatedEligibleDate}</p>
+                              <p><strong>Estimated initial fee:</strong> {prog.estimatedInitialFee}</p>
+                              <button
+                                type="button"
+                                onClick={() => handleAddReminder(prog.name)}
+                                className={`btn-add-reminder ${prog.reminderSet ? 'reminder-set' : ''}`}
+                              >
+                                {prog.reminderSet ? '📅 Reminder Set' : '📅 Add Reminder'}
+                              </button>
+                            </div>
+                          )}
+
+                          {prog.nominationStatus === 'already-nominated' && (
+                            <div className="annual-status-selector">
+                              <label>Annual Payment Status</label>
+                              <select 
+                                value={prog.annualPaidFor || ''}
+                                onChange={(e) => handleAnnualStatusChange(prog.name, e.target.value)}
+                              >
+                                <option value="">Select status</option>
+                                <option value="paid">Annual Fee Paid for {currentYear}</option>
+                                <option value="not-paid">Annual Fee Not Paid</option>
+                              </select>
+                            </div>
+                          )}
+
+                          {prog.nominationStatus === 'already-nominated' && prog.annualPaidFor === 'paid' && (
+                            <div className="program-paid-badge">
+                              ✅ Paid for {currentYear} (next due Aug {currentYear + 1})
+                            </div>
+                          )}
+
+                          {prog.nominationStatus === 'already-nominated' && prog.annualPaidFor === 'not-paid' && (
+                            <div className="program-details">
+                              <p><strong>Annual Fee Due:</strong> $220 (by Aug 1) or $350 (by Dec 1)</p>
+                              <p className="disclaimer">Annual nomination required every year to maintain eligibility.</p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="disclaimer-box">
