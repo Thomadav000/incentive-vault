@@ -38,6 +38,7 @@ exports.createSubscription = functions.https.onCall(async (data, context) => {
       stripeSubscriptionId: subscription.id,
       stripePaymentMethodId: paymentMethodId,
       selectedTier: tierName,
+      subscription: "trial",
       trialEndsAt: new Date(subscription.trial_end * 1000),
       subscriptionStatus: subscription.status,
     });
@@ -122,12 +123,14 @@ exports.stripeWebhook = functions.https.onRequest(
 
           const userDoc = usersSnapshot.docs[0];
           const userId = userDoc.id;
+          const tierName = userDoc.data().selectedTier || "tier2";
 
           await admin
               .firestore()
               .collection("users")
               .doc(userId)
               .update({
+                subscription: tierName,
                 subscriptionStatus: "active",
                 lastChargeDate: new Date(invoice.created * 1000),
               });

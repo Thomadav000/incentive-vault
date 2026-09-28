@@ -140,15 +140,33 @@ function HorseProfile() {
   };
 
   const getStatusBadge = (program) => {
-    if (program.status === 'Not Eligible') return '❌ Not Eligible';
-    if (program.status === 'Eligible - Not Paid') return '🔔 Eligible - Not Paid';
-    if (program.status === 'Eligible - Paid') {
-      if (programData[program.name]?.type === 'ONE_TIME') {
-        return '✅ Paid for Life';
-      } else {
-        return `✓ Paid for 2026 | Next: 12/01/${getNextPaymentYear()}`;
+    const isAnnual = programData[program.name]?.type === 'ANNUAL';
+
+    // Handle ANNUAL programs (Pink/Ruby Buckle)
+    if (isAnnual) {
+      if (program.nominationStatus === 'not-eligible' && program.estimatedEligibleDate) {
+        // Not yet eligible but will be
+        return `⏳ Waiting to be Eligible – ${program.estimatedEligibleDate}`;
       }
+      if (program.nominationStatus === 'not-eligible') {
+        // Will never be eligible
+        return '❌ Not Eligible';
+      }
+      if (program.nominationStatus === 'already-nominated') {
+        if (program.annualPaidFor === 'paid') {
+          return '✓ Nominated & Paid';
+        } else if (program.annualPaidFor === 'not-paid') {
+          return '🔔 Nominated – Payment Due';
+        }
+        return '✓ Nominated';
+      }
+      return 'Not Selected';
     }
+
+    // Handle ONE_TIME programs (Future Fortunes, Breeders Challenge, Select Stallion Stakes)
+    if (program.status === 'Not Eligible') return '❌ Not Eligible';
+    if (program.status === 'Eligible - Not Paid') return '🔔 Eligible – Not Paid';
+    if (program.status === 'Eligible - Paid') return '✅ Paid for Life';
     return program.status;
   };
 
@@ -191,11 +209,36 @@ function HorseProfile() {
                     {getStatusBadge(program)}
                   </div>
 
-                  {program.status === 'Eligible - Not Paid' && program.estimatedFee && (
+                  {/* ONE_TIME Programs: Show fee & deadline if eligible but not paid */}
+                  {programData[program.name]?.type === 'ONE_TIME' && program.status === 'Eligible - Not Paid' && program.estimatedFee && (
                     <div className="program-details-card">
                       <p><strong>Est. Fee:</strong> {program.estimatedFee}</p>
                       {program.deadline && <p><strong>Deadline:</strong> {program.deadline}</p>}
                     </div>
+                  )}
+
+                  {/* ANNUAL Programs (Pink/Ruby Buckle) */}
+                  {programData[program.name]?.type === 'ANNUAL' && (
+                    <>
+                      {/* Show estimated eligibility date & fee if waiting */}
+                      {program.nominationStatus === 'not-eligible' && program.estimatedEligibleDate && (
+                        <div className="program-details-card">
+                          <p><strong>Eligible On:</strong> {program.estimatedEligibleDate}</p>
+                          <p><strong>Est. Initial Fee:</strong> {program.estimatedInitialFee}</p>
+                          {program.reminderSet && <p className="reminder-note">📅 Reminder Set</p>}
+                        </div>
+                      )}
+
+                      {/* Show annual dues if already nominated */}
+                      {program.nominationStatus === 'already-nominated' && (
+                        <div className="program-details-card">
+                          <p><strong>Annual Fee:</strong> $220 (by Aug 1) or $350 (by Dec 1)</p>
+                          {program.annualPaidFor === 'not-paid' && (
+                            <p className="payment-due">Payment due this year</p>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
 
                   <div className="program-card-actions">
