@@ -134,11 +134,6 @@ function HorseProfile() {
     setError('');
   };
 
-  const getNextPaymentYear = () => {
-    const currentYear = new Date().getFullYear();
-    return currentYear + 1;
-  };
-
   const getStatusBadge = (program) => {
     const isAnnual = programData[program.name]?.type === 'ANNUAL';
 
