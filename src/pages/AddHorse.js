@@ -27,8 +27,8 @@ function AddHorse() {
       { name: 'Future Fortunes', status: '', deadline: '', estimatedFee: '' },
       { name: 'Breeders Challenge', status: '', deadline: '', estimatedFee: '' },
       { name: 'Select Stallion Stakes', status: '', deadline: '', estimatedFee: '' },
-      { name: 'Pink Buckle', status: '', nominationStatus: null, annualPaidFor: null },
-      { name: 'Ruby Buckle', status: '', nominationStatus: null, annualPaidFor: null },
+      { name: 'Pink Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, reminderSet: false },
+      { name: 'Ruby Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, reminderSet: false },
     ],
   });
   const [photo, setPhoto] = useState(null);
@@ -166,6 +166,41 @@ function AddHorse() {
     return { canNominate: false, initialFee: 'N/A', annualFee: 'N/A' };
   };
 
+  // Calculate eligible date and fee when horse is NOT YET eligible
+  const getEligibilityDateAndFee = (ageNum, foalingYear) => {
+    if (ageNum === null || !foalingYear) return { eligibleDate: null, initialFee: null };
+
+    const feeInfo = getNominationFeeInfo(ageNum);
+    
+    if (feeInfo.canNominate) {
+      // Already eligible
+      return { eligibleDate: null, initialFee: null };
+    }
+
+    // Calculate when they become eligible
+    let eligibleAge = null;
+    if (ageNum === 1 || ageNum === 2) {
+      eligibleAge = 3;
+    } else if (ageNum >= 5 && ageNum <= 8) {
+      eligibleAge = 9;
+    }
+
+    if (eligibleAge === null) {
+      return { eligibleDate: null, initialFee: null };
+    }
+
+    // Calculate the year they turn that age (Jan 1 is the cutoff)
+    const foalingYearNum = parseInt(foalingYear);
+    const eligibleYear = foalingYearNum + eligibleAge;
+    const eligibleDate = `01/01/${eligibleYear}`;
+
+    // Get the fee for that age
+    const futureAgeInfo = getNominationFeeInfo(eligibleAge);
+    const initialFee = futureAgeInfo.initialFee;
+
+    return { eligibleDate, initialFee };
+  };
+
   // Recalculate all program fees based on new age
   const recalculateProgramFees = (newFoalingYear) => {
     const ageNum = calculateAge(newFoalingYear);
@@ -273,6 +308,45 @@ function AddHorse() {
     }));
   };
 
+  const handleCheckFees = (programName) => {
+    const ageNum = calculateAge(formData.foalingYear);
+    const { eligibleDate, initialFee } = getEligibilityDateAndFee(ageNum, formData.foalingYear);
+
+    // Auto-save the eligibility data
+    setFormData(prev => ({
+      ...prev,
+      programs: prev.programs.map(prog => {
+        if (prog.name === programName) {
+          return {
+            ...prog,
+            nominationStatus: 'not-eligible',
+            estimatedEligibleDate: eligibleDate,
+            estimatedInitialFee: initialFee,
+          };
+        }
+        return prog;
+      }),
+    }));
+
+    // Open modal to show fee table
+    setShowFeeTable(programName);
+  };
+
+  const handleAddReminder = (programName) => {
+    setFormData(prev => ({
+      ...prev,
+      programs: prev.programs.map(prog => {
+        if (prog.name === programName) {
+          return {
+            ...prog,
+            reminderSet: true,
+          };
+        }
+        return prog;
+      }),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -304,6 +378,9 @@ function AddHorse() {
         feeType: programData[prog.name].type,
         nominationStatus: prog.nominationStatus || null,
         annualPaidFor: prog.annualPaidFor || null,
+        estimatedEligibleDate: prog.estimatedEligibleDate || null,
+        estimatedInitialFee: prog.estimatedInitialFee || null,
+        reminderSet: prog.reminderSet || false,
       }));
 
       await addDoc(collection(db, 'horses'), {
@@ -544,7 +621,7 @@ function AddHorse() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => setShowFeeTable(prog.name)}
+                              onClick={() => handleCheckFees(prog.name)}
                               className="btn-nomination btn-check-fees"
                             >
                               No – Check Fees
@@ -559,18 +636,18 @@ function AddHorse() {
                           </div>
                         </div>
 
-                        {/* Show fee info if they clicked "No – Check Fees" */}
-                        {showFeeTable === prog.name && ageNum !== null && (
-                          <div className="nomination-fee-info">
-                            {getNominationFeeInfo(ageNum).canNominate ? (
-                              <>
-                                <p><strong>Age:</strong> {displayAge}</p>
-                                <p><strong>Initial Fee:</strong> {getNominationFeeInfo(ageNum).initialFee}</p>
-                                <p><strong>Annual Fee:</strong> {getNominationFeeInfo(ageNum).annualFee}</p>
-                              </>
-                            ) : (
-                              <p className="not-eligible-note">Your horse cannot be nominated at this age.</p>
-                            )}
+                        {/* Show eligibility info if they clicked "No – Check Fees" and are not eligible yet */}
+                        {prog.nominationStatus === 'not-eligible' && prog.estimatedEligibleDate && (
+                          <div className="program-details">
+                            <p><strong>Eligible to nominate on:</strong> {prog.estimatedEligibleDate}</p>
+                            <p><strong>Estimated initial fee:</strong> {prog.estimatedInitialFee}</p>
+                            <button
+                              type="button"
+                              onClick={() => handleAddReminder(prog.name)}
+                              className={`btn-add-reminder ${prog.reminderSet ? 'reminder-set' : ''}`}
+                            >
+                              {prog.reminderSet ? '📅 Reminder Set' : '📅 Add Reminder'}
+                            </button>
                           </div>
                         )}
 
@@ -600,12 +677,6 @@ function AddHorse() {
                           <div className="program-details">
                             <p><strong>Annual Fee Due:</strong> $220 (by Aug 1) or $350 (by Dec 1)</p>
                             <p className="disclaimer">Annual nomination required every year to maintain eligibility.</p>
-                          </div>
-                        )}
-
-                        {prog.nominationStatus === 'not-eligible' && (
-                          <div className="program-details">
-                            <p className="not-eligible-note">Horse is not eligible for nomination.</p>
                           </div>
                         )}
                       </>
