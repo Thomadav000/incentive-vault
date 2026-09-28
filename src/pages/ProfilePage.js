@@ -2,7 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { sendPasswordResetEmail, deleteUser, updateProfile } from 'firebase/auth';
+import {
+  sendPasswordResetEmail,
+  deleteUser,
+  updateProfile,
+  reauthenticateWithPopup,
+  GoogleAuthProvider,
+} from 'firebase/auth';
 import { UserContext } from '../context/UserContext';
 import './ProfilePage.css';
 
@@ -94,11 +100,22 @@ function ProfilePage() {
     setError('');
 
     try {
+      // Re-authenticate user before deletion
+      const provider = new GoogleAuthProvider();
+      await reauthenticateWithPopup(user, provider);
+
+      // Delete user account
       await deleteUser(user);
       navigate('/');
     } catch (err) {
       console.error('Error deleting account:', err);
-      setError('Failed to delete account. Please try again.');
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in cancelled. Account was not deleted.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('Sign-in cancelled. Account was not deleted.');
+      } else {
+        setError('Failed to delete account. Please try again.');
+      }
       setSaving(false);
     }
   };
@@ -203,7 +220,7 @@ function ProfilePage() {
 
           {deleteConfirm ? (
             <div className="delete-confirm">
-              <p>Are you sure you want to delete your account? This cannot be undone. Your subscription will be cancelled immediately and all your data will be permanently removed. If you're in your free trial, you won't be charged.</p>
+              <p>Are you sure you want to delete your account? This cannot be undone. Your subscription will be cancelled immediately and all your data will be permanently removed. If you're in your free trial, you won't be charged. You'll need to sign in again to confirm deletion.</p>
               <div className="delete-buttons">
                 <button 
                   onClick={() => setDeleteConfirm(false)}
