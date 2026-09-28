@@ -21,16 +21,45 @@ function HomePage() {
       horses.forEach(horse => {
         if (horse.programs && Array.isArray(horse.programs)) {
           horse.programs.forEach(prog => {
-            if (prog.deadline && prog.status !== 'Not Eligible') {
+            let hasDeadline = false;
+            let deadlineDate = null;
+            let statusDisplay = null;
+
+            // ONE_TIME programs (Future Fortunes, Breeders Challenge, Select Stallion Stakes)
+            if (prog.deadline && prog.status === 'Eligible - Not Paid') {
+              hasDeadline = true;
+              deadlineDate = prog.deadline;
+              statusDisplay = prog.status;
+            } else if (prog.deadline && prog.status === 'Eligible - Paid') {
+              // Don't show paid programs
+              hasDeadline = false;
+            }
+
+            // ANNUAL programs (Pink/Ruby Buckle)
+            // Show eligibility reminder if waiting to be eligible
+            if (prog.estimatedEligibleDate && prog.nominationStatus === 'not-eligible') {
+              hasDeadline = true;
+              deadlineDate = prog.estimatedEligibleDate;
+              statusDisplay = `Waiting to be Eligible – ${prog.estimatedInitialFee}`;
+            }
+
+            // Show annual dues if already nominated and not paid
+            if (prog.nominationStatus === 'already-nominated' && prog.annualPaidFor === 'not-paid') {
+              hasDeadline = true;
+              deadlineDate = 'Aug 1 / Dec 1'; // Annual dues dates
+              statusDisplay = 'Annual Dues Due';
+            }
+
+            if (hasDeadline && deadlineDate) {
               if (!programDeadlines[prog.name]) {
                 programDeadlines[prog.name] = {
-                  deadline: prog.deadline,
+                  deadline: deadlineDate,
                   horses: []
                 };
               }
               programDeadlines[prog.name].horses.push({
                 barnName: horse.barnName,
-                status: prog.status,
+                status: statusDisplay,
                 horseId: horse.id
               });
             }
