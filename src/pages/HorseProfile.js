@@ -134,6 +134,47 @@ function HorseProfile() {
     setError('');
   };
 
+  const handleMarkAsPaid = async (programName) => {
+    try {
+      const horseRef = doc(db, 'horses', id);
+      const updatedPrograms = horse.programs.map(prog => {
+        if (prog.name === programName) {
+          const isAnnual = programData[prog.name]?.type === 'ANNUAL';
+          
+          if (isAnnual) {
+            // For ANNUAL programs, set annualPaidFor to 'paid'
+            return {
+              ...prog,
+              annualPaidFor: 'paid',
+            };
+          } else {
+            // For ONE_TIME programs, set status to 'Eligible - Paid'
+            return {
+              ...prog,
+              status: 'Eligible - Paid',
+              paidDate: new Date().toISOString().split('T')[0],
+            };
+          }
+        }
+        return prog;
+      });
+
+      // Update Firestore
+      await updateDoc(horseRef, {
+        programs: updatedPrograms,
+      });
+
+      // Update local state
+      setHorse(prev => ({
+        ...prev,
+        programs: updatedPrograms,
+      }));
+    } catch (err) {
+      console.error('Error marking as paid:', err);
+      setError('Failed to mark as paid');
+    }
+  };
+
   const getStatusBadge = (program) => {
     const isAnnual = programData[program.name]?.type === 'ANNUAL';
 
@@ -246,7 +287,20 @@ function HorseProfile() {
                       Visit Website →
                     </a>
                     {program.status === 'Eligible - Not Paid' && (
-                      <button className="btn-status">Mark as Paid</button>
+                      <button 
+                        onClick={() => handleMarkAsPaid(program.name)}
+                        className="btn-status"
+                      >
+                        Mark as Paid
+                      </button>
+                    )}
+                    {programData[program.name]?.type === 'ANNUAL' && program.nominationStatus === 'already-nominated' && program.annualPaidFor === 'not-paid' && (
+                      <button 
+                        onClick={() => handleMarkAsPaid(program.name)}
+                        className="btn-status"
+                      >
+                        Mark as Paid
+                      </button>
                     )}
                   </div>
                 </div>
