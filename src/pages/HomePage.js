@@ -274,44 +274,93 @@ function HomePage() {
       <section className="pricing">
         <div className="container">
           <h3>Simple, Transparent Pricing</h3>
+          <p className="pricing-subtitle">Pay only for the number of horses you track</p>
           <div className="pricing-grid">
-            <div className="pricing-card free">
-              <h4>Free</h4>
-              <div className="price">$0<span>/month</span></div>
+            <div className="pricing-card">
+              <div className="pricing-header">
+                <h4>1-2 Horses</h4>
+              </div>
+              <div className="pricing-free">
+                <span className="free-badge">7 Days FREE</span>
+              </div>
+              <div className="pricing-price">
+                <span className="price">$3.99</span>
+                <span className="period">/month</span>
+              </div>
+              <div className="pricing-annual">
+                <span className="annual-price">$38.30/year</span>
+              </div>
               <ul className="pricing-features">
-                <li>✓ 2 horses</li>
-                <li>✓ View all programs</li>
-                <li>✓ Manual tracking</li>
-                <li>✓ Basic reminders</li>
-              </ul>
-              <button className="btn-secondary" disabled>Get Started</button>
-            </div>
-
-            <div className="pricing-card rider">
-              <h4>Rider</h4>
-              <div className="price">$6.99<span>/month</span></div>
-              <p className="or">or $59.99/year</p>
-              <ul className="pricing-features">
-                <li>✓ Unlimited horses</li>
-                <li>✓ All 5 programs</li>
-                <li>✓ Smart reminders</li>
+                <li>✓ Spreadsheet export (Excel/PDF)</li>
                 <li>✓ Calendar view</li>
                 <li>✓ Payment tracking</li>
-                <li>✓ Document upload</li>
               </ul>
               <Link to="/signup" className="btn-primary">Start Free Trial</Link>
             </div>
 
-            <div className="pricing-card trainer">
-              <h4>Trainer</h4>
-              <div className="price">$19.99<span>/month</span></div>
-              <p className="or">or $149.99/year</p>
+            <div className="pricing-card">
+              <div className="pricing-header">
+                <h4>3-5 Horses</h4>
+              </div>
+              <div className="pricing-free">
+                <span className="free-badge">7 Days FREE</span>
+              </div>
+              <div className="pricing-price">
+                <span className="price">$6.99</span>
+                <span className="period">/month</span>
+              </div>
+              <div className="pricing-annual">
+                <span className="annual-price">$66.91/year</span>
+              </div>
               <ul className="pricing-features">
-                <li>✓ Everything in Rider</li>
-                <li>✓ Multi-user access</li>
-                <li>✓ Client management</li>
-                <li>✓ Advanced analytics</li>
-                <li>✓ Priority support</li>
+                <li>✓ Spreadsheet export (Excel/PDF)</li>
+                <li>✓ Calendar view</li>
+                <li>✓ Payment tracking</li>
+              </ul>
+              <Link to="/signup" className="btn-primary">Start Free Trial</Link>
+            </div>
+
+            <div className="pricing-card">
+              <div className="pricing-header">
+                <h4>6-10 Horses</h4>
+              </div>
+              <div className="pricing-free">
+                <span className="free-badge">7 Days FREE</span>
+              </div>
+              <div className="pricing-price">
+                <span className="price">$9.99</span>
+                <span className="period">/month</span>
+              </div>
+              <div className="pricing-annual">
+                <span className="annual-price">$95.91/year</span>
+              </div>
+              <ul className="pricing-features">
+                <li>✓ Spreadsheet export (Excel/PDF)</li>
+                <li>✓ Calendar view</li>
+                <li>✓ Payment tracking</li>
+              </ul>
+              <Link to="/signup" className="btn-primary">Start Free Trial</Link>
+            </div>
+
+            <div className="pricing-card">
+              <div className="pricing-header">
+                <h4>Unlimited Horses</h4>
+                <span className="pricing-tagline">Great for Breeders</span>
+              </div>
+              <div className="pricing-free">
+                <span className="free-badge">7 Days FREE</span>
+              </div>
+              <div className="pricing-price">
+                <span className="price">$14.99</span>
+                <span className="period">/month</span>
+              </div>
+              <div className="pricing-annual">
+                <span className="annual-price">$143.91/year</span>
+              </div>
+              <ul className="pricing-features">
+                <li>✓ Spreadsheet export (Excel/PDF)</li>
+                <li>✓ Calendar view</li>
+                <li>✓ Payment tracking</li>
               </ul>
               <Link to="/signup" className="btn-primary">Start Free Trial</Link>
             </div>

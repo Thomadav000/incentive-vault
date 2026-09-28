@@ -293,22 +293,29 @@
 .pricing h3 {
   font-size: 2rem;
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 0.5rem;
   color: #B8956A;
   font-weight: 600;
 }
 
+.pricing-subtitle {
+  text-align: center;
+  color: #8A8680;
+  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+}
+
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .pricing-card {
   background-color: #1A1A1A;
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 12px;
   border: 2px solid #333;
   text-align: center;
@@ -318,41 +325,73 @@
 .pricing-card:hover {
   border-color: #B8956A;
   box-shadow: 0 8px 24px rgba(184, 149, 106, 0.15);
+  transform: translateY(-4px);
 }
 
-.pricing-card.rider {
-  border-color: #B8956A;
-  background-color: rgba(184, 149, 106, 0.05);
+.pricing-header {
+  margin-bottom: 1.5rem;
 }
 
-.pricing-card.trainer {
-  border-color: #B8956A;
-  transform: scale(1.05);
-}
-
-.pricing-card h4 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+.pricing-header h4 {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem 0;
   color: #B8956A;
   font-weight: 600;
 }
 
-.price {
-  font-size: 2rem;
-  font-weight: 700;
+.pricing-tagline {
+  display: block;
+  font-size: 0.85rem;
+  color: #8A8680;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.pricing-free {
+  margin-bottom: 1.5rem;
+}
+
+.free-badge {
+  display: inline-block;
+  background: rgba(184, 149, 106, 0.2);
   color: #C9A961;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(184, 149, 106, 0.3);
+}
+
+.pricing-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
   margin-bottom: 0.5rem;
 }
 
-.price span {
-  font-size: 1rem;
-  color: #8A8680;
+.pricing-price .price {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #C9A961;
 }
 
-.or {
+.pricing-price .period {
+  font-size: 1rem;
   color: #8A8680;
+  font-weight: 500;
+}
+
+.pricing-annual {
+  margin-bottom: 2rem;
+}
+
+.annual-price {
+  display: block;
   font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  color: #8A8680;
+  font-weight: 500;
 }
 
 .pricing-features {
@@ -360,17 +399,40 @@
   padding: 0;
   margin: 2rem 0;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .pricing-features li {
-  padding: 0.6rem 0;
+  padding: 0;
   color: #C0BCAF;
-  border-bottom: 1px solid #333;
   font-size: 0.95rem;
+  border: none;
 }
 
 .pricing-features li:last-child {
   border-bottom: none;
+}
+
+.pricing-card .btn-primary {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .pricing-header h4 {
+    font-size: 1.2rem;
+  }
+
+  .pricing-price .price {
+    font-size: 2rem;
+  }
 }
 
 .btn-secondary {
