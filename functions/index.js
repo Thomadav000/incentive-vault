@@ -52,3 +52,125 @@ exports.createSubscription = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("internal", error.message);
   }
 });
+
+exports.stripeWebhook = functions.https.onRequest(
+    {invoker: "public"},
+    async (req, res) => {
+      const sig = req.headers["stripe-signature"];
+      let event;
+
+      try {
+        event = stripe.webhooks.constructEvent(
+            req.rawBody,
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET,
+        );
+      } catch (err) {
+        const errorMsg = "Webhook signature verification failed:";
+        console.error(errorMsg, err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+      }
+
+      try {
+        if (event.type === "customer.subscription.trial_will_end") {
+          const subscription = event.data.object;
+          const customerId = subscription.customer;
+
+          const usersSnapshot = await admin
+              .firestore()
+              .collection("users")
+              .where("stripeCustomerId", "==", customerId)
+              .limit(1)
+              .get();
+
+          if (usersSnapshot.empty) {
+            console.log(`No user found for customer ${customerId}`);
+            return res.status(200).send("User not found");
+          }
+
+          const userDoc = usersSnapshot.docs[0];
+          const userId = userDoc.id;
+
+          await admin
+              .firestore()
+              .collection("users")
+              .doc(userId)
+              .update({
+                subscriptionStatus: subscription.status,
+                trialEndsAt: new Date(subscription.trial_end * 1000),
+              });
+
+          const logMsg = `Trial ending for user ${userId}, `;
+          console.log(logMsg + `subscription ${subscription.id}`);
+        }
+
+        if (event.type === "invoice.payment_succeeded") {
+          const invoice = event.data.object;
+          const customerId = invoice.customer;
+
+          const usersSnapshot = await admin
+              .firestore()
+              .collection("users")
+              .where("stripeCustomerId", "==", customerId)
+              .limit(1)
+              .get();
+
+          if (usersSnapshot.empty) {
+            console.log(`No user found for customer ${customerId}`);
+            return res.status(200).send("User not found");
+          }
+
+          const userDoc = usersSnapshot.docs[0];
+          const userId = userDoc.id;
+
+          await admin
+              .firestore()
+              .collection("users")
+              .doc(userId)
+              .update({
+                subscriptionStatus: "active",
+                lastChargeDate: new Date(invoice.created * 1000),
+              });
+
+          const logMsg = `Payment succeeded for user ${userId}, `;
+          console.log(logMsg + `invoice ${invoice.id}`);
+        }
+
+        if (event.type === "invoice.payment_failed") {
+          const invoice = event.data.object;
+          const customerId = invoice.customer;
+
+          const usersSnapshot = await admin
+              .firestore()
+              .collection("users")
+              .where("stripeCustomerId", "==", customerId)
+              .limit(1)
+              .get();
+
+          if (usersSnapshot.empty) {
+            console.log(`No user found for customer ${customerId}`);
+            return res.status(200).send("User not found");
+          }
+
+          const userDoc = usersSnapshot.docs[0];
+          const userId = userDoc.id;
+
+          await admin
+              .firestore()
+              .collection("users")
+              .doc(userId)
+              .update({
+                subscriptionStatus: "past_due",
+              });
+
+          const logMsg = `Payment failed for user ${userId}, `;
+          console.log(logMsg + `invoice ${invoice.id}`);
+        }
+
+        res.status(200).send("Webhook received");
+      } catch (error) {
+        console.error("Webhook processing error:", error);
+        res.status(500).send("Internal server error");
+      }
+    },
+);
