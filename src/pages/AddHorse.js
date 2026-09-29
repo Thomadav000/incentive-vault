@@ -269,7 +269,7 @@ function AddHorse() {
 
   const handleCheckFees = (programName) => {
     const ageNum = calculateAge(formData.foalingYear);
-    const { eligibleDate, initialFee } = getEligibilityDateAndFee(ageNum, formData.foalingYear);
+    const feeInfo = getNominationFeeInfo(ageNum);
 
     setFormData(prev => ({
       ...prev,
@@ -277,16 +277,14 @@ function AddHorse() {
         if (prog.name === programName) {
           return {
             ...prog,
-            nominationStatus: 'not-eligible',
-            estimatedEligibleDate: eligibleDate,
-            estimatedInitialFee: initialFee,
+            nominationStatus: 'eligible-not-nominated',
+            estimatedEligibleDate: null,
+            estimatedInitialFee: feeInfo.initialFee,
           };
         }
         return prog;
       }),
     }));
-
-    setShowFeeTable(programName);
   };
 
   const handleAddReminder = (programName) => {
@@ -556,7 +554,7 @@ function AddHorse() {
                               <button
                                 type="button"
                                 onClick={() => handleCheckFees(prog.name)}
-                                className="btn-nomination btn-check-fees"
+                                className={`btn-nomination btn-check-fees ${prog.nominationStatus === 'eligible-not-nominated' ? 'active' : ''}`}
                               >
                                 No – Check Fees
                               </button>
@@ -569,6 +567,20 @@ function AddHorse() {
                               </button>
                             </div>
                           </div>
+
+                          {prog.nominationStatus === 'eligible-not-nominated' && (
+                            <div className="program-details">
+                              <p><strong>Current age allows nomination</strong></p>
+                              <p><strong>Initial nomination fee:</strong> {prog.estimatedInitialFee}</p>
+                              <button
+                                type="button"
+                                onClick={() => handleAddReminder(prog.name)}
+                                className={`btn-add-reminder ${prog.reminderSet ? 'reminder-set' : ''}`}
+                              >
+                                {prog.reminderSet ? '📅 Reminder Set' : '📅 Add Reminder'}
+                              </button>
+                            </div>
+                          )}
 
                           {prog.nominationStatus === 'not-eligible' && prog.estimatedEligibleDate && (
                             <div className="program-details">
