@@ -127,37 +127,6 @@ function AddHorse() {
     return { canNominate: false, initialFee: 'N/A', annualFee: 'N/A' };
   };
 
-  // Calculate eligible date and fee when horse is NOT YET eligible
-  const getEligibilityDateAndFee = (ageNum, foalingYear) => {
-    if (ageNum === null || !foalingYear) return { eligibleDate: null, initialFee: null };
-
-    const feeInfo = getNominationFeeInfo(ageNum);
-    
-    if (feeInfo.canNominate) {
-      return { eligibleDate: null, initialFee: null };
-    }
-
-    let eligibleAge = null;
-    if (ageNum === 1 || ageNum === 2) {
-      eligibleAge = 3;
-    } else if (ageNum >= 5 && ageNum <= 8) {
-      eligibleAge = 9;
-    }
-
-    if (eligibleAge === null) {
-      return { eligibleDate: null, initialFee: null };
-    }
-
-    const foalingYearNum = parseInt(foalingYear);
-    const eligibleYear = foalingYearNum + eligibleAge;
-    const eligibleDate = `01/01/${eligibleYear}`;
-
-    const futureAgeInfo = getNominationFeeInfo(eligibleAge);
-    const initialFee = futureAgeInfo.initialFee;
-
-    return { eligibleDate, initialFee };
-  };
-
   // Recalculate all program fees based on new age (uses Firestore data)
   const recalculateProgramFees = (newFoalingYear) => {
     const ageNum = calculateAge(newFoalingYear);
@@ -572,20 +541,6 @@ function AddHorse() {
                             <div className="program-details">
                               <p><strong>Current age allows nomination</strong></p>
                               <p><strong>Initial nomination fee:</strong> {prog.estimatedInitialFee}</p>
-                              <button
-                                type="button"
-                                onClick={() => handleAddReminder(prog.name)}
-                                className={`btn-add-reminder ${prog.reminderSet ? 'reminder-set' : ''}`}
-                              >
-                                {prog.reminderSet ? '📅 Reminder Set' : '📅 Add Reminder'}
-                              </button>
-                            </div>
-                          )}
-
-                          {prog.nominationStatus === 'not-eligible' && prog.estimatedEligibleDate && (
-                            <div className="program-details">
-                              <p><strong>Eligible to nominate on:</strong> {prog.estimatedEligibleDate}</p>
-                              <p><strong>Estimated initial fee:</strong> {prog.estimatedInitialFee}</p>
                               <button
                                 type="button"
                                 onClick={() => handleAddReminder(prog.name)}
