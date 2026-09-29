@@ -127,6 +127,37 @@ function AddHorse() {
     return { canNominate: false, initialFee: 'N/A', annualFee: 'N/A' };
   };
 
+  // Calculate eligible date and fee when horse is NOT YET eligible
+  const getEligibilityDateAndFee = (ageNum, foalingYear) => {
+    if (ageNum === null || !foalingYear) return { eligibleDate: null, initialFee: null };
+
+    const feeInfo = getNominationFeeInfo(ageNum);
+    
+    if (feeInfo.canNominate) {
+      return { eligibleDate: null, initialFee: null };
+    }
+
+    let eligibleAge = null;
+    if (ageNum === 1 || ageNum === 2) {
+      eligibleAge = 3;
+    } else if (ageNum >= 5 && ageNum <= 8) {
+      eligibleAge = 9;
+    }
+
+    if (eligibleAge === null) {
+      return { eligibleDate: null, initialFee: null };
+    }
+
+    const foalingYearNum = parseInt(foalingYear);
+    const eligibleYear = foalingYearNum + eligibleAge;
+    const eligibleDate = `01/01/${eligibleYear}`;
+
+    const futureAgeInfo = getNominationFeeInfo(eligibleAge);
+    const initialFee = futureAgeInfo.initialFee;
+
+    return { eligibleDate, initialFee };
+  };
+
   // Recalculate all program fees based on new age (uses Firestore data)
   const recalculateProgramFees = (newFoalingYear) => {
     const ageNum = calculateAge(newFoalingYear);
@@ -244,16 +275,31 @@ function AddHorse() {
       ...prev,
       programs: prev.programs.map(prog => {
         if (prog.name === programName) {
-          return {
-            ...prog,
-            nominationStatus: 'eligible-not-nominated',
-            estimatedEligibleDate: null,
-            estimatedInitialFee: feeInfo.initialFee,
-          };
+          if (feeInfo.canNominate) {
+            // Horse CAN nominate at current age
+            return {
+              ...prog,
+              nominationStatus: 'eligible-not-nominated',
+              estimatedEligibleDate: null,
+              estimatedInitialFee: feeInfo.initialFee,
+            };
+          } else {
+            // Horse CANNOT nominate yet, calculate future eligible date
+            const futureInfo = getEligibilityDateAndFee(ageNum, formData.foalingYear);
+            return {
+              ...prog,
+              nominationStatus: 'not-eligible',
+              estimatedEligibleDate: futureInfo.eligibleDate,
+              estimatedInitialFee: futureInfo.initialFee,
+            };
+          }
         }
         return prog;
       }),
     }));
+
+    // Open the fee table modal
+    setShowFeeTable(programName);
   };
 
   const handleAddReminder = (programName) => {
@@ -541,6 +587,22 @@ function AddHorse() {
                             <div className="program-details">
                               <p><strong>Current age allows nomination</strong></p>
                               <p><strong>Initial nomination fee:</strong> {prog.estimatedInitialFee}</p>
+                              <p><strong>Nomination deadline:</strong> Aug 1 ({prog.estimatedInitialFee === '$220' ? '$220' : '$220'}) or Dec 1 ($350)</p>
+                              <button
+                                type="button"
+                                onClick={() => handleAddReminder(prog.name)}
+                                className={`btn-add-reminder ${prog.reminderSet ? 'reminder-set' : ''}`}
+                              >
+                                {prog.reminderSet ? '📅 Reminder Set' : '📅 Add Reminder'}
+                              </button>
+                            </div>
+                          )}
+
+                          {prog.nominationStatus === 'not-eligible' && prog.estimatedEligibleDate && (
+                            <div className="program-details">
+                              <p><strong>Will be eligible on:</strong> {prog.estimatedEligibleDate}</p>
+                              <p><strong>Estimated initial fee:</strong> {prog.estimatedInitialFee}</p>
+                              <p><strong>Nomination deadline:</strong> Aug 1 (${prog.estimatedInitialFee === '$220' ? '220' : '220'}) or Dec 1 ($350)</p>
                               <button
                                 type="button"
                                 onClick={() => handleAddReminder(prog.name)}
