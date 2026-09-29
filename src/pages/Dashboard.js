@@ -50,6 +50,46 @@ function Dashboard() {
     }
   };
 
+  // Determine badge status and color
+  const getBadgeStatus = (program) => {
+    // Hide if not eligible
+    if (program.status === 'Not Eligible') {
+      return null;
+    }
+
+    // ONE_TIME programs
+    if (program.feeType === 'ONE_TIME') {
+      if (program.status === 'Eligible - Paid') {
+        return 'paid'; // Green
+      } else if (program.status === 'Eligible - Not Paid') {
+        return 'not-paid'; // Red
+      }
+      return null; // Hide if neither
+    }
+
+    // ANNUAL programs (Pink/Ruby Buckle)
+    if (program.feeType === 'ANNUAL') {
+      // Already nominated and paid
+      if (program.nominationStatus === 'already-nominated' && program.annualPaidFor !== 'not-paid') {
+        return 'paid'; // Green
+      }
+      // Already nominated but annual not paid
+      if (program.nominationStatus === 'already-nominated' && program.annualPaidFor === 'not-paid') {
+        return 'not-paid'; // Red
+      }
+      // Eligible but not yet nominated
+      if (program.nominationStatus === 'eligible-not-nominated') {
+        return 'not-paid'; // Red
+      }
+      // Future eligible (waiting to be eligible)
+      if (program.nominationStatus === 'future-eligible') {
+        return 'not-paid'; // Red
+      }
+    }
+
+    return null; // Hide by default
+  };
+
   if (loading) {
     return <div className="dashboard">Loading your barn...</div>;
   }
@@ -97,46 +137,70 @@ function Dashboard() {
             </div>
           ) : (
             <div className="horses-grid">
-              {horses.map(horse => (
-                <div key={horse.id} className="horse-card">
-                  <button 
-                    onClick={() => handleDeleteHorse(horse.id)} 
-                    className="btn-delete-corner" 
-                    title="Delete horse"
-                  >
-                    ✕
-                  </button>
-                  {horse.photo && <img src={horse.photo} alt={horse.barnName} />}
-                  <div className="horse-info">
-                    <h3>{horse.barnName}</h3>
-                    <p className="horse-meta">
-                      {horse.sire && <span>By {horse.sire}</span>}
-                      {horse.age && <span>{horse.age} yrs</span>}
-                    </p>
+              {horses.map(horse => {
+                // Filter programs: only show if not "Not Eligible"
+                const eligiblePrograms = horse.programs?.filter(prog => {
+                  const badgeStatus = getBadgeStatus(prog);
+                  return badgeStatus !== null;
+                }) || [];
+
+                return (
+                  <div key={horse.id} className="horse-card">
+                    <button 
+                      onClick={() => handleDeleteHorse(horse.id)} 
+                      className="btn-delete-corner" 
+                      title="Delete horse"
+                    >
+                      ✕
+                    </button>
+                    {horse.photo && <img src={horse.photo} alt={horse.barnName} />}
+                    <div className="horse-info">
+                      <h3>{horse.barnName}</h3>
+                      <p className="horse-meta">
+                        {horse.sire && <span>By {horse.sire}</span>}
+                        {horse.age && <span>{horse.age} yrs</span>}
+                      </p>
+                    </div>
+                    <div className="horse-programs">
+                      {eligiblePrograms.slice(0, 3).map(program => {
+                        const badgeStatus = getBadgeStatus(program);
+                        return (
+                          <span 
+                            key={program.name} 
+                            className={`program-badge badge-${badgeStatus}`}
+                          >
+                            {program.name}
+                          </span>
+                        );
+                      })}
+                      {eligiblePrograms.length > 3 && (
+                        <div className="more-programs-container"
+                          onMouseEnter={() => setHoveredMoreBadge(horse.id)}
+                          onMouseLeave={() => setHoveredMoreBadge(null)}
+                        >
+                          <span className="program-badge more-badge">+{eligiblePrograms.length - 3}</span>
+                          {hoveredMoreBadge === horse.id && (
+                            <div className="more-programs-tooltip">
+                              {eligiblePrograms.slice(3).map(program => {
+                                const badgeStatus = getBadgeStatus(program);
+                                return (
+                                  <div 
+                                    key={program.name} 
+                                    className={`tooltip-item tooltip-${badgeStatus}`}
+                                  >
+                                    {program.name}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <Link to={`/horse/${horse.id}`} className="btn-secondary">View Details</Link>
                   </div>
-                  <div className="horse-programs">
-                    {horse.programs?.slice(0, 3).map(program => (
-                      <span key={program.name} className="program-badge">{program.name}</span>
-                    ))}
-                    {horse.programs?.length > 3 && (
-                      <div className="more-programs-container"
-                        onMouseEnter={() => setHoveredMoreBadge(horse.id)}
-                        onMouseLeave={() => setHoveredMoreBadge(null)}
-                      >
-                        <span className="program-badge more-badge">+{horse.programs.length - 3}</span>
-                        {hoveredMoreBadge === horse.id && (
-                          <div className="more-programs-tooltip">
-                            {horse.programs.slice(3).map(program => (
-                              <div key={program.name} className="tooltip-item">{program.name}</div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <Link to={`/horse/${horse.id}`} className="btn-secondary">View Details</Link>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

@@ -186,13 +186,22 @@
 }
 
 .program-badge {
-  background-color: #E3F2FD;
-  color: #1565C0;
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.program-badge.badge-paid {
+  background-color: #C8E6C9;
+  color: #2E7D32;
+}
+
+.program-badge.badge-not-paid {
+  background-color: #FFCDD2;
+  color: #C62828;
 }
 
 /* More Programs Container & Tooltip */
@@ -236,6 +245,16 @@
 
 .tooltip-item:last-child {
   border-bottom: none;
+}
+
+.tooltip-item.tooltip-paid {
+  color: #2E7D32;
+  font-weight: 600;
+}
+
+.tooltip-item.tooltip-not-paid {
+  color: #C62828;
+  font-weight: 600;
 }
 
 @keyframes slideUp {
