@@ -95,70 +95,9 @@ function HomePage() {
 
         <section className="dashboard-container">
           <div className="container">
+            {/* TOP TIER: Actions & Stats */}
             <div className="dashboard-grid">
-              <div className="dashboard-column deadlines-column">
-                <h3>📅 Next Deadlines</h3>
-                {Object.keys(deadlinesByProgram).length > 0 ? (
-                  <div className="programs-accordion">
-                    {Object.entries(deadlinesByProgram).map(([programName, data]) => (
-                      <div key={programName} className="accordion-item">
-                        <button 
-                          className="accordion-header"
-                          onClick={() => toggleProgram(programName)}
-                        >
-                          <span className="program-info">
-                            <span className="program-name">{programName}</span>
-                            <span className="program-deadline">{data.deadline}</span>
-                          </span>
-                          <span className="horse-count">{data.horses.length} horse{data.horses.length !== 1 ? 's' : ''}</span>
-                          <span className="accordion-icon">{expandedProgram === programName ? '▼' : '▶'}</span>
-                        </button>
-                        {expandedProgram === programName && (
-                          <div className="accordion-content">
-                            {data.horses.map((horse, idx) => (
-                              <div key={idx} className="horse-item">
-                                <p className="horse-name">{horse.barnName}</p>
-                                <p className="horse-status">{horse.status}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="empty-state">No upcoming deadlines</p>
-                )}
-              </div>
-
-              <div className="dashboard-column horses-column">
-                <h3>🐴 Your Horses</h3>
-                {horses.length > 0 ? (
-                  <div className="horses-list">
-                    {horses.map(horse => (
-                      <div 
-                        key={horse.id} 
-                        className="horse-list-item"
-                        onClick={() => navigate(`/horse/${horse.id}`)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <div className="horse-list-info">
-                          <p className="horse-list-name">{horse.barnName}</p>
-                          <p className="horse-list-meta">{horse.color} • {horse.age} yrs</p>
-                        </div>
-                        <p className="horse-list-programs">{horse.programs ? horse.programs.length : 0} programs</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-state">
-                    <p>No horses yet</p>
-                    <Link to="/add-horse" className="link-action">Add one →</Link>
-                  </div>
-                )}
-              </div>
-
-              <div className="dashboard-column actions-column">
+              <div className="actions-column">
                 <h3>⚡ Quick Actions</h3>
                 <div className="action-buttons">
                   <button 
@@ -195,6 +134,71 @@ function HomePage() {
                     <span className="stat-value">{Object.keys(deadlinesByProgram).length}</span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* BOTTOM TIER: Deadlines & Horses */}
+            <div className="bottom-tier">
+              <div className="deadlines-column">
+                <h3>📅 Next Deadlines</h3>
+                {Object.keys(deadlinesByProgram).length > 0 ? (
+                  <div className="programs-accordion">
+                    {Object.entries(deadlinesByProgram).map(([programName, data]) => (
+                      <div key={programName} className="accordion-item">
+                        <button 
+                          className="accordion-header"
+                          onClick={() => toggleProgram(programName)}
+                        >
+                          <span className="program-info">
+                            <span className="program-name">{programName}</span>
+                            <span className="program-deadline">{data.deadline}</span>
+                          </span>
+                          <span className="horse-count">{data.horses.length} horse{data.horses.length !== 1 ? 's' : ''}</span>
+                          <span className="accordion-icon">{expandedProgram === programName ? '▼' : '▶'}</span>
+                        </button>
+                        {expandedProgram === programName && (
+                          <div className="accordion-content">
+                            {data.horses.map((horse, idx) => (
+                              <div key={idx} className="horse-item">
+                                <p className="horse-name">{horse.barnName}</p>
+                                <p className="horse-status">{horse.status}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-state">No upcoming deadlines</p>
+                )}
+              </div>
+
+              <div className="horses-column">
+                <h3>🐴 Your Horses</h3>
+                {horses.length > 0 ? (
+                  <div className="horses-list">
+                    {horses.map(horse => (
+                      <div 
+                        key={horse.id} 
+                        className="horse-list-item"
+                        onClick={() => navigate(`/horse/${horse.id}`)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="horse-list-info">
+                          <p className="horse-list-name">{horse.barnName}</p>
+                          <p className="horse-list-meta">{horse.color} • {horse.age} yrs</p>
+                        </div>
+                        <p className="horse-list-programs">{horse.programs ? horse.programs.length : 0} programs</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <p>No horses yet</p>
+                    <Link to="/add-horse" className="link-action">Add one →</Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
