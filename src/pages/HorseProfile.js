@@ -180,14 +180,23 @@ function HorseProfile() {
 
     // Handle ANNUAL programs (Pink/Ruby Buckle)
     if (isAnnual) {
-      if (program.nominationStatus === 'not-eligible' && program.estimatedEligibleDate) {
-        // Not yet eligible but will be
+      // Four nomination statuses: not-eligible, future-eligible, eligible-not-nominated, already-nominated
+      
+      if (program.nominationStatus === 'future-eligible') {
+        // Will be eligible in the future
         return `⏳ Waiting to be Eligible – ${program.estimatedEligibleDate}`;
       }
+      
+      if (program.nominationStatus === 'eligible-not-nominated') {
+        // Can nominate RIGHT NOW
+        return '🔔 Eligible – Ready to Nominate';
+      }
+      
       if (program.nominationStatus === 'not-eligible') {
-        // Will never be eligible
+        // Can never nominate (wrong breed/type)
         return '❌ Not Eligible';
       }
+      
       if (program.nominationStatus === 'already-nominated') {
         if (program.annualPaidFor === 'paid') {
           return '✓ Nominated & Paid';
@@ -196,6 +205,7 @@ function HorseProfile() {
         }
         return '✓ Nominated';
       }
+      
       return 'Not Selected';
     }
 
@@ -256,11 +266,21 @@ function HorseProfile() {
                   {/* ANNUAL Programs (Pink/Ruby Buckle) */}
                   {programData[program.name]?.type === 'ANNUAL' && (
                     <>
-                      {/* Show estimated eligibility date & fee if waiting */}
-                      {program.nominationStatus === 'not-eligible' && program.estimatedEligibleDate && (
+                      {/* Show info if eligible and ready to nominate NOW */}
+                      {program.nominationStatus === 'eligible-not-nominated' && (
+                        <div className="program-details-card">
+                          <p><strong>Initial Fee:</strong> {program.estimatedInitialFee}</p>
+                          <p><strong>Deadline:</strong> {program.nominationDeadline}</p>
+                          {program.reminderSet && <p className="reminder-note">📅 Reminder Set</p>}
+                        </div>
+                      )}
+
+                      {/* Show info if waiting to be eligible */}
+                      {program.nominationStatus === 'future-eligible' && program.estimatedEligibleDate && (
                         <div className="program-details-card">
                           <p><strong>Eligible On:</strong> {program.estimatedEligibleDate}</p>
                           <p><strong>Est. Initial Fee:</strong> {program.estimatedInitialFee}</p>
+                          <p><strong>Deadline:</strong> {program.nominationDeadline}</p>
                           {program.reminderSet && <p className="reminder-note">📅 Reminder Set</p>}
                         </div>
                       )}
@@ -287,6 +307,14 @@ function HorseProfile() {
                       Visit Website →
                     </a>
                     {program.status === 'Eligible - Not Paid' && (
+                      <button 
+                        onClick={() => handleMarkAsPaid(program.name)}
+                        className="btn-status"
+                      >
+                        Mark as Paid
+                      </button>
+                    )}
+                    {programData[program.name]?.type === 'ANNUAL' && program.nominationStatus === 'eligible-not-nominated' && (
                       <button 
                         onClick={() => handleMarkAsPaid(program.name)}
                         className="btn-status"
