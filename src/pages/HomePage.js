@@ -36,8 +36,8 @@ function HomePage() {
             }
 
             // ANNUAL programs (Pink/Ruby Buckle)
-            // Show eligibility reminder if waiting to be eligible
-            if (prog.estimatedEligibleDate && prog.nominationStatus === 'not-eligible') {
+            // Show eligibility reminder if waiting to be eligible (future-eligible status)
+            if (prog.estimatedEligibleDate && prog.nominationStatus === 'future-eligible') {
               hasDeadline = true;
               deadlineDate = prog.estimatedEligibleDate;
               statusDisplay = `Waiting to be Eligible – ${prog.estimatedInitialFee}`;
