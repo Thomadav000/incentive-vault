@@ -394,7 +394,7 @@ function AddHorse() {
           <form onSubmit={handleSubmit} className="add-horse-form">
             {/* Step 1: Horse Info */}
             <div className="form-section">
-              <h2>1. Horse Information</h2>
+              <h2>Horse Information</h2>
               
               <div className="form-group">
                 <label>Barn Name *</label>
@@ -486,7 +486,7 @@ function AddHorse() {
 
             {/* Step 2: Programs */}
             <div className="form-section">
-              <h2>2. Incentive Programs</h2>
+              <h2>Incentive Programs</h2>
               <p>For each program, select your horse's eligibility status:</p>
               
               <div className="programs-list">
@@ -628,7 +628,7 @@ function AddHorse() {
 
             {/* Step 3: Photo & Notes */}
             <div className="form-section">
-              <h2>3. Photo & Details (Optional)</h2>
+              <h2>Photo & Details (Optional)</h2>
               
               <div className="form-group">
                 <label>Horse Photo</label>
