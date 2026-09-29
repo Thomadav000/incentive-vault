@@ -32,7 +32,6 @@ function AddHorse() {
     ],
   });
   const [photo, setPhoto] = useState(null);
-  const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [userTier, setUserTier] = useState(null);
@@ -312,12 +311,6 @@ function AddHorse() {
     setLoading(true);
 
     try {
-      if (!verified) {
-        setError('Please verify this horse on AQHA before submitting.');
-        setLoading(false);
-        return;
-      }
-
       let photoURL = null;
       if (photo) {
         const photoRef = ref(storage, `horses/${auth.currentUser.uid}/${photo.name}`);
@@ -399,9 +392,9 @@ function AddHorse() {
 
         {!limitReached && (
           <form onSubmit={handleSubmit} className="add-horse-form">
-            {/* Step 1: Search & Verify */}
+            {/* Step 1: Horse Info */}
             <div className="form-section">
-              <h2>1. Search & Verify Horse</h2>
+              <h2>1. Horse Information</h2>
               
               <div className="form-group">
                 <label>Barn Name *</label>
@@ -422,33 +415,10 @@ function AddHorse() {
                   name="registeredName"
                   value={formData.registeredName}
                   onChange={handleChange}
-                  placeholder="Official AQHA name"
+                  placeholder="Official registered name"
                 />
               </div>
 
-              <div className="verification-box">
-                <h3>Verify on AQHA</h3>
-                <p>Visit AQHA's official pedigree database to verify registration details, sire, and full bloodline.</p>
-                <a href="https://www.aqha.com/" target="_blank" rel="noopener noreferrer" className="btn-verify">
-                  🔗 Open AQHA Pedigree Search
-                </a>
-                <label className="checkbox-group">
-                  <input
-                    type="checkbox"
-                    checked={verified}
-                    onChange={(e) => setVerified(e.target.checked)}
-                  />
-                  I've verified this horse on AQHA
-                </label>
-              </div>
-
-              {verified && <div className="verified-badge">✓ Verified</div>}
-            </div>
-
-            {/* Step 2: Horse Info */}
-            <div className="form-section">
-              <h2>2. Horse Information</h2>
-              
               <div className="form-group">
                 <label>Registration Number</label>
                 <input
@@ -456,7 +426,7 @@ function AddHorse() {
                   name="registrationNumber"
                   value={formData.registrationNumber}
                   onChange={handleChange}
-                  placeholder="AQHA #"
+                  placeholder="AQHA, APHA, ApHC, Thoroughbred, Other"
                 />
               </div>
 
@@ -514,9 +484,9 @@ function AddHorse() {
               </div>
             </div>
 
-            {/* Step 3: Programs */}
+            {/* Step 2: Programs */}
             <div className="form-section">
-              <h2>3. Incentive Programs</h2>
+              <h2>2. Incentive Programs</h2>
               <p>For each program, select your horse's eligibility status:</p>
               
               <div className="programs-list">
@@ -656,9 +626,9 @@ function AddHorse() {
               </div>
             </div>
 
-            {/* Step 4: Photo & Notes */}
+            {/* Step 3: Photo & Notes */}
             <div className="form-section">
-              <h2>4. Photo & Details (Optional)</h2>
+              <h2>3. Photo & Details (Optional)</h2>
               
               <div className="form-group">
                 <label>Horse Photo</label>
