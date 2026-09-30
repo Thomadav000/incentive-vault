@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { db, auth } from '../firebase';
 import { collection, query, where, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import LoadingScreen from '../components/LoadingScreen';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -91,7 +92,7 @@ function Dashboard() {
   };
 
   if (loading) {
-    return <div className="dashboard">Loading your barn...</div>;
+    return <LoadingScreen />;
   }
 
   return (

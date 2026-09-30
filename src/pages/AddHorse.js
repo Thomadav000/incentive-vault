@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import LoadingScreen from '../components/LoadingScreen';
 import './AddHorse.css';
 
 // Tier limits (outside component to avoid recreating on every render)
@@ -38,6 +39,7 @@ function AddHorse() {
   const [limitReached, setLimitReached] = useState(false);
   const [showFeeTable, setShowFeeTable] = useState(null);
   const [programData, setProgramData] = useState({}); // Firestore programs
+  const [pageLoading, setPageLoading] = useState(true);
   const navigate = useNavigate();
 
   // Fetch programs from Firestore and user data on mount
@@ -80,6 +82,8 @@ function AddHorse() {
         setProgramData(programs);
       } catch (err) {
         console.error('Error fetching data:', err);
+      } finally {
+        setPageLoading(false);
       }
     };
 
@@ -381,6 +385,10 @@ function AddHorse() {
   const handleUpgradeClick = () => {
     navigate('/profile');
   };
+
+  if (pageLoading) {
+    return <LoadingScreen />;
+  }
 
   const ageNum = calculateAge(formData.foalingYear);
   const displayAge = getAgeDisplay(ageNum);

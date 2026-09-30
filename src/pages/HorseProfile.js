@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../context/UserContext';
+import LoadingScreen from '../components/LoadingScreen';
 import './HorseProfile.css';
 
 function HorseProfile() {
@@ -216,7 +217,7 @@ function HorseProfile() {
     return program.status;
   };
 
-  if (loading) return <div className="horse-profile">Loading...</div>;
+  if (loading) return <LoadingScreen />;
   if (!horse) return <div className="horse-profile">Horse not found</div>;
 
   return (

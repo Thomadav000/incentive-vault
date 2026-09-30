@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { UserContext } from '../context/UserContext';
+import LoadingScreen from '../components/LoadingScreen';
 import logoImage from '../assets/logo-full.png';
 import './HomePage.css';
 
@@ -76,7 +77,7 @@ function HomePage() {
   };
 
   if (loading) {
-    return <div className="home-page">Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (user) {
