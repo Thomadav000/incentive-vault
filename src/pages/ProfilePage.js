@@ -10,6 +10,7 @@ import {
   EmailAuthProvider,
 } from 'firebase/auth';
 import { UserContext } from '../context/UserContext';
+import LoadingScreen from '../components/LoadingScreen';
 import './ProfilePage.css';
 
 function ProfilePage() {
@@ -127,7 +128,7 @@ function ProfilePage() {
   };
 
   if (loading) {
-    return <div className="profile-page">Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (!user) {

@@ -2,6 +2,7 @@ import React, { useContext, useState, useMemo, useEffect, useCallback } from 're
 import { UserContext } from '../context/UserContext';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import LoadingScreen from '../components/LoadingScreen';
 import './CalendarView.css';
 
 const monthOrder = {
@@ -412,7 +413,7 @@ END:VEVENT
   };
 
   if (loading) {
-    return <div className="calendar-page">Loading calendar...</div>;
+    return <LoadingScreen />;
   }
 
   return (

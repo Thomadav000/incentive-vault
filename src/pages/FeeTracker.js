@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import LoadingScreen from '../components/LoadingScreen';
 import logoImage from '../assets/logo-full.png';
 import './FeeTracker.css';
 
@@ -138,7 +139,7 @@ function FeeTracker() {
     alert('Use the Print button (Cmd+P) and select "Save as PDF" to export as PDF');
   };
 
-  if (loading) return <div className="fee-tracker">Loading...</div>;
+  if (loading) return <LoadingScreen />;
 
   return (
     <div className="fee-tracker">
