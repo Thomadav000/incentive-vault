@@ -132,7 +132,7 @@
 .horse-card {
   background-color: #FFFFFF;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: all 0.3s;
   display: flex;
@@ -146,10 +146,16 @@
 }
 
 .horse-card img {
-  width: 100%;
-  height: 200px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
+  border-radius: 6px;
+  border: 2px solid #B8956A;
   background-color: #F5F3F1;
+  z-index: 5;
 }
 
 .horse-info {
