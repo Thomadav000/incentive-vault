@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import LoadingScreen from '../components/LoadingScreen';
 import './AddHorse.css';
 
 // Tier limits (outside component to avoid recreating on every render)
@@ -28,8 +27,8 @@ function AddHorse() {
       { name: 'Future Fortunes', status: '', deadline: '', estimatedFee: '' },
       { name: 'Breeders Challenge', status: '', deadline: '', estimatedFee: '' },
       { name: 'Select Stallion Stakes', status: '', deadline: '', estimatedFee: '' },
-      { name: 'Pink Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, nominationDeadline: null, reminderSet: false },
-      { name: 'Ruby Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, nominationDeadline: null, reminderSet: false },
+      { name: 'Pink Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, reminderSet: false },
+      { name: 'Ruby Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, reminderSet: false },
     ],
   });
   const [photo, setPhoto] = useState(null);
@@ -39,7 +38,6 @@ function AddHorse() {
   const [limitReached, setLimitReached] = useState(false);
   const [showFeeTable, setShowFeeTable] = useState(null);
   const [programData, setProgramData] = useState({}); // Firestore programs
-  const [pageLoading, setPageLoading] = useState(true);
   const navigate = useNavigate();
 
   // Fetch programs from Firestore and user data on mount
@@ -82,8 +80,6 @@ function AddHorse() {
         setProgramData(programs);
       } catch (err) {
         console.error('Error fetching data:', err);
-      } finally {
-        setPageLoading(false);
       }
     };
 
@@ -119,26 +115,26 @@ function AddHorse() {
     return ageGroup;
   };
 
-  // Get nomination fee, deadline, and annual fee based on age
+  // Get nomination fee and initial fee based on age
   const getNominationFeeInfo = (ageNum) => {
-    if (ageNum === null) return { canNominate: false, initialFee: 'N/A', deadline: 'N/A', annualFee: 'N/A' };
-    if (ageNum === 0) return { canNominate: true, initialFee: '$220', deadline: 'Aug 1 ($220) or Dec 1 ($350)', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
-    if (ageNum === 1 || ageNum === 2) return { canNominate: false, initialFee: '—', deadline: '—', annualFee: '—' };
-    if (ageNum === 3) return { canNominate: true, initialFee: '$2,000', deadline: 'Nov 1', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
-    if (ageNum === 4) return { canNominate: true, initialFee: '$3,000', deadline: 'Nov 1', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
-    if (ageNum >= 5 && ageNum <= 8) return { canNominate: false, initialFee: '—', deadline: '—', annualFee: '—' };
-    if (ageNum >= 9) return { canNominate: true, initialFee: '$4,000', deadline: 'Dec 1', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
-    return { canNominate: false, initialFee: 'N/A', deadline: 'N/A', annualFee: 'N/A' };
+    if (ageNum === null) return { canNominate: false, initialFee: 'N/A', annualFee: 'N/A' };
+    if (ageNum === 0) return { canNominate: true, initialFee: '$220', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    if (ageNum === 1 || ageNum === 2) return { canNominate: false, initialFee: '—', annualFee: '—' };
+    if (ageNum === 3) return { canNominate: true, initialFee: '$2,000', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    if (ageNum === 4) return { canNominate: true, initialFee: '$3,000', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    if (ageNum >= 5 && ageNum <= 8) return { canNominate: false, initialFee: '—', annualFee: '—' };
+    if (ageNum >= 9) return { canNominate: true, initialFee: '$4,000', annualFee: '$220 (Aug 1) or $350 (Dec 1)' };
+    return { canNominate: false, initialFee: 'N/A', annualFee: 'N/A' };
   };
 
   // Calculate eligible date and fee when horse is NOT YET eligible
   const getEligibilityDateAndFee = (ageNum, foalingYear) => {
-    if (ageNum === null || !foalingYear) return { eligibleDate: null, initialFee: null, deadline: null };
+    if (ageNum === null || !foalingYear) return { eligibleDate: null, initialFee: null };
 
     const feeInfo = getNominationFeeInfo(ageNum);
     
     if (feeInfo.canNominate) {
-      return { eligibleDate: null, initialFee: null, deadline: null };
+      return { eligibleDate: null, initialFee: null };
     }
 
     let eligibleAge = null;
@@ -149,7 +145,7 @@ function AddHorse() {
     }
 
     if (eligibleAge === null) {
-      return { eligibleDate: null, initialFee: null, deadline: null };
+      return { eligibleDate: null, initialFee: null };
     }
 
     const foalingYearNum = parseInt(foalingYear);
@@ -158,9 +154,8 @@ function AddHorse() {
 
     const futureAgeInfo = getNominationFeeInfo(eligibleAge);
     const initialFee = futureAgeInfo.initialFee;
-    const deadline = futureAgeInfo.deadline;
 
-    return { eligibleDate, initialFee, deadline };
+    return { eligibleDate, initialFee };
   };
 
   // Recalculate all program fees based on new age (uses Firestore data)
@@ -249,7 +244,7 @@ function AddHorse() {
           return {
             ...prog,
             nominationStatus: nominationStatus,
-            annualPaidFor: nominationStatus === 'not-eligible' || nominationStatus === 'future-eligible' ? null : prog.annualPaidFor,
+            annualPaidFor: nominationStatus === 'not-nominated' ? null : prog.annualPaidFor,
           };
         }
         return prog;
@@ -274,38 +269,23 @@ function AddHorse() {
 
   const handleCheckFees = (programName) => {
     const ageNum = calculateAge(formData.foalingYear);
-    const feeInfo = getNominationFeeInfo(ageNum);
+    const { eligibleDate, initialFee } = getEligibilityDateAndFee(ageNum, formData.foalingYear);
 
     setFormData(prev => ({
       ...prev,
       programs: prev.programs.map(prog => {
         if (prog.name === programName) {
-          if (feeInfo.canNominate) {
-            // Horse CAN nominate at current age
-            return {
-              ...prog,
-              nominationStatus: 'eligible-not-nominated',
-              estimatedEligibleDate: null,
-              estimatedInitialFee: feeInfo.initialFee,
-              nominationDeadline: feeInfo.deadline,
-            };
-          } else {
-            // Horse CANNOT nominate yet, calculate future eligible date
-            const futureInfo = getEligibilityDateAndFee(ageNum, formData.foalingYear);
-            return {
-              ...prog,
-              nominationStatus: 'future-eligible',
-              estimatedEligibleDate: futureInfo.eligibleDate,
-              estimatedInitialFee: futureInfo.initialFee,
-              nominationDeadline: futureInfo.deadline,
-            };
-          }
+          return {
+            ...prog,
+            nominationStatus: 'not-eligible',
+            estimatedEligibleDate: eligibleDate,
+            estimatedInitialFee: initialFee,
+          };
         }
         return prog;
       }),
     }));
 
-    // Open the fee table modal
     setShowFeeTable(programName);
   };
 
@@ -353,7 +333,6 @@ function AddHorse() {
           annualPaidFor: prog.annualPaidFor || null,
           estimatedEligibleDate: prog.estimatedEligibleDate || null,
           estimatedInitialFee: prog.estimatedInitialFee || null,
-          nominationDeadline: prog.nominationDeadline || null,
           reminderSet: prog.reminderSet || false,
         };
       });
@@ -385,10 +364,6 @@ function AddHorse() {
   const handleUpgradeClick = () => {
     navigate('/profile');
   };
-
-  if (pageLoading) {
-    return <LoadingScreen />;
-  }
 
   const ageNum = calculateAge(formData.foalingYear);
   const displayAge = getAgeDisplay(ageNum);
@@ -581,7 +556,7 @@ function AddHorse() {
                               <button
                                 type="button"
                                 onClick={() => handleCheckFees(prog.name)}
-                                className={`btn-nomination btn-check-fees ${prog.nominationStatus === 'eligible-not-nominated' || prog.nominationStatus === 'future-eligible' ? 'active' : ''}`}
+                                className="btn-nomination btn-check-fees"
                               >
                                 No – Check Fees
                               </button>
@@ -595,26 +570,10 @@ function AddHorse() {
                             </div>
                           </div>
 
-                          {prog.nominationStatus === 'eligible-not-nominated' && (
+                          {prog.nominationStatus === 'not-eligible' && prog.estimatedEligibleDate && (
                             <div className="program-details">
-                              <p><strong>Current age allows nomination</strong></p>
-                              <p><strong>Initial nomination fee:</strong> {prog.estimatedInitialFee}</p>
-                              <p><strong>Nomination deadline:</strong> {prog.nominationDeadline}</p>
-                              <button
-                                type="button"
-                                onClick={() => handleAddReminder(prog.name)}
-                                className={`btn-add-reminder ${prog.reminderSet ? 'reminder-set' : ''}`}
-                              >
-                                {prog.reminderSet ? '📅 Reminder Set' : '📅 Add Reminder'}
-                              </button>
-                            </div>
-                          )}
-
-                          {prog.nominationStatus === 'future-eligible' && prog.estimatedEligibleDate && (
-                            <div className="program-details">
-                              <p><strong>Will be eligible on:</strong> {prog.estimatedEligibleDate}</p>
+                              <p><strong>Eligible to nominate on:</strong> {prog.estimatedEligibleDate}</p>
                               <p><strong>Estimated initial fee:</strong> {prog.estimatedInitialFee}</p>
-                              <p><strong>Nomination deadline:</strong> {prog.nominationDeadline}</p>
                               <button
                                 type="button"
                                 onClick={() => handleAddReminder(prog.name)}
@@ -728,8 +687,7 @@ function AddHorse() {
                   <th>Age</th>
                   <th>Status</th>
                   <th>Initial Fee (One-Time)</th>
-                  <th>Deadline</th>
-                  <th>Annual Fee</th>
+                  <th>Annual Fee (Flat)</th>
                 </tr>
               </thead>
               <tbody>
@@ -737,13 +695,11 @@ function AddHorse() {
                   <td>Weanling</td>
                   <td>Can nominate</td>
                   <td>$220</td>
-                  <td>Aug 1 or Dec 1</td>
-                  <td>$220 (Aug) or $350 (Dec)</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
                 </tr>
                 <tr className={ageNum === 1 ? 'fee-table-highlighted' : ''}>
                   <td>Yearling</td>
                   <td>Cannot nominate</td>
-                  <td>—</td>
                   <td>—</td>
                   <td>—</td>
                 </tr>
@@ -752,26 +708,22 @@ function AddHorse() {
                   <td>Cannot nominate</td>
                   <td>—</td>
                   <td>—</td>
-                  <td>—</td>
                 </tr>
                 <tr className={ageNum === 3 ? 'fee-table-highlighted' : ''}>
                   <td>3-Year-Old</td>
                   <td>Can nominate</td>
                   <td>$2,000</td>
-                  <td>Nov 1</td>
-                  <td>$220 (Aug) or $350 (Dec)</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
                 </tr>
                 <tr className={ageNum === 4 ? 'fee-table-highlighted' : ''}>
                   <td>4-Year-Old</td>
                   <td>Can nominate</td>
                   <td>$3,000</td>
-                  <td>Nov 1</td>
-                  <td>$220 (Aug) or $350 (Dec)</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
                 </tr>
                 <tr className={ageNum >= 5 && ageNum <= 8 ? 'fee-table-highlighted' : ''}>
                   <td>5-8 Years</td>
                   <td>Cannot nominate</td>
-                  <td>—</td>
                   <td>—</td>
                   <td>—</td>
                 </tr>
@@ -779,13 +731,12 @@ function AddHorse() {
                   <td>9+ Years</td>
                   <td>Can nominate</td>
                   <td>$4,000</td>
-                  <td>Dec 1</td>
-                  <td>$220 (Aug) or $350 (Dec)</td>
+                  <td>$220 (Aug 1) or $350 (Dec 1)</td>
                 </tr>
               </tbody>
             </table>
             <div className="fee-table-note">
-              <p><strong>Note:</strong> These are initial nomination fees. Once nominated, horses pay annual maintenance fees accordingly.</p>
+              <p><strong>Note:</strong> Regardless of age, once nominated, horses always pay a flat $220 or $350 annually (depending on deadline).</p>
             </div>
           </div>
         </div>
