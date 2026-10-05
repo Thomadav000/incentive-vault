@@ -373,28 +373,107 @@
 
 .program-edit-item {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.5rem;
-  align-items: center;
+  align-items: flex-start;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #E8E6E3;
+}
+
+.program-edit-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .program-edit-item label {
   margin: 0;
-  font-weight: 500;
+  font-weight: 600;
   color: #2C3E50;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .program-edit-item select {
+  width: 100%;
   padding: 0.5rem;
   border: 1px solid #E8E6E3;
   border-radius: 4px;
   font-size: 0.9rem;
   background-color: #FFFFFF;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .program-edit-item select:focus {
+  outline: none;
+  border-color: #D4A574;
+}
+
+/* Nomination Selector for ANNUAL Programs */
+.nomination-selector {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.nomination-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.nom-btn {
+  background-color: #FFFFFF;
+  border: 2px solid #E8E6E3;
+  color: #2C3E50;
+  padding: 0.6rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.nom-btn:hover {
+  border-color: #D4A574;
+  background-color: #FFF9F5;
+}
+
+.nom-btn.active {
+  background-color: #D4A574;
+  color: #FFFFFF;
+  border-color: #D4A574;
+}
+
+.annual-payment-selector {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+  background-color: #FFF9F5;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #FED7AA;
+}
+
+.annual-payment-selector label {
+  margin: 0;
+  font-weight: 600;
+  color: #2C3E50;
+  font-size: 0.8rem;
+}
+
+.annual-payment-selector select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #FED7AA;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.annual-payment-selector select:focus {
   outline: none;
   border-color: #D4A574;
 }
@@ -541,5 +620,9 @@
 
   .btn-cancel, .btn-save {
     width: 100%;
+  }
+
+  .nomination-buttons {
+    grid-template-columns: 1fr;
   }
 }

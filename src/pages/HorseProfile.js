@@ -94,6 +94,53 @@ function HorseProfile() {
     });
   };
 
+  const handleProgramNominationStatusChange = (programName, newNominationStatus) => {
+    setEditData(prev => {
+      const currentPrograms = prev.programs || [];
+      const programIndex = currentPrograms.findIndex(p => p.name === programName);
+      
+      if (programIndex >= 0) {
+        const updatedPrograms = [...currentPrograms];
+        updatedPrograms[programIndex] = {
+          ...updatedPrograms[programIndex],
+          nominationStatus: newNominationStatus
+        };
+
+        // Reset annualPaidFor when changing nomination status
+        if (newNominationStatus !== 'already-nominated') {
+          updatedPrograms[programIndex].annualPaidFor = 'not-paid';
+        }
+
+        return {
+          ...prev,
+          programs: updatedPrograms
+        };
+      }
+      return prev;
+    });
+  };
+
+  const handleProgramAnnualPaymentChange = (programName, newPaymentStatus) => {
+    setEditData(prev => {
+      const currentPrograms = prev.programs || [];
+      const programIndex = currentPrograms.findIndex(p => p.name === programName);
+      
+      if (programIndex >= 0) {
+        const updatedPrograms = [...currentPrograms];
+        updatedPrograms[programIndex] = {
+          ...updatedPrograms[programIndex],
+          annualPaidFor: newPaymentStatus
+        };
+
+        return {
+          ...prev,
+          programs: updatedPrograms
+        };
+      }
+      return prev;
+    });
+  };
+
   const handleSaveEdit = async () => {
     if (!editData.barnName?.trim()) {
       setError('Barn name is required');
@@ -426,15 +473,69 @@ function HorseProfile() {
                     {(editData.programs || []).map(program => (
                       <div key={program.name} className="program-edit-item">
                         <label>{program.name}</label>
-                        <select 
-                          value={program.status || ''}
-                          onChange={(e) => handleProgramStatusChange(program.name, e.target.value)}
-                        >
-                          <option value="">Select status</option>
-                          <option value="Not Eligible">Not Eligible</option>
-                          <option value="Eligible - Not Paid">Eligible - Not Paid</option>
-                          <option value="Eligible - Paid">Eligible - Paid</option>
-                        </select>
+
+                        {/* ONE_TIME Programs: Use dropdown */}
+                        {programData[program.name]?.type === 'ONE_TIME' && (
+                          <select 
+                            value={program.status || ''}
+                            onChange={(e) => handleProgramStatusChange(program.name, e.target.value)}
+                          >
+                            <option value="">Select status</option>
+                            <option value="Not Eligible">Not Eligible</option>
+                            <option value="Eligible - Not Paid">Eligible - Not Paid</option>
+                            <option value="Eligible - Paid">Eligible - Paid</option>
+                          </select>
+                        )}
+
+                        {/* ANNUAL Programs: Use button UI */}
+                        {programData[program.name]?.type === 'ANNUAL' && (
+                          <div className="nomination-selector">
+                            <div className="nomination-buttons">
+                              <button
+                                type="button"
+                                className={`nom-btn ${program.nominationStatus === 'not-eligible' ? 'active' : ''}`}
+                                onClick={() => handleProgramNominationStatusChange(program.name, 'not-eligible')}
+                              >
+                                Not Eligible
+                              </button>
+                              <button
+                                type="button"
+                                className={`nom-btn ${program.nominationStatus === 'eligible-not-nominated' ? 'active' : ''}`}
+                                onClick={() => handleProgramNominationStatusChange(program.name, 'eligible-not-nominated')}
+                              >
+                                No – Check Fees
+                              </button>
+                              <button
+                                type="button"
+                                className={`nom-btn ${program.nominationStatus === 'future-eligible' ? 'active' : ''}`}
+                                onClick={() => handleProgramNominationStatusChange(program.name, 'future-eligible')}
+                              >
+                                Future Eligible
+                              </button>
+                              <button
+                                type="button"
+                                className={`nom-btn ${program.nominationStatus === 'already-nominated' ? 'active' : ''}`}
+                                onClick={() => handleProgramNominationStatusChange(program.name, 'already-nominated')}
+                              >
+                                Yes, Already Nominated
+                              </button>
+                            </div>
+
+                            {/* Annual payment status dropdown (only if already-nominated) */}
+                            {program.nominationStatus === 'already-nominated' && (
+                              <div className="annual-payment-selector">
+                                <label>Annual Payment Status</label>
+                                <select 
+                                  value={program.annualPaidFor || 'not-paid'}
+                                  onChange={(e) => handleProgramAnnualPaymentChange(program.name, e.target.value)}
+                                >
+                                  <option value="not-paid">Not Paid</option>
+                                  <option value="paid">Paid</option>
+                                </select>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
