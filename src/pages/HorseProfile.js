@@ -138,7 +138,6 @@ function HorseProfile() {
           nominationStatus: newNominationStatus
         };
 
-        // Reset annualPaidFor when changing nomination status
         if (newNominationStatus !== 'already-nominated') {
           updatedPrograms[programIndex].annualPaidFor = 'not-paid';
         }
@@ -187,13 +186,27 @@ function HorseProfile() {
     setError('');
 
     try {
-      let photoURL = editData.photo; // Keep existing photo by default
+      let photoURL = editData.photo;
 
-      // Upload new photo if one was selected
       if (editPhoto) {
-        const photoRef = ref(storage, `horses/${auth.currentUser.uid}/${editPhoto.name}`);
+        if (!auth.currentUser) {
+          throw new Error('User not authenticated. Please refresh and try again.');
+        }
+
+        const timestamp = Date.now();
+        const filename = `${timestamp}-${editPhoto.name}`;
+        const photoRef = ref(storage, `horses/${auth.currentUser.uid}/${filename}`);
+        
+        console.log('Uploading photo:', filename);
         await uploadBytes(photoRef, editPhoto);
+        console.log('Photo uploaded, waiting for availability...');
+        
+        // Add delay to ensure file is available
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        console.log('Getting download URL...');
         photoURL = await getDownloadURL(photoRef);
+        console.log('Photo URL obtained:', photoURL);
       }
 
       const horseRef = doc(db, 'horses', id);
@@ -213,7 +226,7 @@ function HorseProfile() {
       setEditPhoto(null);
     } catch (err) {
       console.error('Error updating horse:', err);
-      setError('Failed to save changes');
+      setError(`Failed to save changes: ${err.message}`);
     } finally {
       setSaving(false);
     }
@@ -234,13 +247,11 @@ function HorseProfile() {
           const isAnnual = programData[prog.name]?.type === 'ANNUAL';
           
           if (isAnnual) {
-            // For ANNUAL programs, set annualPaidFor to 'paid'
             return {
               ...prog,
               annualPaidFor: 'paid',
             };
           } else {
-            // For ONE_TIME programs, set status to 'Eligible - Paid'
             return {
               ...prog,
               status: 'Eligible - Paid',
@@ -251,12 +262,10 @@ function HorseProfile() {
         return prog;
       });
 
-      // Update Firestore
       await updateDoc(horseRef, {
         programs: updatedPrograms,
       });
 
-      // Update local state
       setHorse(prev => ({
         ...prev,
         programs: updatedPrograms,
@@ -270,7 +279,6 @@ function HorseProfile() {
   const getStatusBadge = (program) => {
     const isAnnual = programData[program.name]?.type === 'ANNUAL';
 
-    // Handle ANNUAL programs (Pink/Ruby Buckle)
     if (isAnnual) {
       if (program.nominationStatus === 'future-eligible') {
         return `⏳ Waiting to be Eligible – ${program.estimatedEligibleDate}`;
@@ -296,7 +304,6 @@ function HorseProfile() {
       return 'Not Selected';
     }
 
-    // Handle ONE_TIME programs
     if (program.status === 'Not Eligible') return '❌ Not Eligible';
     if (program.status === 'Eligible - Not Paid') return '🔔 Eligible – Not Paid';
     if (program.status === 'Eligible - Paid') return '✅ Paid for Life';
@@ -503,7 +510,6 @@ function HorseProfile() {
                 />
               </div>
 
-              {/* Photo Upload */}
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Horse Photo</label>
                 {editData.photo || editPhoto ? (
@@ -556,7 +562,6 @@ function HorseProfile() {
                       <div key={program.name} className="program-edit-item">
                         <label>{program.name}</label>
 
-                        {/* ONE_TIME Programs: Use dropdown */}
                         {programData[program.name]?.type === 'ONE_TIME' && (
                           <select 
                             value={program.status || ''}
@@ -569,7 +574,6 @@ function HorseProfile() {
                           </select>
                         )}
 
-                        {/* ANNUAL Programs: Use button UI */}
                         {programData[program.name]?.type === 'ANNUAL' && (
                           <div className="nomination-selector">
                             <div className="nomination-buttons">
@@ -603,7 +607,6 @@ function HorseProfile() {
                               </button>
                             </div>
 
-                            {/* Annual payment status dropdown (only if already-nominated) */}
                             {program.nominationStatus === 'already-nominated' && (
                               <div className="annual-payment-selector">
                                 <label>Annual Payment Status</label>
