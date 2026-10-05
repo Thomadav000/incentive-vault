@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, auth, storage } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { UserContext } from '../context/UserContext';
 import LoadingScreen from '../components/LoadingScreen';
 import './HorseProfile.css';
@@ -14,6 +15,7 @@ function HorseProfile() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [editData, setEditData] = useState({});
+  const [editPhoto, setEditPhoto] = useState(null);
   const navigate = useNavigate();
   const { programsLoading } = useContext(UserContext);
 
@@ -65,6 +67,36 @@ function HorseProfile() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleEditPhotoChange = (e) => {
+    if (e.target.files[0]) {
+      setEditPhoto(e.target.files[0]);
+    }
+  };
+
+  const handleEditPhotoClick = () => {
+    document.getElementById('edit-photo-input').click();
+  };
+
+  const handleEditPhotoDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files[0]) {
+      setEditPhoto(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleEditPhotoDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleRemovePhoto = () => {
+    if (window.confirm('Are you sure you want to remove this photo?')) {
+      setEditPhoto(null);
+      setEditData(prev => ({ ...prev, photo: null }));
+    }
   };
 
   const handleProgramStatusChange = (programName, newStatus) => {
@@ -155,6 +187,15 @@ function HorseProfile() {
     setError('');
 
     try {
+      let photoURL = editData.photo; // Keep existing photo by default
+
+      // Upload new photo if one was selected
+      if (editPhoto) {
+        const photoRef = ref(storage, `horses/${auth.currentUser.uid}/${editPhoto.name}`);
+        await uploadBytes(photoRef, editPhoto);
+        photoURL = await getDownloadURL(photoRef);
+      }
+
       const horseRef = doc(db, 'horses', id);
       await updateDoc(horseRef, {
         barnName: editData.barnName,
@@ -163,11 +204,13 @@ function HorseProfile() {
         foalingYear: editData.foalingYear,
         age: editData.age,
         sire: editData.sire,
+        photo: photoURL,
         programs: editData.programs || []
       });
 
-      setHorse(editData);
+      setHorse({ ...editData, photo: photoURL });
       setEditing(false);
+      setEditPhoto(null);
     } catch (err) {
       console.error('Error updating horse:', err);
       setError('Failed to save changes');
@@ -179,6 +222,7 @@ function HorseProfile() {
   const handleCancelEdit = () => {
     setEditData(horse);
     setEditing(false);
+    setEditPhoto(null);
     setError('');
   };
 
@@ -228,20 +272,15 @@ function HorseProfile() {
 
     // Handle ANNUAL programs (Pink/Ruby Buckle)
     if (isAnnual) {
-      // Four nomination statuses: not-eligible, future-eligible, eligible-not-nominated, already-nominated
-      
       if (program.nominationStatus === 'future-eligible') {
-        // Will be eligible in the future
         return `⏳ Waiting to be Eligible – ${program.estimatedEligibleDate}`;
       }
       
       if (program.nominationStatus === 'eligible-not-nominated') {
-        // Can nominate RIGHT NOW
         return '🔔 Eligible – Ready to Nominate';
       }
       
       if (program.nominationStatus === 'not-eligible') {
-        // Can never nominate (wrong breed/type)
         return '❌ Not Eligible';
       }
       
@@ -257,7 +296,7 @@ function HorseProfile() {
       return 'Not Selected';
     }
 
-    // Handle ONE_TIME programs (Future Fortunes, Breeders Challenge, Select Stallion Stakes)
+    // Handle ONE_TIME programs
     if (program.status === 'Not Eligible') return '❌ Not Eligible';
     if (program.status === 'Eligible - Not Paid') return '🔔 Eligible – Not Paid';
     if (program.status === 'Eligible - Paid') return '✅ Paid for Life';
@@ -273,7 +312,12 @@ function HorseProfile() {
         <button onClick={() => navigate('/dashboard')} className="btn-back">← Back to Barn</button>
 
         <div className="horse-header">
-          {horse.photo && <img src={horse.photo} alt={horse.barnName} />}
+          {(horse.photo || editPhoto) && (
+            <img 
+              src={editPhoto ? URL.createObjectURL(editPhoto) : horse.photo} 
+              alt={horse.barnName} 
+            />
+          )}
           <div className="horse-header-info">
             <div className="header-title-row">
               <h1>{horse.barnName}</h1>
@@ -303,7 +347,6 @@ function HorseProfile() {
                     {getStatusBadge(program)}
                   </div>
 
-                  {/* ONE_TIME Programs: Show fee & deadline if eligible but not paid */}
                   {programData[program.name]?.type === 'ONE_TIME' && program.status === 'Eligible - Not Paid' && program.estimatedFee && (
                     <div className="program-details-card">
                       <p><strong>Est. Fee:</strong> {program.estimatedFee}</p>
@@ -311,10 +354,8 @@ function HorseProfile() {
                     </div>
                   )}
 
-                  {/* ANNUAL Programs (Pink/Ruby Buckle) */}
                   {programData[program.name]?.type === 'ANNUAL' && (
                     <>
-                      {/* Show info if eligible and ready to nominate NOW */}
                       {program.nominationStatus === 'eligible-not-nominated' && (
                         <div className="program-details-card">
                           <p><strong>Initial Fee:</strong> {program.estimatedInitialFee}</p>
@@ -323,7 +364,6 @@ function HorseProfile() {
                         </div>
                       )}
 
-                      {/* Show info if waiting to be eligible */}
                       {program.nominationStatus === 'future-eligible' && program.estimatedEligibleDate && (
                         <div className="program-details-card">
                           <p><strong>Eligible On:</strong> {program.estimatedEligibleDate}</p>
@@ -333,7 +373,6 @@ function HorseProfile() {
                         </div>
                       )}
 
-                      {/* Show annual dues if already nominated */}
                       {program.nominationStatus === 'already-nominated' && (
                         <div className="program-details-card">
                           <p><strong>Annual Fee:</strong> $220 (by Aug 1) or $350 (by Dec 1)</p>
@@ -464,7 +503,50 @@ function HorseProfile() {
                 />
               </div>
 
-              <div className="form-group">
+              {/* Photo Upload */}
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Horse Photo</label>
+                {editData.photo || editPhoto ? (
+                  <div className="photo-preview-section">
+                    <div className="photo-preview">
+                      <img src={editPhoto ? URL.createObjectURL(editPhoto) : editData.photo} alt="Preview" />
+                    </div>
+                    <div className="photo-actions">
+                      <button
+                        type="button"
+                        onClick={handleEditPhotoClick}
+                        className="btn-replace-photo"
+                      >
+                        Replace Photo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemovePhoto}
+                        className="btn-remove-photo"
+                      >
+                        Remove Photo
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div 
+                    className="photo-upload"
+                    onClick={handleEditPhotoClick}
+                    onDrop={handleEditPhotoDrop}
+                    onDragOver={handleEditPhotoDragOver}
+                  >
+                    <input
+                      id="edit-photo-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleEditPhotoChange}
+                    />
+                    <p>📸 Click to upload or drag and drop</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Programs</label>
                 {programsLoading ? (
                   <p style={{ color: '#546E7A', textAlign: 'center', padding: '1rem', margin: 0 }}>Loading programs...</p>

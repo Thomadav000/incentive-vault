@@ -323,6 +323,10 @@
   grid-column: 1 / -1;
 }
 
+.modal-body > .form-group:nth-child(8) {
+  grid-column: 1 / -1;
+}
+
 .form-group {
   margin-bottom: 0.75rem;
 }
@@ -478,6 +482,91 @@
   border-color: #D4A574;
 }
 
+/* Photo Upload Section */
+.photo-upload {
+  border: 2px dashed #D4A574;
+  border-radius: 6px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  background-color: #FFF9F5;
+  transition: all 0.2s;
+}
+
+.photo-upload:hover {
+  background-color: #FFF0E6;
+  border-color: #C9A961;
+}
+
+.photo-upload input {
+  display: none;
+}
+
+.photo-upload p {
+  margin: 0;
+  color: #546E7A;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.photo-preview-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.photo-preview {
+  display: flex;
+  justify-content: center;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #E8E6E3;
+  max-height: 300px;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-height: 300px;
+}
+
+.photo-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-replace-photo,
+.btn-remove-photo {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.btn-replace-photo {
+  background-color: #D4A574;
+  color: #FFFFFF;
+}
+
+.btn-replace-photo:hover {
+  background-color: #C49860;
+}
+
+.btn-remove-photo {
+  background-color: #E74C3C;
+  color: #FFFFFF;
+}
+
+.btn-remove-photo:hover {
+  background-color: #C0392B;
+}
+
 .checkbox-item {
   display: flex;
   align-items: center;
@@ -614,6 +703,10 @@
     grid-column: 1;
   }
 
+  .modal-body > .form-group:nth-child(8) {
+    grid-column: 1;
+  }
+
   .modal-footer {
     flex-direction: column-reverse;
   }
@@ -624,5 +717,13 @@
 
   .nomination-buttons {
     grid-template-columns: 1fr;
+  }
+
+  .photo-actions {
+    flex-direction: column;
+  }
+
+  .photo-preview {
+    max-height: 200px;
   }
 }
