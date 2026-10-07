@@ -258,6 +258,258 @@
   cursor: not-allowed;
 }
 
+/* Upgrade Modal */
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.payment-modal {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.payment-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 2px solid #F5F3F1;
+}
+
+.payment-modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #2C3E50;
+}
+
+.payment-modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #546E7A;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.payment-modal-close:hover:not(:disabled) {
+  color: #2C3E50;
+}
+
+.payment-modal-close:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.payment-modal-content {
+  padding: 24px;
+}
+
+.pricing-toggle {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #D4A574;
+  background-color: #F9F8F6;
+  color: #2C3E50;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background-color: #D4A574;
+  color: white;
+  border-color: #D4A574;
+}
+
+.toggle-btn:hover {
+  border-color: #C9A961;
+}
+
+.tier-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tier-card {
+  padding: 16px;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #F9F8F6;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tier-card:hover {
+  border-color: #D4A574;
+  background-color: #F5F3F1;
+}
+
+.tier-card.selected {
+  border-color: #D4A574;
+  background-color: #FFF8F0;
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+}
+
+.tier-card.current-tier {
+  border-color: #4CAF50;
+}
+
+.current-tier-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tier-card-header {
+  margin-bottom: 12px;
+}
+
+.tier-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #2C3E50;
+  font-weight: 600;
+}
+
+.tier-card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.tier-card-price .price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #D4A574;
+}
+
+.tier-card-price .period {
+  font-size: 13px;
+  color: #546E7A;
+}
+
+.payment-summary {
+  background-color: #F9F8F6;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.payment-summary p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #2C3E50;
+}
+
+.payment-summary p:last-child {
+  margin-bottom: 0;
+}
+
+.payment-summary strong {
+  color: #D4A574;
+}
+
+.proration-note {
+  font-size: 13px;
+  color: #546E7A;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.payment-error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border-left: 4px solid #c62828;
+  font-size: 14px;
+}
+
+.payment-btn-submit {
+  width: 100%;
+  background-color: #D4A574;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.payment-btn-submit:hover:not(:disabled) {
+  background-color: #C9A961;
+}
+
+.payment-btn-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.trial-message {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+.delete-password-field {
+  margin-bottom: 16px;
+}
+
+.delete-password-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #D4A574;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.delete-password-input:focus {
+  outline: none;
+  border-color: #B8956A;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .profile-page {
@@ -286,5 +538,17 @@
 
   .delete-buttons button {
     width: 100%;
+  }
+
+  .payment-modal {
+    width: 95%;
+  }
+
+  .tier-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-toggle {
+    flex-direction: column;
   }
 }

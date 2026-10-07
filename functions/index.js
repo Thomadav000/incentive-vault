@@ -123,14 +123,13 @@ exports.stripeWebhook = functions.https.onRequest(
 
           const userDoc = usersSnapshot.docs[0];
           const userId = userDoc.id;
-          const tierName = userDoc.data().selectedTier || "tier2";
 
           await admin
               .firestore()
               .collection("users")
               .doc(userId)
               .update({
-                subscription: tierName,
+                subscription: "active",
                 subscriptionStatus: "active",
                 lastChargeDate: new Date(invoice.created * 1000),
               });
@@ -174,6 +173,76 @@ exports.stripeWebhook = functions.https.onRequest(
       } catch (error) {
         console.error("Webhook processing error:", error);
         res.status(500).send("Internal server error");
+      }
+    },
+);
+
+exports.updateSubscriptionTier = functions.https.onCall(
+    async (data, context) => {
+      if (!context.auth) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "User must be logged in",
+        );
+      }
+
+      const userId = context.auth.uid;
+      const {newTierPrice, newTierName} = data;
+
+      try {
+        const userRef = admin.firestore().collection("users").doc(userId);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists()) {
+          throw new functions.https.HttpsError(
+              "not-found",
+              "User not found",
+          );
+        }
+
+        const {stripeSubscriptionId} = userDoc.data();
+
+        if (!stripeSubscriptionId) {
+          throw new functions.https.HttpsError(
+              "failed-precondition",
+              "No active subscription found",
+          );
+        }
+
+        const subscription = await stripe.subscriptions.retrieve(
+            stripeSubscriptionId,
+        );
+        const currentItem = subscription.items.data[0];
+
+        if (!currentItem) {
+          throw new functions.https.HttpsError(
+              "failed-precondition",
+              "Subscription item not found",
+          );
+        }
+
+        await stripe.subscriptions.update(stripeSubscriptionId, {
+          items: [
+            {
+              id: currentItem.id,
+              price: newTierPrice,
+            },
+          ],
+          metadata: {tier: newTierName},
+          proration_behavior: "create_prorations",
+        });
+
+        await userRef.update({
+          selectedTier: newTierName,
+        });
+
+        return {
+          success: true,
+          message: "Subscription updated successfully",
+        };
+      } catch (error) {
+        console.error("Subscription update failed:", error);
+        throw new functions.https.HttpsError("internal", error.message);
       }
     },
 );
