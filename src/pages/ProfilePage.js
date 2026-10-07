@@ -142,6 +142,23 @@ function ProfilePage() {
     day: 'numeric'
   });
 
+  // Map tier to display name with horse count
+  const tierDisplay = {
+    tier1: 'Tier 1 (1-2 horses)',
+    tier2: 'Tier 2 (3-5 horses)',
+    tier3: 'Tier 3 (6-10 horses)',
+    tier4: 'Tier 4 (Unlimited horses)'
+  };
+
+  // Format subscription display as "Status - Tier (Horse Count)"
+  const getSubscriptionDisplay = () => {
+    const status = profileData?.subscription || 'trial';
+    const tier = profileData?.selectedTier || 'tier1';
+    const statusCapitalized = status.charAt(0).toUpperCase() + status.slice(1);
+    const tierInfo = tierDisplay[tier] || 'Unknown Tier';
+    return `${statusCapitalized} - ${tierInfo}`;
+  };
+
   return (
     <div className="profile-page">
       <div className="profile-container">
@@ -202,7 +219,7 @@ function ProfilePage() {
           <div className="profile-field">
             <label>Subscription Tier</label>
             <div className="display-field">
-              <span className="field-value">{profileData?.subscription || 'free'}</span>
+              <span className="field-value">{getSubscriptionDisplay()}</span>
             </div>
           </div>
 
