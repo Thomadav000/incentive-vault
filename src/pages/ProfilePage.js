@@ -186,12 +186,20 @@ function ProfilePage() {
     return isUpgradeAnnual ? tier.annualPriceId : tier.monthlyPriceId;
   };
 
-  const handleUpgradeSubmit = async (e) => {
+    const handleUpgradeSubmit = async (e) => {
     e.preventDefault();
     setUpgradeError('');
     setUpgradeLoading(true);
 
     try {
+      const currentUser = auth.currentUser;
+      
+      if (!currentUser) {
+        setUpgradeError('You must be logged in to upgrade');
+        setUpgradeLoading(false);
+        return;
+      }
+
       if (!selectedUpgradeTier || selectedUpgradeTier === profileData?.selectedTier) {
         setUpgradeError('Please select a different tier');
         setUpgradeLoading(false);
@@ -212,10 +220,11 @@ function ProfilePage() {
       });
 
       // Refresh profile data
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', currentUser.uid);
       const updatedUserSnap = await getDoc(userRef);
       if (updatedUserSnap.exists()) {
         setProfileData(updatedUserSnap.data());
+        setSelectedUpgradeTier(updatedUserSnap.data().selectedTier);
       }
 
       setShowUpgradeModal(false);
