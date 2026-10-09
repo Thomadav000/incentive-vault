@@ -76,8 +76,23 @@ function AddHorse() {
           console.log('User document does not exist');
         }
 
-        // Fetch programs from Firestore
-        const programsSnapshot = await getDocs(collection(db, 'programs'));
+        // Fetch only the 10 programs used in the form (optimized query)
+        const programNames = [
+          'Future Fortunes',
+          'Breeders Challenge',
+          'Select Stallion Stakes',
+          'Pink Buckle',
+          'Ruby Buckle',
+          'Royal Crown',
+          'Tomorrow\'s Legends',
+          'Triple Crown 100',
+          'Gold Rush',
+          'Young Guns League'
+        ];
+
+        const programsSnapshot = await getDocs(
+          query(collection(db, 'programs'), where('name', 'in', programNames))
+        );
         const programs = {};
         programsSnapshot.forEach(doc => {
           programs[doc.data().name] = doc.data();
