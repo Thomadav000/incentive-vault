@@ -29,6 +29,11 @@ function AddHorse() {
       { name: 'Select Stallion Stakes', status: '', deadline: '', estimatedFee: '' },
       { name: 'Pink Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, reminderSet: false },
       { name: 'Ruby Buckle', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, reminderSet: false },
+      { name: 'Royal Crown', status: '', deadline: '', estimatedFee: '' },
+      { name: 'Tomorrow\'s Legends', status: '', deadline: '', estimatedFee: '' },
+      { name: 'Triple Crown 100', status: '', deadline: '', estimatedFee: '' },
+      { name: 'Gold Rush', status: '', deadline: '', estimatedFee: '' },
+      { name: 'Young Guns League', status: '', nominationStatus: null, annualPaidFor: null, estimatedEligibleDate: null, estimatedInitialFee: null, reminderSet: false },
     ],
   });
   const [photo, setPhoto] = useState(null);
@@ -167,10 +172,15 @@ function AddHorse() {
     return formData.programs.map(prog => {
       const progInfo = programData[prog.name];
       if (progInfo && progInfo.type === 'ONE_TIME' && prog.status === 'Eligible - Not Paid') {
+        // Special case for programs with age 5+ differentiation
+        let feeKey = ageGroup;
+        if ((prog.name === 'Triple Crown 100' || prog.name === 'Gold Rush') && ageNum >= 5) {
+          feeKey = 5;
+        }
         return {
           ...prog,
           deadline: progInfo.deadline,
-          estimatedFee: progInfo.fees[ageGroup],
+          estimatedFee: progInfo.fees[feeKey],
         };
       }
       return prog;
@@ -223,8 +233,13 @@ function AddHorse() {
           const updatedProg = { ...prog, status: newStatus };
 
           if (progInfo && progInfo.type === 'ONE_TIME' && newStatus === 'Eligible - Not Paid') {
+            // Special case for programs with age 5+ differentiation
+            let feeKey = ageGroup;
+            if ((programName === 'Triple Crown 100' || programName === 'Gold Rush') && ageNum >= 5) {
+              feeKey = 5;
+            }
             updatedProg.deadline = progInfo.deadline;
-            updatedProg.estimatedFee = progInfo.fees[ageGroup];
+            updatedProg.estimatedFee = progInfo.fees[feekey];
           } else if (newStatus === 'Eligible - Paid' || newStatus === 'Not Eligible') {
             updatedProg.deadline = '';
             updatedProg.estimatedFee = '';
