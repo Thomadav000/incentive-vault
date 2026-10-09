@@ -239,7 +239,7 @@ function AddHorse() {
               feeKey = 5;
             }
             updatedProg.deadline = progInfo.deadline;
-            updatedProg.estimatedFee = progInfo.fees[feekey];
+            updatedProg.estimatedFee = progInfo.fees[feeKey];
           } else if (newStatus === 'Eligible - Paid' || newStatus === 'Not Eligible') {
             updatedProg.deadline = '';
             updatedProg.estimatedFee = '';
