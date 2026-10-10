@@ -95,7 +95,6 @@ function HomePage() {
         </section>
 
         <section className="dashboard-container">
-          <div className="container">
             {/* TOP TIER: Actions & Stats */}
             <div className="dashboard-grid">
               <div className="actions-column">
@@ -176,7 +175,7 @@ function HomePage() {
               </div>
 
               <div className="horses-column">
-                <h3>🐴 Your Horses</h3>
+                <h3>Your Horses</h3>
                 {horses.length > 0 ? (
                   <div className="horses-list">
                     {horses.map(horse => (
@@ -202,7 +201,6 @@ function HomePage() {
                 )}
               </div>
             </div>
-          </div>
         </section>
 
         <footer className="footer">
